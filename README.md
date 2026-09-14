@@ -182,6 +182,49 @@ Las personas que se desplazan diariamente por la ciudad pueden presentar dificul
 > **¿Cómo podríamos facilitar el desplazamiento de las personas por la ciudad, permitiéndoles encontrar rutas rápidas y con menor nivel de riesgo mediante información actualizada sobre los incidentes ocurridos en su entorno?**
 
 
+#### 1.2.2.3. Lean UX Assumptions
+
+##### Business Assumptions
+
+- Creemos que los usuarios necesitan una herramienta de navegación que considere el nivel de riesgo además del tiempo y la distancia al momento de recomendar una ruta.
+
+- Creemos que integrar inteligencia artificial, geolocalización y reportes de incidentes permitirá ofrecer alternativas de recorrido más útiles para los usuarios.
+
+- Creemos que los usuarios valorarán poder visualizar información sobre incidentes antes de iniciar un desplazamiento.
+
+- Creemos que la participación de los usuarios mediante reportes puede contribuir a mantener actualizada la información disponible en la plataforma.
+
+- Creemos que una plataforma disponible desde dispositivos móviles facilitará el acceso a la información durante los desplazamientos cotidianos.
+
+##### User Assumptions
+
+- Creemos que los usuarios sienten preocupación al desplazarse por zonas que desconocen o consideran poco seguras.
+
+- Creemos que los usuarios desean conocer el nivel de riesgo estimado de una ruta antes de iniciar su recorrido.
+
+- Creemos que los usuarios estarían dispuestos a elegir una ruta ligeramente más larga si esta presenta un menor nivel de riesgo estimado.
+
+- Creemos que los usuarios consideran importante recibir alertas sobre incidentes cercanos que puedan afectar su recorrido.
+
+- Creemos que algunos usuarios estarían dispuestos a reportar incidentes para contribuir con información útil para otros miembros de la comunidad.
+
+- Creemos que los usuarios utilizarían una plataforma de navegación enfocada en la seguridad si esta resulta sencilla, rápida y confiable.
+
+---
+
+#### 1.2.2.3. Lean UX Hypothesis Statements
+
+1. Creemos que mostrar diferentes alternativas de ruta acompañadas de un nivel de riesgo estimado permitirá que los usuarios tomen decisiones más informadas antes de iniciar un desplazamiento.
+
+2. Creemos que integrar reportes de incidentes dentro del mapa ayudará a los usuarios a identificar zonas que podrían representar un mayor riesgo durante su recorrido.
+
+3. Creemos que utilizar inteligencia artificial para analizar datos de ubicación e incidentes permitirá ofrecer recomendaciones de rutas más adecuadas a las necesidades de los usuarios.
+
+4. Creemos que enviar alertas cuando se detecten incidentes relevantes cerca de la ruta seleccionada ayudará a los usuarios a conocer posibles riesgos y evaluar recorridos alternativos.
+
+5. Creemos que permitir que los usuarios reporten incidentes de manera sencilla contribuirá a incrementar la información disponible y mantener actualizados los niveles de riesgo estimados de las diferentes zonas.
+
+6. Creemos que ofrecer una plataforma sencilla, accesible y organizada aumentará la disposición de las personas a utilizar Vsafe como complemento de sus herramientas habituales de navegación.
 
 
 ---
