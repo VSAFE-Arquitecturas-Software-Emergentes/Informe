@@ -111,4 +111,4 @@ La cadena de impacto prioriza primero la comprensión de la propuesta de valor y
 | 19 | US12 | Consultar recorridos anteriores | Permitir la reutilización de información de rutas consultadas. | 3 |
 | 20 | TS04 | Proteger datos de ubicación | Limitar el uso de la ubicación a finalidades autorizadas. | 5 |
 
-La suma inicial del Product Backlog es de **103 Story Points**. Este valor no representa una duración comprometida; sirve como referencia para planificar iteraciones una vez que el equipo determine su velocidad. Las historias US01, US02 y US03 deben abordarse desde el primer sprint porque establecen la presencia pública del producto y el acceso al flujo que valida la propuesta central.
+
