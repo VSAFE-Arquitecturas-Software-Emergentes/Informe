@@ -232,7 +232,7 @@ Las personas que se desplazan diariamente por la ciudad pueden presentar dificul
 
 ##### 1.2.3.4 Lean UX Canvas
 
-### 1.2.2.4. Lean UX Canvas
+### 1.2.3.4. Lean UX Canvas
 
 | Sección | Contenido |
 |---|---|
