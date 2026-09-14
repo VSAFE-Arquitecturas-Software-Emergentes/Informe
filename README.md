@@ -1,18 +1,5 @@
 # Capítulo III: Requirements Specification
 
-Este capítulo especifica los requisitos de VSafe a partir del problema, los segmentos objetivo, las suposiciones y las hipótesis descritas en el capítulo I. La propuesta busca que las personas que se desplazan por la ciudad puedan comparar rutas considerando tiempo, distancia y nivel de riesgo estimado, consultar incidentes relevantes, recibir alertas durante el recorrido y aportar información a la comunidad. La especificación mantiene la trazabilidad entre los escenarios futuros, las historias de usuario, los objetivos de negocio y el Product Backlog.
-
-## Contenido
-
-- [3.1 To-Be Scenario Mapping](#31-to-be-scenario-mapping)
-  - [3.1.1 Estudiante que se desplaza diariamente](#311-estudiante-que-se-desplaza-diariamente)
-  - [3.1.2 Trabajador que transita por zonas desconocidas o en horario nocturno](#312-trabajador-que-transita-por-zonas-desconocidas-o-en-horario-nocturno)
-- [3.2 User Stories](#32-user-stories)
-  - [3.2.1 Epics](#321-epics)
-  - [3.2.2 Historias de usuario y técnicas](#322-historias-de-usuario-y-técnicas)
-- [3.3 Impact Mapping](#33-impact-mapping)
-- [3.4 Product Backlog](#34-product-backlog)
-
 ## 3.1 To-Be Scenario Mapping
 
 Los To-Be Scenario Maps representan la experiencia esperada después de incorporar VSafe al desplazamiento cotidiano. Para mantener correspondencia con los segmentos identificados, se consideran dos perfiles representativos: una persona que realiza recorridos frecuentes por estudio y una persona que se moviliza por trabajo, en ocasiones de noche o por zonas que no conoce. En ambos casos, el cambio principal consiste en pasar de elegir una ruta únicamente por tiempo o distancia a tomar una decisión informada mediante un nivel de riesgo estimado, incidentes cercanos y alertas contextualizadas.
@@ -21,11 +8,7 @@ Los To-Be Scenario Maps representan la experiencia esperada después de incorpor
 
 **Objetivo del escenario:** llegar a la universidad mediante una ruta que mantenga un equilibrio aceptable entre duración y nivel de riesgo estimado.
 
-| Dimensión | 1 Planificar el recorrido | 2 Comparar alternativas | 3 Iniciar el trayecto | 4 Responder a una alerta | 5 Contribuir con la comunidad |
-|---|---|---|---|---|---|
-| **Doing** | Ingresa el punto de origen y la universidad como destino. | Revisa las rutas propuestas y compara tiempo, distancia, incidentes y riesgo estimado. | Selecciona la alternativa que considera más conveniente y comienza el recorrido. | Consulta el incidente detectado y evalúa una ruta alternativa. | Registra un incidente observado, indicando su tipo y ubicación. |
-| **Thinking** | “Quiero llegar a tiempo sin pasar por una zona que considero riesgosa”. | “¿Cuánto tiempo adicional implica la alternativa con menor riesgo?”. | “Sé por qué elegí esta ruta y qué debo esperar durante el trayecto”. | “Necesito saber si el incidente afecta realmente mi recorrido”. | “Mi reporte puede ayudar a otras personas que transiten por aquí”. |
-| **Feeling** | Preocupación moderada por el trayecto. | Mayor control al disponer de información comparable. | Confianza prudente durante el desplazamiento. | Atención y capacidad de reacción ante el cambio. | Utilidad y participación comunitaria. |
+![To-Be Scenario Map del estudiante urbano](assets/Chapter-03/to-be-scenario-estudiante.png)
 
 **Cambio frente a la situación actual:** la persona deja de depender únicamente de recomendaciones genéricas o de su conocimiento previo de la zona. VSafe centraliza la información necesaria para comparar alternativas y reaccionar ante incidentes que puedan afectar el recorrido.
 
@@ -33,11 +16,7 @@ Los To-Be Scenario Maps representan la experiencia esperada después de incorpor
 
 **Objetivo del escenario:** completar un desplazamiento laboral con información actualizada sobre los posibles riesgos de las zonas atravesadas.
 
-| Dimensión | 1 Definir el destino | 2 Evaluar el entorno | 3 Elegir una ruta | 4 Mantenerse informado | 5 Finalizar y revisar |
-|---|---|---|---|---|---|
-| **Doing** | Utiliza su ubicación actual o registra manualmente un origen y un destino. | Observa los incidentes próximos y los niveles de riesgo estimados de las alternativas. | Compara la ruta más rápida con una ruta de menor riesgo y selecciona una. | Recibe alertas relevantes y solicita un nuevo cálculo cuando cambian las condiciones. | Finaliza el recorrido y consulta la ruta realizada en su historial. |
-| **Thinking** | “No conozco bien esta zona y necesito orientación antes de avanzar”. | “Quiero entender qué información justifica el nivel de riesgo mostrado”. | “Puedo aceptar algunos minutos adicionales si la alternativa reduce mi exposición”. | “Si aparece un incidente nuevo, necesito una opción viable para continuar”. | “Quiero recordar qué recorrido funcionó mejor para una situación similar”. |
-| **Feeling** | Incertidumbre inicial. | Información suficiente para evaluar opciones. | Decisión consciente y mayor sensación de control. | Acompañamiento durante el desplazamiento. | Tranquilidad al completar el trayecto. |
+![To-Be Scenario Map del trabajador urbano](assets/Chapter-03/to-be-scenario-trabajador.png)
 
 **Cambio frente a la situación actual:** la planificación deja de ser una decisión estática tomada antes de salir. VSafe acompaña el recorrido con información contextual, permite reconsiderar la ruta y conserva un historial útil para futuros desplazamientos.
 
@@ -89,6 +68,10 @@ Las historias de usuario convierten las necesidades identificadas en capacidades
 
 El Impact Mapping conecta los resultados de negocio de VSafe con los comportamientos esperados de sus usuarios y con las capacidades que debe entregar el producto. Las metas se formulan para una etapa piloto del MVP y deberán revisarse con evidencia real una vez que se establezcan la fecha de lanzamiento y una línea base de uso.
 
+![Impact Mapping de VSafe](assets/Chapter-03/impact-mapping-vsafe.png)
+
+La siguiente tabla conserva el detalle textual y la trazabilidad del mapa:
+
 | Goal | Actor | Impacto esperado | Deliverable | User Stories relacionadas |
 |---|---|---|---|---|
 | **G01. Alcanzar 300 usuarios activos mensuales al finalizar los primeros tres meses del piloto del MVP.** | Estudiantes y trabajadores que realizan desplazamientos frecuentes. | Incorporan VSafe a la planificación de recorridos cotidianos. | Landing Page con propuesta de valor clara y acceso a la aplicación. | US01, US02, US03 |
@@ -104,8 +87,6 @@ El Impact Mapping conecta los resultados de negocio de VSafe con los comportamie
 La cadena de impacto prioriza primero la comprensión de la propuesta de valor y la planificación de rutas, ya que ambas capacidades permiten validar el beneficio central de VSafe. Después se incorporan las alertas y la participación comunitaria, que aumentan el valor recurrente de la plataforma y mejoran progresivamente la información disponible.
 
 ## 3.4 Product Backlog
-
-El Product Backlog ordena las historias de acuerdo con el valor necesario para validar VSafe. La prioridad inicial permite comunicar la propuesta desde el Landing Page y completar el flujo central de planificación antes de ampliar el acompañamiento en ruta y la colaboración comunitaria. La estimación utiliza Story Points de la serie Fibonacci y representa complejidad relativa, incertidumbre y esfuerzo.
 
 | Orden | User Story ID | Título | Descripción resumida | Story Points |
 |---:|---|---|---|---:|
