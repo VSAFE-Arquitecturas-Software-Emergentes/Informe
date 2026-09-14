@@ -148,7 +148,7 @@ Desarrollar una plataforma de navegación urbana inteligente que permita a los u
 
 | Foto                                          | Nombre completo               | Código     | Carrera                | Habilidades técnicas y rol                                   |
 |-----------------------------------------------|-------------------------------|------------|------------------------|--------------------------------------------------------------|
-| <img width="1200" height="1600" alt="image" src="https://github.com/user-attachments/assets/43c33c6b-80d5-4599-92aa-06d6a8ce4bec" />] | Gianfranco Jared Durand Vega    | U202312614 | Ingeniería de Software | Desarrollo Frontend (Vue/React), UI/UX, Integración de servicios externos |
+| <img width="600" height="800" alt="image" src="https://github.com/user-attachments/assets/43c33c6b-80d5-4599-92aa-06d6a8ce4bec" />] | Gianfranco Jared Durand Vega    | U202312614 | Ingeniería de Software | Desarrollo Frontend (Vue/React), UI/UX, Integración de servicios externos |
 
 
 ### 1.2 Solution Profile
