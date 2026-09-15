@@ -153,6 +153,29 @@ Este User Persona representa a trabajadores que se desplazan frecuentemente por 
 
 ### 2.3.2. User Task Matrix
 
+La User Task Matrix permite identificar y comparar las principales actividades que realizan los segmentos objetivo de VSafe durante sus desplazamientos urbanos. Para cada tarea se considera la frecuencia con la que se realiza y su nivel de importancia para cada tipo de usuario. Este análisis permite identificar las actividades que deben recibir mayor prioridad dentro de la solución.
+
+| Tarea del usuario | Estudiante - Frecuencia | Estudiante - Importancia | Trabajador - Frecuencia | Trabajador - Importancia |
+| --- | --- | --- | --- | --- |
+| Definir origen y destino | Alta | Alta | Alta | Alta |
+| Utilizar la ubicación actual como origen | Alta | Alta | Alta | Alta |
+| Consultar rutas alternativas | Alta | Alta | Alta | Alta |
+| Comparar tiempo y distancia entre rutas | Alta | Alta | Alta | Alta |
+| Consultar el riesgo estimado de una ruta | Alta | Alta | Alta | Alta |
+| Visualizar incidentes asociados al recorrido | Alta | Alta | Alta | Alta |
+| Seleccionar una ruta considerando tiempo, distancia y riesgo estimado | Alta | Alta | Alta | Alta |
+| Recibir alertas sobre incidentes durante el recorrido | Media | Alta | Alta | Alta |
+| Solicitar una ruta alternativa ante un incidente | Media | Alta | Alta | Alta |
+| Reportar un incidente observado | Media | Media | Media | Media |
+| Consultar el estado de un reporte | Baja | Media | Baja | Media |
+| Consultar recorridos anteriores | Media | Media | Alta | Media |
+
+A partir de la matriz se observa que ambos segmentos comparten como tareas prioritarias la definición del recorrido, la consulta de rutas alternativas y la comparación de tiempo, distancia y riesgo estimado. Estas actividades constituyen el núcleo de la experiencia de VSafe y permiten que los usuarios dispongan de mayor información antes de seleccionar un recorrido.
+
+En el caso del trabajador urbano, las alertas, la solicitud de rutas alternativas y la consulta de recorridos anteriores presentan una mayor frecuencia debido a que sus actividades laborales pueden requerir desplazamientos hacia diferentes zonas de la ciudad. Por otro lado, el estudiante universitario suele realizar recorridos más recurrentes entre su hogar, universidad y otros destinos habituales.
+
+A partir de este análisis, las funcionalidades relacionadas con la planificación de rutas, estimación de riesgo, visualización de incidentes y comparación de alternativas representan actividades de alta prioridad para ambos segmentos y deberán considerarse dentro de las principales funcionalidades de VSafe.
+
 ### 2.3.3. Empathy Mapping
 
 ### 2.3.4. As-is Scenario Mapping
