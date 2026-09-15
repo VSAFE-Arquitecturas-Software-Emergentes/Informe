@@ -1,11 +1,10 @@
-
 # Capítulo IV: Strategic-Level Software Design
 
 VSafe es una plataforma de navegación urbana orientada a estudiantes universitarios y trabajadores que necesitan planificar sus desplazamientos considerando tiempo, distancia y nivel de riesgo estimado. Su propuesta integra información geoespacial, reportes comunitarios y estimación de riesgo para facilitar decisiones informadas antes y durante un recorrido.
 
 El presente capítulo establece el diseño estratégico de la solución mediante Attribute-Driven Design, Strategic Domain-Driven Design y el modelo C4. Se identifican las funcionalidades con mayor impacto arquitectónico, se especifican escenarios de calidad, se evalúan alternativas de diseño y se delimitan las responsabilidades de los principales contextos del dominio.
 
-La arquitectura propuesta organiza el backend en módulos con responsabilidades independientes y utiliza procesamiento asíncrono para los reportes y las alertas. Esta estructura permite mantener una relación verificable entre los requisitos del capítulo III, las reglas del negocio y los elementos que conforman la solución.
+La arquitectura de VSafe se basa en microservicios, de acuerdo con el requisito del proyecto. Route Planning, Risk Assessment, Incident Reporting y Journey Alerts se implementan como servicios ejecutables y desplegables de forma independiente, cada uno con datos propios y contratos explícitos. Un API Gateway expone el acceso de la aplicación y RabbitMQ transporta los eventos de integración. Esta estructura mantiene la trazabilidad entre requisitos, reglas del negocio y elementos de la solución.
 
 ## 4.1. Strategic-Level Attribute-Driven Design
 
@@ -42,7 +41,8 @@ Para concretar el diseño se propone el siguiente alcance inicial:
 
 | Aspecto | Alcance propuesto |
 |---|---|
-| Productos digitales | Landing Page, aplicación web adaptable a dispositivos móviles y servicios REST internos. |
+| Productos digitales | Landing Page, aplicación web adaptable a dispositivos móviles, API Gateway y cuatro microservicios de negocio. |
+| Estilo arquitectónico | Microservicios con despliegue independiente, base de datos por servicio y comunicación mediante HTTP y eventos. |
 | Segmentos principales | Estudiantes universitarios y trabajadores urbanos. |
 | Cobertura inicial | Zonas de Lima Metropolitana habilitadas mediante configuración. La cobertura cartográfica y la cobertura de datos de riesgo se evaluarán por separado. |
 | Modalidad de desplazamiento | Recorridos peatonales. La incorporación de transporte público o navegación vehicular requerirá ampliar los requisitos. |
@@ -60,7 +60,7 @@ Las entradas del proceso de diseño se clasifican en tres grupos:
 
 - Funcionalidades principales que afectan la organización de la solución.
 - Escenarios de atributos de calidad que establecen condiciones verificables.
-- Restricciones impuestas por la guía del proyecto.
+- Restricciones impuestas por la guía y el requisito del proyecto de utilizar microservicios.
 
 Se conservan los identificadores de las historias del capítulo III para mantener trazabilidad entre requisitos y arquitectura.
 
@@ -98,15 +98,16 @@ Los escenarios iniciales concretan las condiciones que debe satisfacer la soluci
 | **QA03. Tolerancia a fallos externos** | Proveedor cartográfico. | No responde o devuelve un error. | Adaptador cartográfico. | Dependencia degradada. | Limita la espera e informa indisponibilidad. | 100 % de fallos controlados en ≤ 4 s; recepción de reportes disponible. |
 | **QA04. Calidad de información** | Datos de incidentes o modelo. | Información insuficiente, vencida o fuera de cobertura. | Estimación de riesgo. | Consulta con evidencia insuficiente. | Devuelve incertidumbre y explica su causa. | 100 % de casos insuficientes identificados; ninguna etiqueta LOW causada solo por ausencia de reportes. |
 | **QA05. Seguridad y privacidad** | Usuario o cliente sin autorización. | Revoca ubicación o intenta acceder a otra sesión. | Sesiones, recorridos e historial. | Uso normal y solicitudes manipuladas. | Respeta permisos y limita acceso por propietario. | Cero accesos cruzados en pruebas; cero coordenadas precisas en logs; limpieza del recorrido en ≤ 5 min tras cierre o revocación. |
-| **QA06. Integridad y consistencia** | Cliente o worker. | Reenvía una operación o reinicia durante su procesamiento. | Reportes, outbox y consumidores. | Reintentos y fallos temporales. | Recupera el procesamiento sin duplicar efectos. | Un reporte por clave idempotente; cero eventos confirmados perdidos por reinicio del worker; recuperación ≤ 60 s tras su retorno. |
+| **QA06. Integridad y consistencia** | Cliente, productor o consumidor de eventos. | Reenvía una operación o reinicia durante su procesamiento. | Base del propietario, outbox, RabbitMQ e inbox. | Reintentos y fallos temporales. | Recupera el procesamiento sin duplicar efectos. | Un reporte por clave idempotente; cero eventos confirmados perdidos por reinicio del consumidor; recuperación ≤ 60 s tras su retorno. |
 | **QA07. Modificabilidad** | Equipo de desarrollo. | Sustituye proveedor o modelo. | Adaptadores y contratos. | Evolución de la solución. | Incorpora el cambio sin modificar las reglas de los consumidores. | 100 % de pruebas de contrato aprobadas; objetivo ≤ 2 jornadas para cambios compatibles. |
-| **QA08. Disponibilidad y recuperación** | Fallo de proceso o infraestructura. | Detiene el API, worker o host. | Despliegue y respaldos. | Operación del piloto. | Detecta, reinicia o restaura el servicio. | Objetivo 99,5 % mensual para funciones propias; reinicio ≤ 60 s; RTO ≤ 4 h; RPO ≤ 24 h. |
+| **QA08. Disponibilidad y recuperación** | Fallo de proceso o infraestructura. | Detiene un microservicio, gateway, broker o host. | Despliegue y respaldos. | Operación del piloto. | Detecta, reinicia o restaura el servicio. | Objetivo 99,5 % mensual para funciones propias; reinicio ≤ 60 s; RTO ≤ 4 h; RPO ≤ 24 h. |
+| **QA09. Despliegue independiente** | Equipo de desarrollo. | Publica una versión compatible de Incident Reporting Service. | Pipeline e imagen del servicio. | Piloto operativo con los demás servicios estables. | Actualiza únicamente el servicio y mantiene consultas de rutas mediante proyecciones vigentes o incertidumbre explícita. | Cero recompilaciones o despliegues de otros servicios; 100 % de contratos aprobados; éxito técnico de rutas ≥ 99 % durante la prueba. |
 
 Una respuesta con riesgo desconocido puede ser técnicamente correcta, pero no constituye una estimación informativa. Por ello, se medirá también la proporción de consultas con estimaciones utilizables, diferenciándola de la disponibilidad del API.
 
 #### 4.1.2.3. Constraints
 
-Las restricciones siguientes proceden de la guía del trabajo. Las tecnologías específicas seleccionadas posteriormente son decisiones arquitectónicas dentro de esas opciones.
+CON01–CON07 proceden de la guía del trabajo. CON08 incorpora el requisito explícito del proyecto de utilizar microservicios; no se atribuye esta condición al docente. Las tecnologías concretas siguen siendo decisiones propuestas para implementar esa arquitectura.
 
 | Technical Story ID | Título | Descripción | Criterios de aceptación | Epic ID |
 |---|---|---|---|---|
@@ -117,10 +118,11 @@ Las restricciones siguientes proceden de la guía del trabajo. Las tecnologías 
 | **CON05** | Documentación de arquitectura | Como desarrollador, deseo mantener C4 en Structurizr y documentar el dominio mediante las herramientas indicadas. | Dado el modelo arquitectónico, cuando se revisa, entonces incluye las vistas Landscape, Context, Container y Deployment, junto con los artefactos DDD. | EP05 |
 | **CON06** | Contratos OpenAPI | Como desarrollador, deseo documentar los servicios mediante OpenAPI y Swagger. | Dado un endpoint, cuando se consulta su documentación, entonces se identifican entradas, respuestas, errores y requisitos de sesión. | EP05 |
 | **CON07** | Control de versiones | Como desarrollador, deseo versionar el informe y sus diagramas en GitHub mediante GitFlow y conventional commits. | Dado un cambio integrado, cuando se revisa el repositorio, entonces las fuentes, imágenes y referencias corresponden a la misma versión. | EP05 |
+| **CON08** | Arquitectura de microservicios | Como desarrollador, deseo implementar servicios con ejecución, datos y despliegue independientes para cumplir el requisito arquitectónico del proyecto. | Dado un cambio compatible en un servicio, cuando se construye y despliega su versión, entonces no se requiere recompilar ni desplegar los demás; cada servicio accede únicamente a su propia base de datos. | EP05 |
 
 ### 4.1.3. Architectural Drivers Backlog
 
-El backlog arquitectónico reúne cuatro drivers funcionales, ocho drivers de calidad y siete restricciones.
+El backlog arquitectónico reúne cuatro drivers funcionales, nueve drivers de calidad y ocho restricciones: veintiún drivers en total.
 
 La importancia para stakeholders expresa el efecto sobre la utilidad del producto, la confianza y las condiciones de entrega. El impacto en complejidad técnica considera integración, coordinación de procesos y dificultad de verificación.
 
@@ -138,6 +140,8 @@ Los drivers High–High se ubican primero. La ordenación presentada constituye 
 | **QA06** | Procesamiento íntegro | Evitar efectos duplicados y recuperar eventos confirmados. | High | High |
 | **FD03** | Acompañamiento del recorrido | Integrar selección, alertas y recálculo de US08, US10 y US11. | High | High |
 | **CON01** | Integración de productos | Utilizar servicios REST internos y una dependencia externa. | High | High |
+| **CON08** | Microservicios independientes | Descomponer el backend en servicios con despliegue y persistencia propios. | High | High |
+| **QA09** | Despliegue independiente | Actualizar un servicio manteniendo compatibles los contratos de sus consumidores. | High | High |
 | **QA08** | Recuperación del piloto | Recuperar procesos y datos dentro de los objetivos establecidos. | High | Medium |
 | **FD04** | Historial y acceso responsable | Relacionar US12 con TS04. | High | Medium |
 | **CON02** | Backend autorizado | Respetar las familias tecnológicas de la guía. | High | Medium |
@@ -171,16 +175,16 @@ Estas etapas siguen la organización propuesta por el SEI para el QAW. [Barbacci
 
 | Iteración | Drivers considerados | Resultado | Criterio de decisión |
 |---|---|---|---|
-| **I1. Estructura** | FD01–FD04, QA07, CON02 y CON03. | Contextos separados dentro de un backend modular. | Mantener límites de responsabilidad con una operación inicial manejable. |
+| **I1. Estructura** | FD01–FD04, QA07, QA09, CON02 y CON08. | Cuatro microservicios, API Gateway y bases de datos privadas. | Respetar el requisito de independencia de despliegue y propiedad de datos. |
 | **I2. Rutas y riesgo** | QA01, QA03 y QA04. | Adaptadores, límites de espera y estimación con incertidumbre explícita. | Responder oportunamente sin ocultar limitaciones. |
-| **I3. Reportes y alertas** | FD02, FD03, QA02 y QA06. | Procesamiento asíncrono, outbox e idempotencia. | Recuperar operaciones y evitar efectos duplicados. |
+| **I3. Reportes y alertas** | FD02, FD03, QA02 y QA06. | RabbitMQ, outbox por productor e inbox por consumidor. | Recuperar mensajes entre servicios y evitar efectos duplicados. |
 | **I4. Privacidad y operación** | FD04, QA05, QA08 y restricciones documentales. | Sesión anónima, historial local y despliegue recuperable. | Limitar datos persistentes y facilitar soporte del piloto. |
 
 #### Candidate Pattern Evaluation Matrix
 
 | Driver ID | Título | Patrón 1: Pro / Con | Patrón 2: Pro / Con | Patrón 3: Pro / Con |
 |---|---|---|---|---|
-| FD01, QA07 | Estructura del backend | **Monolito modular.** Pro: límites lógicos y operación sencilla. Con: despliegue compartido. | **Microservicios.** Pro: despliegue y escalado independientes. Con: mayor complejidad de red y operación. | **Monolito sin módulos.** Pro: inicio rápido. Con: acoplamiento y cambios difíciles. |
+| CON08, QA09 | Descomposición en servicios | **Un servicio por bounded context.** Pro: responsabilidades y despliegues coherentes. Con: requiere contratos y coordinación de eventos. | **Un servicio por operación.** Pro: unidades pequeñas. Con: fragmentación y llamadas excesivas. | **Un servicio por capa técnica.** Pro: separación técnica visible. Con: los cambios de negocio atraviesan varios servicios. |
 | CON01, QA03 | Integración cartográfica | **Adaptador con ACL.** Pro: contratos propios. Con: requiere traducción y pruebas. | **SDK dentro del dominio.** Pro: menos código inicial. Con: dependencia directa del proveedor. | **Motor cartográfico propio.** Pro: control de los datos. Con: mantenimiento y procesamiento adicionales. |
 | QA01, QA03 | Fallos externos | **Timeout y Circuit Breaker.** Pro: tiempos acotados. Con: rechazo temporal de solicitudes. | **Reintentos ilimitados.** Pro: algunas operaciones terminan recuperándose. Con: consumo y espera sin límites. | **Proveedor secundario.** Pro: alternativa ante fallos. Con: doble integración y diferencias de cobertura. |
 | QA04 | Estimación de riesgo | **Modelo versionado con abstención.** Pro: aprendizaje y límites explícitos. Con: exige datos y validación. | **Reglas fijas.** Pro: explicación sencilla. Con: umbrales rígidos y sin aprendizaje. | **Modelo generativo que califica zonas.** Pro: explicación textual. Con: difícil calibración y riesgo de afirmaciones no sustentadas. |
@@ -188,21 +192,19 @@ Estas etapas siguen la organización propuesta por el SEI para el QAW. [Barbacci
 | QA02 | Comunicación de alertas | **SSE.** Pro: canal servidor-cliente y reconexión. Con: restricciones en segundo plano. | **Polling frecuente.** Pro: implementación sencilla. Con: solicitudes repetidas y retraso por intervalo. | **WebSocket.** Pro: comunicación bidireccional. Con: administración adicional de conexiones y protocolo. |
 | QA05, FD04 | Identidad e historial | **Sesión anónima e historial local.** Pro: menor almacenamiento central. Con: no sincroniza dispositivos. | **Cuenta persistente.** Pro: recuperación y sincronización. Con: amplía requisitos y gestión de credenciales. | **Consulta pública por identificador.** Pro: acceso simple. Con: riesgo de exposición de datos. |
 | QA08 | Despliegue | **Host recuperable con respaldos externos.** Pro: operación controlable. Con: punto único de fallo. | **Clúster con réplica de base.** Pro: tolerancia a determinados fallos. Con: mayor costo y administración. | **Multirregión.** Pro: aislamiento geográfico. Con: replicación y consistencia más complejas. |
+| QA06, CON08 | Mensajería entre servicios | **RabbitMQ con outbox.** Pro: colas por consumidor y desacoplamiento temporal. Con: operación del broker e idempotencia. | **HTTP encadenado para propagar eventos.** Pro: menos infraestructura. Con: dependencia de disponibilidad simultánea. | **Log distribuido de eventos.** Pro: retención y reproducción extensas. Con: mayor administración para el piloto. |
 
-#### ADR01. Backend modular y separación de procesos
+#### ADR01. Microservicios por bounded context y datos privados
 
-Se propone un backend desarrollado con **NestJS y TypeScript**, organizado en cuatro bounded contexts:
+Se implementarán cuatro microservicios de negocio, propuestos en **NestJS y TypeScript**: Route Planning Service, Risk Assessment Service, Incident Reporting Service y Journey Alerts Service. Cada uno tendrá proceso ejecutable, imagen de despliegue, configuración, health checks, pruebas y migraciones propios. Los contextos se asignan inicialmente uno a uno por la coherencia de sus reglas; esta correspondencia se revisará si aparecen interacciones excesivas.
 
-- Route Planning.
-- Risk Assessment.
-- Incident Reporting.
-- Journey Alerts.
+Un API Gateway implementado como aplicación independiente centraliza el enrutamiento de las solicitudes públicas y las verificaciones comunes de acceso. Las decisiones de rutas, riesgo, incidentes y pertinencia de alertas permanecen en sus respectivos servicios. Route Planning consulta Risk Assessment por HTTP; la propagación de cambios se realiza mediante RabbitMQ.
 
-El API atiende solicitudes del cliente. Un worker independiente procesa reportes, expiraciones y eventos. Ambos se construyen desde el mismo repositorio y reutilizan los módulos de dominio.
+Se adopta **Database per Service**: `route_planning_db`, `risk_assessment_db`, `incident_reporting_db` y `journey_alerts_db`. Cada servicio dispone de credenciales exclusivas y solo ejecuta sus propias migraciones. Se prohíben consultas SQL, claves foráneas y transacciones que atraviesen estas bases. Los consumidores mantienen proyecciones locales construidas mediante eventos o contratos autorizados. Esta autonomía de datos permite acotar cambios y despliegues. [Microsoft, Data considerations for microservices](https://learn.microsoft.com/en-us/azure/architecture/microservices/design/data-considerations).
 
-Cada contexto controla sus reglas y su persistencia. El acceso entre contextos se realiza mediante interfaces o eventos; se evita consultar directamente las tablas privadas de otro contexto.
+El piloto puede alojar las cuatro bases lógicas en un mismo servidor PostgreSQL, manteniendo aislamiento de permisos. Compartir infraestructura física supone una dependencia operativa común; no autoriza compartir tablas ni modelos de dominio.
 
-Esta decisión reduce la complejidad operativa inicial. Su principal limitación es que los módulos comparten parte de la infraestructura y evolucionan dentro de una misma versión del backend.
+El repositorio puede ser único o dividirse por servicio, pero cada microservicio tendrá un pipeline de construcción y despliegue seleccionable. Los contratos se versionan por separado; las bibliotecas compartidas no incluirán entidades, repositorios ni reglas que obliguen a actualizar todos los servicios a la vez. La consecuencia de esta decisión es asumir latencia de red, consistencia eventual y mayor observabilidad operativa.
 
 #### ADR02. Proveedor cartográfico mediante adaptador
 
@@ -225,6 +227,10 @@ Tras cinco fallos consecutivos, el Circuit Breaker suspenderá las llamadas dura
 No se realizarán reintentos ilimitados dentro de una misma consulta. Ante indisponibilidad se devolverá un error controlado, manteniendo operativas las funciones que no dependan de cartografía.
 
 Una ruta ya mostrada podrá conservarse como referencia fechada, pero no se presentará como una recomendación actualizada.
+
+La llamada de Route Planning a Risk Assessment tendrá un límite inicial de 1 s, dentro del presupuesto extremo a extremo de QA01. Si falla únicamente Risk Assessment, Route Planning podrá devolver la cartografía obtenida con riesgo UNKNOWN y causa `RISK_SERVICE_UNAVAILABLE`. Las llamadas internas tendrán límites de concurrencia y cancelación. La caída de Incident Reporting no bloqueará las consultas de rutas: Risk Assessment utiliza su proyección local y aplica controles de frescura.
+
+Si RabbitMQ no está disponible, los productores conservan eventos en sus outboxes y muestran los reportes como pendientes. En ese intervalo no se promete cumplir QA02. Los consumidores verifican un checkpoint periódico de sincronización: el productor emite un heartbeat con la última secuencia confirmada cada 30 s y el consumidor solo marca vigente su proyección si ha procesado hasta esa secuencia. Tras 60 s sin sincronización comprobada, Risk Assessment se abstiene de clasificar y devuelve UNKNOWN. Estos intervalos son parámetros iniciales de prueba.
 
 #### ADR04. Estimación versionada y manejo de incertidumbre
 
@@ -257,29 +263,25 @@ Hasta disponer de un modelo y cobertura aceptables, VSafe podrá mostrar rutas e
 
 Cada resultado contendrá fecha de evaluación, vigencia, versión del método, cobertura y causa de incertidumbre cuando corresponda.
 
-#### ADR05. Reportes transaccionales y procesamiento idempotente
+#### ADR05. Mensajería distribuida con RabbitMQ y outbox por servicio
 
-El registro de un reporte y su evento de procesamiento se guardarán en una misma transacción mediante **Transactional Outbox**.
+Incident Reporting guarda un reporte y su evento en una transacción de su base privada. Route Planning aplica el mismo principio a los cambios del recorrido. Cada productor ejecuta un relay de outbox propio que publica en RabbitMQ y conserva el pendiente hasta recibir confirmación. No existe un worker global con acceso a todas las bases. El outbox resuelve la separación entre guardar el estado y publicar su evento. [AWS, Transactional outbox pattern](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
 
-El worker procesará los eventos pendientes. Cada consumidor conservará los identificadores ya procesados mediante un inbox, evitando repetir efectos cuando un mensaje sea reenviado.
+Se propone un exchange de eventos de VSafe con claves de enrutamiento y colas durables por suscripción: Risk Assessment recibe incidentes y Journey Alerts recibe incidentes y recorridos. Los mensajes se publican como persistentes; cada consumidor confirma recepción después de guardar su inbox y el efecto de negocio en una transacción local. Las confirmaciones del publicador y del consumidor cumplen funciones diferentes. [RabbitMQ, Consumer Acknowledgements and Publisher Confirms](https://www.rabbitmq.com/docs/confirms).
 
-La entrega será **al menos una vez**. La consistencia se obtendrá mediante idempotencia y transacciones locales.
+La entrega es **al menos una vez**. `eventId` identifica reentregas y `aggregateVersion` permite detectar cambios antiguos o faltantes. Los mensajes no procesables utilizan reintentos limitados con espera creciente y una cola de errores para inspección y reejecución. La retención se coordina con los checkpoints y la capacidad de reconstruir proyecciones; un mensaje no se descarta silenciosamente.
 
-El análisis de reportes distinguirá:
+Si un consumidor pierde una versión, solicita la información vigente al servicio propietario antes de continuar. La recuperación de un host completo requiere reconstruir las proyecciones desde los datos autorizados del productor y reanudar eventos; una copia de una base aislada no equivale a una instantánea consistente de todo el sistema.
 
-- Validez de formato.
-- Consistencia espacial y temporal.
-- Posible duplicidad.
-- Vigencia.
-- Condición de publicación.
+El análisis de reportes distingue formato, consistencia espacial y temporal, duplicidad, vigencia y condición de publicación. Un reporte procesable no equivale a un hecho confirmado. La publicación de información comunitaria no verificada debe indicar esa condición.
 
-Un reporte procesable no equivale a un hecho confirmado. Cuando se publique información comunitaria no verificada, esta condición deberá comunicarse explícitamente.
+Los eventos de recorridos transportan identificadores, versión y expiración; no llevan geometrías precisas. Journey Alerts obtiene el mínimo estado vigente mediante un endpoint interno autorizado de Route Planning y lo conserva temporalmente. Las transacciones fuertes son locales a cada servicio; la coordinación de proyecciones es eventualmente consistente.
 
 #### ADR06. Alertas mediante Server-Sent Events
 
-Se utilizará **SSE** para entregar alertas desde el API hacia la aplicación web. NestJS proporciona soporte para este mecanismo de comunicación. [NestJS, Server-Sent Events](https://docs.nestjs.com/techniques/server-sent-events).
+Se utilizará **SSE** desde Journey Alerts Service, a través del API Gateway y el reverse proxy, hacia la aplicación web. El gateway retransmite el flujo sin concentrar la lógica de alertas. NestJS proporciona soporte para este mecanismo de comunicación. [NestJS, Server-Sent Events](https://docs.nestjs.com/techniques/server-sent-events).
 
-Journey Alerts mantendrá una proyección de los recorridos activos y evaluará incidentes cercanos al tramo restante.
+Journey Alerts mantendrá en su base privada una proyección de los recorridos activos y de los incidentes recibidos por RabbitMQ. Sus consumidores evaluarán los incidentes cercanos al tramo restante. El gateway y el reverse proxy deshabilitarán el buffering del flujo SSE y permitirán heartbeats y reconexión por identificador de alerta.
 
 Como regla inicial, se propone un radio de 200 metros. Las consultas deben utilizar distancias métricas; PostGIS proporciona operaciones como `ST_DWithin` para evaluar proximidad. [PostGIS, ST_DWithin](https://postgis.net/docs/ST_DWithin.html).
 
@@ -289,27 +291,29 @@ El usuario decidirá si solicita un recálculo. La alerta no modificará automá
 
 #### ADR07. Sesión anónima e historial local
 
-El MVP utilizará una sesión anónima asociada al navegador mediante una cookie opaca con controles de seguridad y autorización por propietario.
+El MVP utilizará una sesión anónima asociada al navegador mediante una cookie protegida con Secure, HttpOnly y SameSite. El API Gateway verifica la credencial y genera un contexto interno firmado, de corta duración y con audiencia del servicio receptor. Los servicios verifican ese contexto y autorizan cada recurso según su propietario; no confían en encabezados de identidad enviados libremente por el cliente. Las llamadas entre servicios utilizan identidad técnica y canal protegido. El gateway concentra funciones de acceso y transporte, sin almacenar reglas ni bases de negocio.
 
 El historial de US12 será local, optativo y limitado inicialmente a veinte consultas durante siete días. Su reutilización generará una nueva evaluación, evitando presentar estimaciones antiguas como actuales.
 
 Se evitará almacenar una trayectoria continua del usuario. El servidor conservará solo la información temporal necesaria para el recorrido activo.
 
-El cierre del recorrido o la revocación de autorización provocará la eliminación de sus proyecciones en un máximo de cinco minutos.
+El cierre del recorrido o la revocación de autorización provocará la eliminación de sus proyecciones en un máximo de cinco minutos. Route Planning registra el cierre y publica el evento correspondiente. Para que una caída del broker no mantenga datos personales indefinidamente, la proyección de Journey Alerts tiene una vigencia máxima de cinco minutos y solo se renueva consultando un recorrido activo al propietario. Si esa consulta falla, se suspende la alerta y se deja expirar la proyección. Al regresar, el servicio ejecuta la limpieza de expirados antes de atender solicitudes. Los eventos durables no incluyen coordenadas precisas.
 
 Los logs técnicos no incluirán coordenadas precisas. Las operaciones de cambio de estado incorporarán validación, protección contra solicitudes cruzadas y límites de frecuencia.
 
-#### ADR08. Despliegue recuperable para el piloto
+#### ADR08. Despliegue independiente y recuperación de infraestructura
 
-Se propone un despliegue inicial en una máquina virtual Linux de AWS, con procesos separados para API y worker, una base PostgreSQL con PostGIS y un reverse proxy que gestione HTTPS.
+Se propone un piloto en una máquina virtual Linux de AWS con contenedores separados para API Gateway, Route Planning, Risk Assessment, Incident Reporting, Journey Alerts y RabbitMQ. Un reverse proxy sirve archivos estáticos y termina HTTPS. PostgreSQL aloja cuatro bases privadas, con credenciales y migraciones independientes. Los costos y recursos definitivos deberán evaluarse antes del despliegue.
 
-La elección del proveedor de infraestructura es una propuesta técnica; los costos y recursos definitivos deberán evaluarse antes del despliegue.
+Cada servicio se construye y publica como una imagen versionada. Un despliegue compatible actualiza únicamente la imagen del servicio afectado. Las migraciones seguirán cambios aditivos y eliminación posterior de campos, manteniendo compatibilidad entre la versión nueva y la anterior. Las comprobaciones de readiness y las pruebas de contratos forman parte del pipeline. El rollback aplica al servicio y no revierte automáticamente migraciones destructivas.
 
-Se realizarán respaldos diarios fuera del host, con siete copias diarias retenidas. La restauración se comprobará en un entorno aislado.
+La operación local puede utilizar Docker Compose y DNS de la red de contenedores para resolver servicios. En el piloto se permite actualizar o replicar selectivamente un proceso; su escalado se valida con métricas de CPU, memoria, conexiones y cola. Una sola réplica por servicio puede interrumpir su propia función durante un reemplazo; QA09 comprueba que no obliga a desplegar las demás funciones.
 
-Los respaldos excluirán el estado transitorio de recorridos y mensajes que contengan geometrías personales. Tras una restauración completa, los recorridos activos deberán iniciarse nuevamente.
+Se realizarán respaldos diarios por base y se conservarán siete copias fuera del host. El broker utilizará almacenamiento persistente, configuración versionada, colas durables y mensajes persistentes. Las pruebas de recuperación deberán incluir productores, broker, consumidores y reconciliación de proyecciones. La fiabilidad depende de la colaboración de estas partes. [RabbitMQ, Reliability Guide](https://www.rabbitmq.com/docs/reliability).
 
-Un solo host constituye un punto único de fallo. Por ello, el diseño prioriza recuperación comprobable y establece objetivos de RTO y RPO, sin presentar alta disponibilidad como una capacidad ya implementada.
+Los respaldos excluirán el estado transitorio de recorridos y la información personal que ya deba eliminarse. Tras una restauración completa, se iniciarán nuevos recorridos y se reconstruirán las proyecciones de incidentes. Las copias independientes se reconciliarán mediante IDs, versiones y snapshots del propietario; no se asumirá atomicidad entre bases.
+
+La independencia de despliegue no elimina los puntos únicos de fallo: el host, el gateway, el servidor de bases y el broker del piloto aún pueden interrumpir varias funciones. El RTO de 4 h, RPO de 24 h y disponibilidad objetivo se mantendrán sujetos a pruebas y medición; una evolución posterior puede distribuir instancias e infraestructura.
 
 ### 4.1.5. Quality Attribute Scenario Refinements
 
@@ -361,7 +365,7 @@ Los escenarios refinados se presentan por prioridad. Cada ficha conserva el iden
 | **Stimulus** | Se publica un incidente activo próximo al tramo restante. |
 | **Stimulus Source** | Incident Reporting. |
 | **Environment** | Cincuenta recorridos activos; aplicación visible y conectada. |
-| **Artifact** | Worker, Journey Alerts y canal SSE. |
+| **Artifact** | Relay de Incident Reporting, RabbitMQ, Journey Alerts, API Gateway y SSE. |
 | **Response** | Evalúa la pertinencia y entrega una alerta identificable. |
 | **Response Measure** | p95 ≤ 15 segundos desde el commit de publicación hasta la visualización; cero duplicados lógicos. |
 | **Verificación** | Publicar incidentes pertinentes y no pertinentes; registrar tiempos sincronizados y acuses del cliente; reenviar eventos. |
@@ -379,7 +383,7 @@ Los escenarios refinados se presentan por prioridad. Cada ficha conserva el iden
 | **Stimulus** | Se envían solicitudes válidas de rutas. |
 | **Stimulus Source** | Estudiantes y trabajadores. |
 | **Environment** | Cincuenta sesiones, cinco consultas por segundo y 100 000 incidentes de prueba. |
-| **Artifact** | API, adaptador cartográfico, consulta espacial e inferencia. |
+| **Artifact** | API Gateway, Route Planning Service, Risk Assessment Service y sus bases privadas. |
 | **Response** | Devuelve alternativas completas o incertidumbre explícita. |
 | **Response Measure** | p95 ≤ 4 segundos; p99 ≤ 6 segundos; éxito técnico ≥ 99 %. |
 | **Verificación** | Ejecutar quince minutos de carga estable después del calentamiento. Utilizar un proveedor simulado con respuesta ≤ 2 segundos. Medir desde el envío hasta la recepción completa. |
@@ -412,16 +416,34 @@ Los escenarios refinados se presentan por prioridad. Cada ficha conserva el iden
 | **Scenario(s)** | Reenvío de reportes o interrupción del procesamiento. |
 | **Business Goals** | G03 y G04. |
 | **Relevant Quality Attributes** | Integridad y consistencia eventual. |
-| **Stimulus** | Se repite una solicitud o reinicia el worker después del commit. |
+| **Stimulus** | Se repite una solicitud o reinicia un productor, consumidor o broker después del commit. |
 | **Stimulus Source** | Cliente o infraestructura. |
 | **Environment** | Reentrega de operaciones y fallos temporales. |
-| **Artifact** | Reportes, outbox, inbox y alertas. |
+| **Artifact** | Bases privadas, relays, RabbitMQ, inbox por consumidor y alertas. |
 | **Response** | Recupera los pendientes y conserva un único efecto lógico. |
-| **Response Measure** | Un reporte por clave idempotente; cero eventos confirmados perdidos por reinicio; recuperación ≤ 60 segundos tras el retorno del worker. |
-| **Verificación** | Repetir solicitudes con la misma clave, modificar su contenido para comprobar conflicto y reiniciar el worker entre almacenamiento y confirmación. |
+| **Response Measure** | Un reporte por clave idempotente; cero eventos confirmados perdidos por reinicio; recuperación ≤ 60 segundos tras el retorno del consumidor y del broker. |
+| **Verificación** | Repetir solicitudes con la misma clave, modificar su contenido para comprobar conflicto y reiniciar por separado productor, broker y consumidor entre almacenamiento y confirmación; comprobar reentrega sin duplicados. |
 | **Questions** | ¿Qué retención de claves y eventos necesita el piloto? |
 | **Issues** | Se propone retener claves idempotentes durante 24 horas. La garantía de reinicio no equivale a ausencia de pérdida ante destrucción completa del almacenamiento. |
 | **Decisiones relacionadas** | ADR05 y ADR06. |
+
+#### Scenario Refinement for Scenario QA09
+
+| Campo | Especificación |
+|---|---|
+| **Scenario(s)** | Actualización independiente de Incident Reporting Service. |
+| **Business Goals** | G01 y G04. |
+| **Relevant Quality Attributes** | Desplegabilidad, modificabilidad y aislamiento de fallos. |
+| **Stimulus** | Se publica una versión con un cambio compatible de contrato y migración aditiva. |
+| **Stimulus Source** | Equipo de desarrollo y pipeline del servicio. |
+| **Environment** | Piloto con Route Planning, Risk Assessment, Journey Alerts, gateway y broker operativos. |
+| **Artifact** | Imagen, pipeline, base privada y contratos de Incident Reporting. |
+| **Response** | Actualiza únicamente Incident Reporting. Los demás procesos conservan su versión; sus proyecciones se reconcilian al recibir nuevos eventos. |
+| **Response Measure** | Cero recompilaciones o despliegues de otros servicios; 100 % de pruebas de contrato aprobadas; éxito técnico de consultas de rutas ≥ 99 % durante quince minutos de prueba. |
+| **Verificación** | Registrar hashes de imágenes antes y después; desplegar Incident Reporting durante la carga de QA01 y ejecutar su rollback compatible. Verificar versiones sin cambios en los otros servicios, ausencia de consultas cruzadas a bases y recuperación de eventos. |
+| **Questions** | ¿Qué periodo de convivencia necesitan las versiones anterior y nueva de cada contrato? |
+| **Issues** | Una sola réplica puede interrumpir temporalmente la función del servicio reemplazado. UNKNOWN por proyección vencida no cuenta como estimación informativa; el objetivo técnico de rutas se reporta junto con ese indicador. |
+| **Decisiones relacionadas** | ADR01, ADR05 y ADR08; restricción CON08. |
 
 #### Scenario Refinement for Scenario QA08
 
@@ -430,7 +452,7 @@ Los escenarios refinados se presentan por prioridad. Cada ficha conserva el iden
 | **Scenario(s)** | Fallo del proceso o pérdida del host. |
 | **Business Goals** | G01 y G04. |
 | **Relevant Quality Attributes** | Disponibilidad y recuperabilidad. |
-| **Stimulus** | Se interrumpe el API, worker o servidor. |
+| **Stimulus** | Se interrumpe un microservicio, gateway, broker o servidor. |
 | **Stimulus Source** | Infraestructura. |
 | **Environment** | Piloto con un host de aplicación. |
 | **Artifact** | Despliegue, monitoreo y respaldos. |
@@ -450,18 +472,18 @@ Los escenarios refinados se presentan por prioridad. Cada ficha conserva el iden
 | **Relevant Quality Attributes** | Modificabilidad e interoperabilidad. |
 | **Stimulus** | Se introduce otra implementación de un adaptador. |
 | **Stimulus Source** | Equipo de desarrollo. |
-| **Environment** | Pruebas sobre una versión estable del API. |
+| **Environment** | Pruebas de integración entre versiones compatibles de servicios desplegados por separado. |
 | **Artifact** | Puertos, adaptadores y contratos. |
 | **Response** | Integra el cambio conservando los contratos públicos. |
 | **Response Measure** | El 100 % de las pruebas de contrato se aprueba; objetivo de hasta dos jornadas para cambios compatibles. |
-| **Verificación** | Sustituir el proveedor por un doble con otro formato y comprobar que los consumidores no requieren cambios. |
+| **Verificación** | Sustituir el proveedor o modelo y ejecutar contratos HTTP y de eventos de los servicios consumidores; comprobar que no requieren cambios de código. |
 | **Questions** | ¿La alternativa ofrece capacidades equivalentes? |
 | **Issues** | La estimación de esfuerzo no aplica a proveedores que exijan nuevas capacidades del producto. |
 | **Decisiones relacionadas** | ADR01, ADR02 y ADR04. |
 
 ## 4.2. Strategic-Level Domain-Driven Design
 
-El diseño estratégico del dominio organiza VSafe alrededor de capacidades del negocio. La separación se fundamenta en diferencias de lenguaje, reglas, datos y ciclos de vida.
+El diseño estratégico del dominio organiza VSafe alrededor de capacidades del negocio. La separación se fundamenta en diferencias de lenguaje, reglas, datos y ciclos de vida. Los cuatro contextos identificados se materializan en microservicios independientes, con contratos HTTP y eventos de integración.
 
 Una ruta describe un recorrido posible; una estimación expresa una evaluación contextual; un reporte representa una contribución comunitaria; y una alerta comunica información pertinente para un recorrido activo. Estos conceptos se relacionan, pero no comparten las mismas reglas.
 
@@ -555,7 +577,7 @@ La evolución propuesta queda representada así:
 
 La clasificación distingue capacidades centrales para la diferenciación de VSafe y capacidades que las sostienen. El Bounded Context Canvas propone este tipo de clasificación estratégica como parte del análisis de cada contexto. [DDD Crew, Bounded Context Canvas](https://github.com/ddd-crew/bounded-context-canvas).
 
-La sesión anónima, la configuración, la observabilidad y los permisos se implementarán como capacidades de soporte técnico. No se propone un bounded context adicional para cada una en esta etapa.
+Cada bounded context corresponde inicialmente a un microservicio de negocio con despliegue y base propios. La sesión anónima y las verificaciones comunes de acceso se incorporan al API Gateway; la autorización de recursos permanece en cada servicio. Configuración y observabilidad son capacidades de infraestructura. No se añaden contextos de negocio por cada herramienta técnica.
 
 #### Lenguaje del dominio propuesto
 
@@ -611,16 +633,16 @@ Si no existe una alternativa, se mantiene visible la información del incidente 
 | Mensaje | Emisor | Receptor | Tipo | Información principal |
 |---|---|---|---|---|
 | `FindRouteAlternatives` | Aplicación web. | Route Planning. | Solicitud. | Origen, destino y modalidad. |
-| `AssessRoutes` | Route Planning. | Risk Assessment. | Consulta interna. | Geometrías, instante de consulta e identificadores de ruta. |
+| `AssessRoutes` | Route Planning Service. | Risk Assessment Service. | HTTP interno síncrono. | Geometrías, instante de consulta e identificadores de ruta; timeout y autenticación entre servicios. |
 | `SubmitIncidentReport` | Aplicación web. | Incident Reporting. | Comando. | Categoría, descripción, ubicación aproximada y momento observado. |
 | `IncidentPublished` | Incident Reporting. | Risk Assessment y Journey Alerts. | Evento. | Incidente, categoría, ubicación, vigencia, procedencia y versión. |
 | `IncidentExpired` | Incident Reporting. | Risk Assessment y Journey Alerts. | Evento. | Identificador, fecha de expiración y versión. |
-| `JourneyStarted` | Route Planning. | Journey Alerts. | Evento. | Recorrido, ruta vigente y referencia de propietario. |
+| `JourneyStarted` | Route Planning Service. | Journey Alerts Service. | Evento por RabbitMQ. | Identificador del recorrido, versión, expiración y referencia de propietario; el consumidor consulta la geometría vigente mediante un contrato interno. |
 | `JourneyRouteChanged` | Route Planning. | Journey Alerts. | Evento. | Recorrido y nueva versión de ruta. |
 | `JourneyClosed` | Route Planning. | Journey Alerts. | Evento. | Recorrido y motivo de cierre. |
 | `JourneyAlertCreated` | Journey Alerts. | Canal de entrega al cliente. | Evento interno. | Alerta, recorrido, incidente y versión de ruta. |
 
-Los eventos incorporarán `eventId`, `occurredAt`, `schemaVersion` y un identificador de correlación. Los consumidores comprobarán duplicados y versiones antes de aplicar cambios.
+Los eventos incorporarán `eventId`, `occurredAt`, `schemaVersion`, `aggregateVersion` y un identificador de correlación. Los consumidores comprobarán duplicados y versiones antes de aplicar cambios. La comunicación de consultas se realiza mediante HTTP interno y la distribución de eventos mediante RabbitMQ. Cada consumidor actualiza únicamente su base privada. Los eventos con una versión faltante activan reconciliación con el productor; los eventos de recorridos no contienen coordenadas precisas.
 
 ### 4.2.4. Bounded Context Canvases
 
@@ -725,8 +747,8 @@ Los patrones seleccionados consideran las relaciones Customer/Supplier, Open Hos
 | Unir rutas y riesgo. | Menos interfaces internas. | Mezcla integración cartográfica con evolución analítica. | Separar Route Planning y Risk Assessment. |
 | Unir incidentes y alertas. | Acceso inmediato a los reportes. | Mezcla publicación general con pertinencia individual. | Mantener contextos separados. |
 | Compartir todas las entidades. | Reduce mapeos iniciales. | Acopla ciclos de vida y cambios. | Compartir contratos, no un modelo de dominio completo. |
-| Crear microservicios para cada contexto. | Independencia operativa. | Incrementa complejidad para el piloto. | Mantener límites lógicos dentro del backend modular. |
-| Utilizar eventos para todas las consultas. | Uniformidad del transporte. | Complica respuestas que el usuario necesita inmediatamente. | Combinar consultas internas síncronas y eventos asíncronos. |
+| Un microservicio por bounded context. | Despliegue y propiedad de datos independientes. | Requiere contratos, observabilidad y consistencia eventual. | Adoptar cuatro servicios de negocio, conforme a CON08. |
+| Utilizar eventos para todas las consultas. | Uniformidad del transporte. | Complica respuestas que el usuario necesita inmediatamente. | Combinar HTTP entre servicios y eventos asíncronos mediante RabbitMQ. |
 
 #### Mapa de contextos
 
@@ -741,10 +763,10 @@ Las flechas representan suministro de información o servicios desde el proveedo
 | Proveedor cartográfico. | Route Planning. | Anti-corruption Layer. | El adaptador transforma el modelo externo a tipos propios. |
 | Incident Reporting. | Risk Assessment. | Customer/Supplier y Published Language. | El consumidor recibe eventos estables para actualizar su proyección analítica. |
 | Incident Reporting. | Journey Alerts. | Customer/Supplier y Published Language. | El consumidor recibe incidentes publicables y sus cambios de vigencia. |
-| Risk Assessment. | Route Planning. | Customer/Supplier y Open Host Service. | Un contrato explícito permite solicitar evaluaciones sin acceder a sus datos internos. |
+| Risk Assessment. | Route Planning. | Customer/Supplier y Open Host Service. | Un API HTTP interno versionado permite solicitar evaluaciones sin acceder a su base privada. |
 | Route Planning. | Journey Alerts. | Customer/Supplier y Published Language. | Los eventos comunican inicio, cambio de versión y cierre de recorridos. |
 
-No se propone un Shared Kernel de entidades de negocio para el MVP. Los identificadores y contratos pueden compartirse mediante esquemas versionados, manteniendo independientes las reglas de cada contexto.
+No se propone un Shared Kernel de entidades de negocio para el MVP. Los identificadores y contratos pueden compartirse mediante esquemas versionados, manteniendo independientes las reglas, bases de datos e imágenes de despliegue de cada microservicio.
 
 Los consumidores aplicarán estas reglas de integración:
 
@@ -752,7 +774,7 @@ Los consumidores aplicarán estas reglas de integración:
 2. Rechazar versiones incompatibles del contrato.
 3. Aplicar solo cambios más recientes que el estado conocido.
 4. Mantener referencias por identificador.
-5. Evitar consultas directas a tablas privadas de otros contextos.
+5. Evitar consultas directas a las bases privadas de otros microservicios.
 6. Eliminar las proyecciones temporales cuando termine su finalidad.
 
 ## 4.3. Software Architecture
@@ -769,7 +791,7 @@ El System Landscape ubica a VSafe dentro de su entorno de uso y desarrollo.
 
 Los estudiantes y trabajadores utilizan el producto. El proveedor cartográfico aporta mapas y alternativas de recorrido. El equipo mantiene el código, los contratos y los diagramas mediante GitHub.
 
-<!-- INSERTAR IMAGEN: Software Architecture System Landscape Diagram de VSafe. -->
+<!-- INSERTAR IMAGEN: System Landscape de VSafe como sistema de microservicios, sus usuarios, proveedor cartográfico y entorno de desarrollo. -->
 
 GitHub forma parte del entorno de construcción y mantenimiento. La navegación de los usuarios no depende de consultar GitHub durante su ejecución.
 
@@ -779,7 +801,7 @@ El diseño no presupone que exista una integración disponible con una municipal
 
 El Context Diagram representa a VSafe como un sistema único, delimitando sus usuarios y dependencias externas.
 
-<!-- INSERTAR IMAGEN: Software Architecture Context Level Diagram de VSafe. -->
+<!-- INSERTAR IMAGEN: System Context de VSafe. Mantener el sistema como una unidad y reservar su descomposición en microservicios para Container. -->
 
 #### Responsabilidades del sistema
 
@@ -795,110 +817,147 @@ La geolocalización procede del dispositivo a través de las capacidades del nav
 
 ### 4.3.3. Software Architecture Container Level Diagrams
 
-La solución se divide en aplicaciones, procesos y almacenes con responsabilidades específicas.
+La solución incluye un API Gateway y cuatro microservicios de negocio desplegables de manera independiente. Cada servicio tiene su propia base de datos y administra sus procesos de recepción, consumo de eventos y publicación. RabbitMQ conecta productores y consumidores sin convertir sus bases en un almacenamiento compartido.
 
-<!-- INSERTAR IMAGEN: Software Architecture Container Level Diagram de VSafe. -->
+<!-- INSERTAR IMAGEN: Container Diagram de microservicios. Mostrar Landing Page, aplicación web, API Gateway, Route Planning Service, Risk Assessment Service, Incident Reporting Service, Journey Alerts Service, RabbitMQ, una base por servicio, historial local, respaldos y proveedor cartográfico. -->
 
 #### Descripción de containers
 
 | Container | Tecnología propuesta | Responsabilidad |
 |---|---|---|
-| **Landing Page** | HTML5, CSS3 y JavaScript. | Comunicar la propuesta de valor y conducir al usuario hacia la aplicación. |
+| **Landing Page** | HTML5, CSS3 y JavaScript. | Comunicar la propuesta de valor y conducir a la aplicación. |
 | **Aplicación web** | Vue, TypeScript y PrimeVue. | Gestionar mapas, comparación, reportes, permisos y visualización de alertas. |
-| **Historial local** | IndexedDB. | Conservar consultas autorizadas dentro del navegador. |
-| **API de VSafe** | NestJS y TypeScript. | Atender solicitudes, aplicar autorización, coordinar contextos y entregar eventos al cliente. |
-| **Worker** | NestJS y TypeScript. | Evaluar reportes, procesar outbox, actualizar proyecciones y generar alertas. |
-| **Persistencia** | PostgreSQL y PostGIS. | Almacenar datos de negocio, proyecciones y transporte durable del piloto. |
-| **Respaldos** | Almacenamiento de objetos externo al host. | Conservar copias recuperables de datos persistentes permitidos. |
+| **API Gateway** | NestJS y TypeScript. | Verificar la sesión, emitir contexto interno autorizado, enrutar solicitudes y retransmitir SSE. |
+| **Route Planning Service** | NestJS y TypeScript. | Obtener alternativas, consultar evaluaciones y administrar recorridos; publicar sus eventos. |
+| **Risk Assessment Service** | NestJS, TypeScript y ONNX Runtime. | Mantener la proyección de incidentes, evaluar rutas y devolver incertidumbre cuando corresponda. |
+| **Incident Reporting Service** | NestJS y TypeScript. | Registrar, evaluar, publicar y expirar reportes; mantener su outbox y relay. |
+| **Journey Alerts Service** | NestJS y TypeScript. | Consumir eventos, evaluar pertinencia, deduplicar alertas y entregarlas mediante SSE. |
+| **Message Broker** | RabbitMQ. | Enrutar eventos mediante exchange, colas durables por consumidor y colas de errores. |
+| **Route Planning Database** | PostgreSQL y PostGIS. | Recorridos temporales, versiones y outbox; acceso exclusivo de Route Planning. |
+| **Risk Assessment Database** | PostgreSQL y PostGIS. | Proyección analítica, inbox, checkpoints y metadatos de evaluación; acceso exclusivo de Risk Assessment. |
+| **Incident Reporting Database** | PostgreSQL y PostGIS. | Reportes, incidentes, estados, categorías y outbox; acceso exclusivo de Incident Reporting. |
+| **Journey Alerts Database** | PostgreSQL y PostGIS. | Proyecciones temporales, inbox, checkpoints, alertas y estado de entrega; acceso exclusivo de Journey Alerts. |
+| **Historial local** | IndexedDB. | Conservar consultas autorizadas en el navegador. |
+| **Respaldos** | Almacenamiento de objetos fuera del host. | Conservar copias por servicio con políticas de retención y recuperación. |
 
-#### Distribución de contextos
+#### Distribución de contextos y despliegues
 
-| Bounded Context | Ejecución principal | Persistencia propia |
-|---|---|---|
-| Route Planning | API. | Alternativas temporales y recorridos activos. |
-| Risk Assessment | API para consultas; worker para actualizar proyecciones. | Datos de evaluación, cobertura y proyección de incidentes. |
-| Incident Reporting | API para recepción y consulta; worker para procesamiento. | Reportes, incidentes, categorías y estados. |
-| Journey Alerts | Worker para pertinencia; API para entrega. | Proyecciones activas, alertas y estado de entrega. |
+| Bounded Context | Microservicio | Base privada | Unidad de despliegue |
+|---|---|---|---|
+| Route Planning | Route Planning Service. | `route_planning_db`. | Imagen y pipeline `route-planning-service`. |
+| Risk Assessment | Risk Assessment Service. | `risk_assessment_db`. | Imagen y pipeline `risk-assessment-service`. |
+| Incident Reporting | Incident Reporting Service. | `incident_reporting_db`. | Imagen y pipeline `incident-reporting-service`. |
+| Journey Alerts | Journey Alerts Service. | `journey_alerts_db`. | Imagen y pipeline `journey-alerts-service`. |
 
-La persistencia física compartida no elimina los límites de propiedad. Cada contexto administra sus esquemas y repositorios. Las tablas de outbox e inbox pertenecen a la infraestructura de integración.
+Cada servicio controla sus repositorios y migraciones. Sus relays e inbox pertenecen al mismo propietario; no existe una tabla de integración que permita a todos los servicios leer los datos privados de los demás. PostgreSQL puede compartir servidor físico en el piloto, pero las bases, roles y permisos se mantienen separados.
+
+La aplicación accede a rutas públicas a través del gateway. Risk Assessment expone únicamente contratos internos; no requiere un endpoint público para el usuario. Los servicios permanecen en red privada y autentican las llamadas internas, aun cuando procedan de esa red.
 
 #### Comunicaciones principales
 
 | Origen | Destino | Mecanismo | Finalidad |
 |---|---|---|---|
-| Aplicación web. | API. | HTTPS y JSON. | Consultar rutas, enviar reportes y administrar recorridos. |
-| API. | Aplicación web. | SSE sobre HTTPS. | Entregar alertas y recuperar mensajes pendientes. |
-| API. | Mapbox. | HTTPS. | Obtener alternativas cartográficas. |
-| Aplicación web. | Proveedor de mapas. | HTTPS. | Obtener recursos de visualización. |
-| Route Planning. | Risk Assessment. | Interfaz interna. | Solicitar evaluaciones. |
-| API y worker. | PostgreSQL. | Conexión privada. | Acceder a persistencia y transporte durable. |
-| Contextos productores. | Contextos consumidores. | Eventos mediante outbox e inbox. | Propagar cambios relevantes. |
-| Tarea de respaldo. | Almacenamiento de objetos. | Transferencia cifrada. | Conservar copias fuera del host. |
+| Aplicación web. | API Gateway. | HTTPS y JSON. | Acceder a las operaciones públicas mediante una entrada controlada. |
+| API Gateway. | Route Planning, Incident Reporting o Journey Alerts. | HTTP protegido y contexto de identidad verificable. | Enrutar la solicitud al propietario de la capacidad. |
+| Route Planning Service. | Risk Assessment Service. | HTTP interno síncrono con timeout. | Solicitar evaluación de alternativas sin consultar su base. |
+| Journey Alerts Service. | Route Planning Service. | HTTP interno autenticado. | Obtener y renovar el mínimo estado vigente de un recorrido. |
+| Route Planning Service. | Mapbox. | HTTPS. | Obtener alternativas cartográficas. |
+| Aplicación web. | Proveedor de mapas. | HTTPS. | Obtener cartografía con credenciales públicas restringidas. |
+| Route Planning e Incident Reporting. | RabbitMQ. | AMQP protegido y publisher confirms. | Publicar eventos desde sus respectivos outboxes. |
+| RabbitMQ. | Risk Assessment y Journey Alerts. | Colas por consumidor y acuse manual. | Entregar eventos para actualizar proyecciones privadas. |
+| Journey Alerts Service. | Aplicación web, mediante gateway. | SSE sobre HTTPS. | Entregar alertas autorizadas y recuperar mensajes vigentes. |
+| Cada microservicio. | Su propia base. | Credencial exclusiva y conexión protegida. | Mantener datos, versiones y transacciones locales. |
+| Tarea operativa de respaldo. | Bases privadas y almacenamiento de copias. | Acceso administrativo restringido. | Generar y recuperar respaldos por propietario. |
 
 #### Contratos públicos propuestos
 
-Los siguientes contratos orientan la implementación y deberán documentarse mediante OpenAPI.
+El gateway conserva una dirección pública estable, mientras la operación pertenece a un microservicio. Cada servicio mantiene su especificación OpenAPI y las pruebas de sus consumidores.
 
-| Operación | Endpoint propuesto | Resultado esperado |
-|---|---|---|
-| Consultar alternativas. | `POST /api/v1/routes/search` | Rutas con duración, distancia y evaluación o incertidumbre. |
-| Iniciar recorrido. | `POST /api/v1/journeys` | Identificador del recorrido y versión inicial. |
-| Cambiar ruta. | `PATCH /api/v1/journeys/{id}/route` | Nueva versión del recorrido. |
-| Cerrar recorrido. | `DELETE /api/v1/journeys/{id}` | Cierre y programación de limpieza temporal. |
-| Registrar reporte. | `POST /api/v1/incident-reports` | Identificador y estado pendiente de procesamiento. |
-| Consultar un reporte propio. | `GET /api/v1/incident-reports/{id}` | Estado y resultado autorizado. |
-| Consultar incidentes aplicables. | `GET /api/v1/incidents` | Información publicable según filtros espaciales y temporales. |
-| Recibir alertas. | `GET /api/v1/journeys/{id}/alerts/stream` | Flujo SSE autorizado. |
+| Operación | Endpoint público | Servicio responsable | Resultado esperado |
+|---|---|---|---|
+| Consultar alternativas. | `POST /api/v1/routes/search` | Route Planning. | Rutas con distancia, duración y evaluación o incertidumbre. |
+| Iniciar recorrido. | `POST /api/v1/journeys` | Route Planning. | Identificador y versión inicial. |
+| Cambiar ruta. | `PATCH /api/v1/journeys/{id}/route` | Route Planning. | Nueva versión del recorrido. |
+| Cerrar recorrido. | `DELETE /api/v1/journeys/{id}` | Route Planning. | Cierre local, evento durable y limpieza temporal. |
+| Registrar reporte. | `POST /api/v1/incident-reports` | Incident Reporting. | Identificador y estado pendiente. |
+| Consultar reporte propio. | `GET /api/v1/incident-reports/{id}` | Incident Reporting. | Estado autorizado por propietario. |
+| Consultar incidentes aplicables. | `GET /api/v1/incidents` | Incident Reporting. | Información publicable filtrada por zona y vigencia. |
+| Recibir alertas. | `GET /api/v1/journeys/{id}/alerts/stream` | Journey Alerts. | Flujo SSE autorizado y retransmitido por el gateway. |
 
-Los errores utilizarán códigos identificables, como `INVALID_LOCATION`, `OUTSIDE_COVERAGE`, `PROVIDER_UNAVAILABLE` y `JOURNEY_NOT_ACTIVE`.
+#### Contratos internos propuestos
 
-La falta de información de riesgo se expresará dentro del resultado de evaluación mediante `UNKNOWN` y su causa. No necesariamente representa un error de la consulta cartográfica.
+| Endpoint interno | Propietario | Consumidor | Condiciones |
+|---|---|---|---|
+| `POST /internal/v1/risk-assessments` | Risk Assessment. | Route Planning. | Lista acotada de rutas; respuesta versionada; timeout y resultado UNKNOWN ante insuficiencia. |
+| `GET /internal/v1/journeys/{id}/active` | Route Planning. | Journey Alerts. | Identidad técnica autorizada; devuelve versión, geometría mínima y expiración; recorrido cerrado responde sin datos activos. |
+| `GET /internal/v1/incidents/snapshot` | Incident Reporting. | Risk Assessment y Journey Alerts. | Snapshot paginado con watermark consistente; permite reconstruir una proyección y reanudar desde una secuencia conocida. |
+
+El snapshot se obtiene sobre una vista consistente del productor. Los cambios posteriores a su watermark se conservan para reanudación; la reconstrucción no se considera completa hasta alcanzar el checkpoint correspondiente. Estos contratos no se exponen al navegador.
+
+Los errores públicos utilizan códigos identificables, como `INVALID_LOCATION`, `OUTSIDE_COVERAGE`, `PROVIDER_UNAVAILABLE` y `JOURNEY_NOT_ACTIVE`. La caída de Risk Assessment puede representarse en una consulta cartográfica exitosa como UNKNOWN con causa `RISK_SERVICE_UNAVAILABLE`. No se confunden la disponibilidad de rutas y la disponibilidad de una estimación informativa.
 
 ### 4.3.4. Software Architecture Deployment Diagrams
 
-Se propone un entorno de piloto en una región, con despliegue reproducible y separación entre acceso público, procesos de aplicación y persistencia.
+El entorno inicial contiene instancias separadas del gateway y de cada microservicio. Se propone un piloto en una región de AWS. La independencia de ejecución y despliegue se conserva aunque las instancias compartan una máquina virtual por razones operativas.
 
-<!-- INSERTAR IMAGEN: Software Architecture Deployment Diagram de VSafe. -->
+<!-- INSERTAR IMAGEN: Deployment Diagram de microservicios. Mostrar reverse proxy, API Gateway, cuatro contenedores de servicios, RabbitMQ con volumen, servidor PostgreSQL con cuatro bases y credenciales independientes, respaldos externos y pipelines por servicio. -->
 
 #### Nodos de despliegue
 
 | Nodo | Elementos alojados | Consideraciones |
 |---|---|---|
-| Dispositivo del usuario | Navegador e historial local. | Permisos de ubicación y ejecución de la aplicación. |
-| Reverse proxy | Terminación TLS y archivos estáticos. | Único punto público de entrada al backend. |
-| Proceso API | Servicios REST y canal SSE. | Health checks, control de acceso y límites de dependencia. |
-| Proceso worker | Procesamiento asíncrono y expiraciones. | Reinicio automático y recuperación de trabajos pendientes. |
-| Base de datos | PostgreSQL y PostGIS. | Volumen persistente; sin exposición directa a Internet. |
-| Almacenamiento de respaldos | Copias cifradas. | Ubicación externa al host y acceso restringido. |
-| Servicio cartográfico | Mapbox. | Dependencia externa con límites de espera y consumo. |
+| Dispositivo del usuario | Navegador e IndexedDB. | Permisos y persistencia local optativa. |
+| Reverse proxy | HTTPS y archivos estáticos. | Entrada pública, retransmisión de SSE sin buffering y enrutamiento al gateway. |
+| API Gateway | Aplicación NestJS independiente. | Control de entrada y transporte; no contiene reglas de riesgo ni acceso a bases de negocio. |
+| Route Planning | Contenedor del servicio. | Imagen propia, credencial de `route_planning_db`, timeout y Circuit Breaker. |
+| Risk Assessment | Contenedor del servicio e inferencia ONNX. | Imagen y modelo versionados; credencial de `risk_assessment_db`. |
+| Incident Reporting | Contenedor del servicio con su procesamiento y relay. | Imagen propia y credencial de `incident_reporting_db`. |
+| Journey Alerts | Contenedor del servicio con consumidores y SSE. | Imagen propia y credencial de `journey_alerts_db`. |
+| Message Broker | RabbitMQ con almacenamiento persistente. | Colas y permisos por servicio; puerto y administración sin exposición pública. |
+| Servidor de persistencia | PostgreSQL y PostGIS. | Cuatro bases lógicas privadas y volumen persistente. |
+| Almacenamiento de respaldos | Copias externas al host. | Retención, cifrado y acceso operativo restringido. |
+| Proveedor cartográfico | Mapbox. | Dependencia externa separada de la operación interna. |
 
 #### Configuración operativa propuesta
 
 | Aspecto | Definición |
 |---|---|
-| Entornos | Desarrollo local y piloto, con configuraciones y datos separados. |
-| Despliegue | Imágenes de ejecución versionadas y configuración externa al código. |
-| Secretos | Credenciales fuera del repositorio y sin exposición en el cliente. |
-| Acceso público | HTTPS mediante el reverse proxy. |
-| Base de datos | Acceso limitado a API, worker y tareas operativas autorizadas. |
-| Reinicio | Supervisión y reinicio automático de procesos. |
-| Respaldo | Copia diaria con retención de siete versiones diarias. |
-| Recuperación | Restauración documentada y comprobada en un entorno aislado. |
-| Observabilidad | Latencia, errores, retraso del outbox, porcentaje de UNKNOWN y oportunidad de alertas. |
-| Evolución | Incorporación de redundancia cuando las mediciones y necesidades del piloto lo justifiquen. |
+| Entornos | Desarrollo local y piloto con datos, colas y secretos separados. |
+| Construcción | Una imagen por servicio y otra para el gateway; cada imagen tiene versión propia. |
+| Pipelines | Construcción, pruebas de contrato, despliegue y rollback seleccionables por servicio. |
+| Despliegue | Actualizar solo el servicio modificado cuando sus contratos sean compatibles; conservar los demás hashes de imagen. |
+| Descubrimiento | DNS de la red de contenedores y nombres configurados por entorno; sin direcciones fijas dentro del código. |
+| Persistencia | Database per Service, credenciales exclusivas y migraciones ejecutadas por el propietario. |
+| Mensajería | RabbitMQ, colas durables por suscripción, confirmaciones, inbox y reintentos limitados. |
+| Seguridad | HTTPS público, autenticación interna, sesiones verificables y broker/bases en red privada. |
+| Escalado | Ajustar recursos o réplicas por microservicio según métricas; comprobar concurrencia e idempotencia antes de aumentar consumidores. |
+| Recuperación | Respaldos por base, reconstrucción de proyecciones, reinicio controlado de consumidores y pruebas de reconciliación. |
+| Observabilidad | Correlation ID entre gateway, HTTP y eventos; latencia por servicio, backlog de colas, antigüedad de outbox, UNKNOWN y errores. |
+| Limitación inicial | Host, gateway, PostgreSQL y RabbitMQ sin redundancia; no se presupone alta disponibilidad. |
+
+#### Secuencia de despliegue de una versión compatible
+
+1. Construir la imagen del servicio modificado y ejecutar sus pruebas y contratos.
+2. Ejecutar migraciones aditivas de su base con la credencial del propietario.
+3. Publicar la nueva imagen y actualizar únicamente esa instancia o conjunto de réplicas.
+4. Comprobar readiness, errores, consumo de eventos y compatibilidad con los servicios existentes.
+5. Conservar la imagen anterior para rollback; las eliminaciones de campos se posponen hasta retirar consumidores antiguos.
+
+Las actualizaciones incompatibles exigen una transición de versiones del contrato. No se consideran independientes si requieren cambiar simultáneamente todos los servicios para que el producto continúe funcionando.
 
 #### Trazabilidad entre drivers y arquitectura
 
 | Driver o capacidad | Elementos que lo atienden |
 |---|---|
-| Comparación de recorridos. | Aplicación web, Route Planning y adaptador cartográfico. |
-| Estimación e incertidumbre. | Risk Assessment, proyección de incidentes y modelo versionado. |
-| Reportes comunitarios. | Incident Reporting, API, worker y persistencia. |
-| Alertas oportunas. | Journey Alerts, procesamiento de eventos y SSE. |
-| Integridad ante reintentos. | Transacciones, outbox, inbox y claves idempotentes. |
-| Protección de ubicación. | Sesión, autorización por propietario, historial local y limpieza temporal. |
-| Tolerancia a fallos externos. | Adaptador, timeout y Circuit Breaker. |
-| Recuperabilidad. | Supervisión de procesos, respaldos y procedimiento de restauración. |
-| Modificabilidad. | Límites entre contextos, puertos, adaptadores y contratos versionados. |
+| Comparación de recorridos. | Aplicación web, gateway, Route Planning y adaptador cartográfico. |
+| Estimación e incertidumbre. | Risk Assessment, base privada, proyección vigente y modelo versionado. |
+| Reportes comunitarios. | Incident Reporting, persistencia privada y relay de outbox. |
+| Alertas oportunas. | RabbitMQ, Journey Alerts, contratos de recorrido activo y SSE. |
+| Integridad ante reintentos. | Transacciones locales, outbox por productor, inbox por consumidor y claves idempotentes. |
+| Protección de ubicación. | Gateway, autorización por recurso en cada servicio, historial local y expiración de proyecciones. |
+| Tolerancia a fallos. | Timeouts y límites de concurrencia por llamada, Circuit Breaker y abstención ante información no sincronizada. |
+| Recuperabilidad. | Supervisión por proceso, almacenamiento durable, respaldos y reconciliación entre servicios. |
+| Modificabilidad. | APIs y eventos versionados, adaptadores y pruebas de contratos. |
+| Despliegue independiente. | Imágenes, pipelines, migraciones y datos privados de cada servicio; QA09 y CON08. |
 
-La arquitectura establece responsabilidades y condiciones de aceptación que deberán comprobarse durante la implementación. Su evolución se apoyará en las mediciones del piloto, la validación de las reglas del dominio y la disponibilidad de información suficiente para estimar el riesgo de manera útil.
+La arquitectura responde al requisito de microservicios mediante independencia de despliegue, propiedad de datos y comunicación contractual. Sus metas de desempeño y recuperación deberán verificarse con servicios y broker ejecutándose como procesos separados. La validación del dominio y de la información de riesgo continúa siendo necesaria para que la solución resulte útil.
