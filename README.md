@@ -130,6 +130,27 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
 
 ### 2.3.1. User Personas
 
+A partir de los segmentos objetivo definidos para VSafe, se plantean dos User Personas que representan a los principales tipos de usuarios de la solución. Estas personas permiten sintetizar sus objetivos, necesidades, motivaciones, frustraciones y comportamiento tecnológico relacionado con sus desplazamientos urbanos.
+
+#### User Persona - Estudiante universitario
+
+Este User Persona representa a estudiantes universitarios que realizan desplazamientos frecuentes entre su hogar, universidad y otros destinos de la ciudad. Su principal necesidad se relaciona con poder evaluar sus recorridos considerando no solo el tiempo y la distancia, sino también información sobre las zonas transitadas, especialmente cuando se movilizan por lugares desconocidos o en horarios nocturnos.
+
+<p align="center">
+
+  <img src="assets/Chapter-02/Estudiante_universitario.png" width="700">
+
+</p>
+
+#### User Persona - Trabajador urbano
+
+Este User Persona representa a trabajadores que se desplazan frecuentemente por diferentes zonas de la ciudad debido a sus actividades laborales. Sus recorridos pueden involucrar lugares desconocidos y diferentes horarios, por lo que requieren información que les permita comparar alternativas y tomar decisiones más informadas ante posibles incidentes o cambios durante el desplazamiento.
+
+<p align="center">
+<img src="assets/Chapter-02/Trabajador_urbano.png" width="700">
+</p>
+
+
 ### 2.3.2. User Task Matrix
 
 ### 2.3.3. Empathy Mapping
