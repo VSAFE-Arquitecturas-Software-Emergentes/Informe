@@ -263,3 +263,5 @@ El Ubiquitous Language de VSafe establece un vocabulario común para describir l
 | **Recálculo de ruta (Route Recalculation)** | Proceso de obtención y evaluación de nuevas alternativas cuando cambian las condiciones del recorrido o el usuario solicita otra opción. |
 | **Historial de recorridos (Route History)** | Registro de recorridos anteriores asociados a un usuario para su posterior consulta. |
 
+
+<div style="break-before: page; page-break-before: always;"></div>
