@@ -1055,3 +1055,6 @@ Las actualizaciones incompatibles exigen una transición de versiones del contra
 | Despliegue independiente. | Imágenes, pipelines, migraciones y datos privados de cada servicio; QA09 y CON08. |
 
 La arquitectura responde al requisito de microservicios mediante independencia de despliegue, propiedad de datos y comunicación contractual. Sus metas de desempeño y recuperación deberán verificarse con servicios y broker ejecutándose como procesos separados. La validación del dominio y de la información de riesgo continúa siendo necesaria para que la solución resulte útil.
+
+
+<div style="break-before: page; page-break-before: always;"></div>
