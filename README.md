@@ -24,7 +24,7 @@
 |:---:|:---:|
 | Gianfranco Jared Durand Vega | u202312614 |
 | Stephano Mayrzon Landauri Preciado | u202311828 |
-| Oscar Leonel Espinoza Quijandría | u202311842 |
+| Oscar Leonardo Espinoza Quijandría | u202311842 |
 | Olimpo | U202312614 |
 
 </div>
