@@ -211,6 +211,36 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
 
 ### 2.2.3. Análisis de entrevistas
 
+A partir de las entrevistas realizadas a los segmentos objetivo de VSafe, se identificaron patrones relacionados con la elección de rutas, el uso de aplicaciones de navegación, la importancia del tiempo de viaje, la percepción del riesgo y la confiabilidad de la información. Los resultados se analizaron de manera independiente para los segmentos de estudiantes universitarios y trabajadores urbanos.
+
+#### Estudiantes universitarios
+
+Las entrevistas realizadas a Fernanda Valderrama, Adrián Navarro y Aixa Valle muestran que el tiempo de llegada es uno de los principales factores considerados al seleccionar una ruta, aunque la importancia del riesgo varía según el contexto y las preferencias de cada estudiante. Fernanda y Aixa indicaron que durante la noche prestan mayor atención a las zonas por las que transitan y están dispuestas a utilizar recorridos más largos cuando estos presentan un menor nivel de riesgo estimado, mientras que Adrián mantiene el tiempo como su principal criterio de decisión. Los entrevistados utilizan herramientas como Google Maps, Waze, Moovit, Cabify y Yango dependiendo de su medio de transporte y necesidades, pero también recurren a conocimientos previos, familiares, amigos, noticias y redes sociales para obtener información sobre determinadas zonas. Los tres manifestaron interés por conocer incidentes y riesgos asociados al recorrido, así como por disponer de información actualizada y verificable que permita comprender por qué una zona presenta determinado nivel de riesgo. En conjunto, los resultados evidencian que VSafe debe permitir comparar tiempo, distancia y riesgo estimado sin asumir que todos los usuarios priorizarán el mismo factor, proporcionando información transparente para facilitar decisiones más informadas sobre sus recorridos.
+
+<p align="center">
+
+  <img src="assets/Chapter-02/analisis_estudiantes_vsafe.png" width="700">
+
+</p>
+
+Los resultados muestran que los tres estudiantes consideran el tiempo al seleccionar sus recorridos, toman en cuenta el riesgo de las zonas, utilizan aplicaciones de navegación, valoran disponer de información sobre incidentes y consideran relevante la confiabilidad de los datos. Sin embargo, solo dos de los tres entrevistados manifestaron una disposición clara a aceptar un mayor tiempo de recorrido a cambio de una ruta con menor nivel de riesgo estimado. Esto demuestra que VSafe debe permitir al usuario comparar diferentes factores y tomar su propia decisión, en lugar de asumir que el menor riesgo será siempre su principal criterio.
+
+#### Trabajadores urbanos
+
+Las entrevistas realizadas a Zaida Preciado y Pedro Romano Preciado Carvajal muestran que el tiempo constituye un factor fundamental en sus desplazamientos laborales, ya que Zaida prioriza los recorridos que le permiten llegar más rápido y Pedro relaciona directamente el tiempo de viaje con su actividad como conductor de taxi y sus ganancias. Ambos utilizan Waze para apoyar sus desplazamientos, mientras que Zaida también emplea Google Maps para recorridos de mayor distancia. A pesar de priorizar el tiempo, los entrevistados modifican sus decisiones cuando identifican zonas o situaciones que consideran de mayor riesgo, especialmente durante la noche o al transitar por lugares desconocidos, y ambos manifestaron disposición a utilizar rutas alternativas de mayor duración para evitar zonas con mayor riesgo estimado. También se identificaron preocupaciones relacionadas con accidentes, congestión vehicular, rutas desconocidas y falta de información previa sobre las condiciones del recorrido. Asimismo, ambos consideran fundamental conocer la procedencia de los datos y que la información utilizada para estimar el riesgo sea verificable, confiable y se mantenga actualizada. Estos hallazgos respaldan que VSafe presente alternativas de recorrido considerando tiempo, distancia, incidentes y riesgo estimado, permitiendo que el usuario evalúe estos factores antes de seleccionar una ruta.
+
+El siguiente gráfico presenta la frecuencia de los principales hallazgos identificados en las entrevistas realizadas hasta el momento a trabajadores urbanos.
+
+<p align="center">
+
+  <img src="assets/Chapter-02/analisis_trabajadores_vsafe.png" width="700">
+
+</p>
+
+Los resultados actuales muestran coincidencias entre los trabajadores entrevistados respecto a la importancia del tiempo, la consideración del riesgo de las zonas, el uso de aplicaciones de navegación, la necesidad de rutas alternativas y la confiabilidad de la información. Ambos también manifestaron disposición a aceptar un recorrido de mayor duración cuando este permita evitar una zona que presente un mayor nivel de riesgo estimado.
+
+En conjunto, los resultados de ambos segmentos evidencian que el tiempo continúa siendo un criterio fundamental en la planificación de los desplazamientos, pero no constituye el único factor considerado. El contexto del recorrido, el horario, el conocimiento previo de la zona, los incidentes registrados y el nivel de riesgo estimado pueden modificar la decisión del usuario. Estos hallazgos respaldan el enfoque de VSafe de presentar alternativas que permitan comparar tiempo, distancia y riesgo estimado, proporcionando información transparente para que cada usuario pueda tomar una decisión más informada sobre su recorrido.
+
 ## 2.3. Needfinding
 
 ### 2.3.1. User Personas
