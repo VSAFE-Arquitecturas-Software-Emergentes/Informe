@@ -344,6 +344,8 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
   <img src="assets/Chapter-02/entre_fernanda.png" width="700">
 </p>
 
+## Entrevista 1: [Entrevista 1 || Trabajadores urbanos](https://youtu.be/35xNbh2UCRI)
+
 ##### Entrevista 2
 
 | Campo | Información |
