@@ -153,7 +153,7 @@ Desarrollar una plataforma de navegación urbana inteligente que permita a los u
 | <img width="600" height="800" alt="image" src="https://github.com/user-attachments/assets/43c33c6b-80d5-4599-92aa-06d6a8ce4bec" /> | Gianfranco Jared Durand Vega    | U202312614 | Ingeniería de Software | Desarrollo Frontend (Vue/React), UI/UX, Integración de servicios externos |
 | <img src="assets/oscar_espinoza.jpeg" alt="Oscar Espinoza" width="200"> | Oscar Leonardo Espinoza Quijandria | U202311842 | Ingeniería de Software | Desarrollo de software, análisis de requerimientos, diseño de arquitectura y documentación técnica. Colaboración en equipo para proponer soluciones y organizar el desarrollo del proyecto. |
 | <img src="assets/renzo_uribe.png" alt="Renzo Sebastián Uribe Livia" width="200"> | Renzo Sebastián Uribe Livia | U202311745 | Ingeniería de Software | Análisis y especificación de requisitos, elaboración de User Stories y criterios de aceptación, Impact Mapping, Product Backlog y documentación técnica. |
-| | | | | |
+| <img src="assets/stephano_landauri.jpg" alt="Stephano Landauri" width="200"> | Stephano Mayrzon Landauri Preciado | U202311828 | Ingeniería de Software | Análisis de requerimientos, investigación de usuarios y documentación técnica para soluciones de software. Experiencia en Needfinding, User Personas, User Stories, Ubiquitous Language y análisis competitivo, colaborando en equipo para definir funcionalidades y organizar el desarrollo de proyectos. |
 
 
 ### 1.2 Solution Profile
