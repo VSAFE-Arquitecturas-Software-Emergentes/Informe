@@ -899,7 +899,7 @@ La solución incluye un API Gateway y cuatro microservicios de negocio desplegab
 <!-- 4.3.3. Software Architecture Container Level Diagram -->
 <p align="center">
   <img src="assets/VSafe_Container_View.png"
-       alt="Diagrama de contenedores de VSafe"
+       alt="Diagrama de contenedores de VSafe real"
        width="1200">
 </p>
 
@@ -992,7 +992,7 @@ El entorno inicial contiene instancias separadas del gateway y de cada microserv
 <!-- 4.3.4. Software Architecture Deployment Diagram -->
 <p align="center">
   <img src="assets/VSafe_Deployment.png"
-       alt="Diagrama de despliegue de VSafe"
+       alt="Diagrama de despliegue de VSafe real"
        width="1200">
 </p>
 
