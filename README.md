@@ -376,7 +376,7 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
   <img src="assets/Chapter-02/entre_aixa.png" width="700">
 </p>
 
-## Entrevista 3: [Link a la entrevista]https://youtu.be/nTg6DkAB5Uo)
+## Entrevista 3: [Link a la entrevista](https://youtu.be/nTg6DkAB5Uo)
 
 #### Segmento 2: Trabajadores urbanos
 
