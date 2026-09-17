@@ -151,8 +151,8 @@ Desarrollar una plataforma de navegación urbana inteligente que permita a los u
 | Foto                                          | Nombre completo               | Código     | Carrera                | Habilidades técnicas y rol                                   |
 |-----------------------------------------------|-------------------------------|------------|------------------------|--------------------------------------------------------------|
 | <img width="600" height="800" alt="image" src="https://github.com/user-attachments/assets/43c33c6b-80d5-4599-92aa-06d6a8ce4bec" /> | Gianfranco Jared Durand Vega    | U202312614 | Ingeniería de Software | Desarrollo Frontend (Vue/React), UI/UX, Integración de servicios externos |
-| <img src="assets/oscar_espinoza.jpeg" alt="Oscar Espinoza" width="200"> | Oscar Leonardo Espinoza Quijandria | u202311842 | Ingeniería de Software | Desarrollo de software, análisis de requerimientos, diseño de arquitectura y documentación técnica. Colaboración en equipo para proponer soluciones y organizar el desarrollo del proyecto. |
-| <img src="assets/renzo_uribe.png" alt="Renzo Sebastián Uribe Livia" width="200"> | Renzo Sebastián Uribe Livia | u202311745 | Ingeniería de Software | Análisis y especificación de requisitos, elaboración de User Stories y criterios de aceptación, Impact Mapping, Product Backlog y documentación técnica. |
+| <img src="assets/oscar_espinoza.jpeg" alt="Oscar Espinoza" width="200"> | Oscar Leonardo Espinoza Quijandria | U202311842 | Ingeniería de Software | Desarrollo de software, análisis de requerimientos, diseño de arquitectura y documentación técnica. Colaboración en equipo para proponer soluciones y organizar el desarrollo del proyecto. |
+| <img src="assets/renzo_uribe.png" alt="Renzo Sebastián Uribe Livia" width="200"> | Renzo Sebastián Uribe Livia | U202311745 | Ingeniería de Software | Análisis y especificación de requisitos, elaboración de User Stories y criterios de aceptación, Impact Mapping, Product Backlog y documentación técnica. |
 | | | | | |
 
 
