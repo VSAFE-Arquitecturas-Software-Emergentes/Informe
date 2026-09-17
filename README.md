@@ -6,7 +6,7 @@
     <strong>1ASI0657  Fundamentos de Arquitectura de Software</strong><br>
     <strong>202610</strong>
     <br><br> 
-    <strong>NRC: 7940</strong>
+    <strong>NRC: 16363</strong>
      <br><br> 
     <strong>Profesor: Marino Humberto Jara Palacios</strong>
     <br>
@@ -25,7 +25,7 @@
 | Gianfranco Jared Durand Vega | u202312614 |
 | Stephano Mayrzon Landauri Preciado | u202311828 |
 | Oscar Leonardo Espinoza Quijandría | u202311842 |
-| Olimpo | U202312614 |
+| Renzo Sebastián Uribe Livia | u202311745 |
 
 </div>
 
@@ -46,7 +46,9 @@ El curso contribuye al cumplimiento del Student Outcome ABET:
 En el siguiente cuadro se describen las acciones realizadas y las conclusiones del equipo que sustentan el cumplimiento del **ABET – EAC - Student Outcome 7**.
 
 | Criterio específico | Acciones realizadas | Conclusiones |
-|---------------------|--------------------|---------------|
+|---|---|---|
+| **3.c1.** Comunica oralmente sus ideas y/o resultados con objetividad a público de diferentes especialidades y niveles jerárquicos, en el marco del desarrollo de un proyecto en ingeniería de software. | **TB1:**<br>- **Oscar Espinoza:** Desarrollé el capítulo IV completo y preparé la explicación oral de las decisiones arquitectónicas de VSafe. Organicé las ideas sobre ADD, DDD, Clean Architecture y microservicios, apoyándome en los diagramas para explicar las responsabilidades de cada contexto y sus relaciones con un lenguaje comprensible para públicos con distintos conocimientos técnicos.<br>- **Renzo Sebastián Uribe Livia:** Desarrollé todo el capítulo III y preparé la explicación oral de la especificación de requisitos de VSafe. Organicé los To-Be Scenario Maps, las Epics y User Stories con sus criterios de aceptación, el Impact Mapping y el Product Backlog, relacionando las necesidades de los usuarios con los objetivos del negocio mediante un lenguaje comprensible para públicos técnicos y no técnicos.<br> - **Stephano Mayrzon Landauri Preciado:** Desarrollé el capítulo II de VSafe y preparé la explicación oral del proceso de Requirements Elicitation & Analysis. Organicé el análisis competitivo, las entrevistas a los segmentos objetivo y las técnicas de Needfinding, incluyendo User Personas, User Task Matrix, Empathy Mapping y As-Is Scenario Mapping. Asimismo, expliqué el Ubiquitous Language definido para el proyecto, relacionando los hallazgos sobre estudiantes universitarios y trabajadores urbanos con las necesidades que busca abordar VSafe mediante un lenguaje comprensible para públicos técnicos y no técnicos. | **TB1:** La preparación de VSafe permitió integrar los aportes del equipo en una explicación del problema, las necesidades de los usuarios, los requerimientos y la solución propuesta. El uso de ejemplos y diagramas facilita comunicar las decisiones del proyecto a públicos con diferentes especialidades y niveles de responsabilidad, distinguiendo los resultados obtenidos de los aspectos pendientes de validación.|
+| **3.c2.** Comunica en forma escrita ideas y/o resultados con objetividad a público de diferentes especialidades y niveles jerárquicos, en el marco del desarrollo de un proyecto de ingeniería de software. | **TB1:**<br>- **Oscar Espinoza:** Elaboré y documenté todo el capítulo IV de VSafe, incluyendo el diseño guiado por atributos de calidad, los drivers y las decisiones arquitectónicas, el EventStorming, el descubrimiento de contextos, los flujos del dominio, los Bounded Context Canvases, el Context Mapping y los diagramas de arquitectura. Expliqué la propuesta de microservicios y la aplicación de Clean Architecture, manteniendo coherencia con los capítulos anteriores y diferenciando las decisiones propuestas de los resultados pendientes de validación.<br>- **Renzo Sebastián Uribe Livia:** Elaboré y documenté todo el capítulo III de VSafe, incluyendo los To-Be Scenario Maps, la definición de Epics, User Stories y Technical Stories con criterios de aceptación, el Impact Mapping y la priorización del Product Backlog. Organicé los requisitos y su trazabilidad con los objetivos del negocio, manteniendo coherencia con la problemática, los segmentos objetivo y las hipótesis definidas en el capítulo I.<br> - **Stephano Mayrzon Landauri Preciado:** Elaboré y documenté el capítulo II de VSafe, correspondiente a Requirements Elicitation & Analysis, incluyendo el análisis de competidores y las estrategias frente a ellos, el diseño y análisis de entrevistas para los segmentos de estudiantes universitarios y trabajadores urbanos, y las técnicas de Needfinding mediante User Personas, User Task Matrix, Empathy Mapping y As-Is Scenario Mapping. Además, definí el Ubiquitous Language del proyecto para mantener una terminología consistente sobre conceptos como rutas, incidentes, reportes y riesgo estimado, manteniendo coherencia con la problemática, los segmentos objetivo y la propuesta de valor definida en el capítulo I. | **TB1:** La documentación de VSafe consolidó los aportes del equipo y estableció una relación entre el análisis del problema, los objetivos, las necesidades de los usuarios, los requerimientos y el diseño de la solución. La organización del informe mediante textos, tablas y diagramas facilita su comprensión y revisión por lectores técnicos y no técnicos, y proporciona una base común para continuar el desarrollo y validar las decisiones propuestas.|
 
 
 ## Contenido
@@ -149,6 +151,9 @@ Desarrollar una plataforma de navegación urbana inteligente que permita a los u
 | Foto                                          | Nombre completo               | Código     | Carrera                | Habilidades técnicas y rol                                   |
 |-----------------------------------------------|-------------------------------|------------|------------------------|--------------------------------------------------------------|
 | <img width="600" height="800" alt="image" src="https://github.com/user-attachments/assets/43c33c6b-80d5-4599-92aa-06d6a8ce4bec" /> | Gianfranco Jared Durand Vega    | U202312614 | Ingeniería de Software | Desarrollo Frontend (Vue/React), UI/UX, Integración de servicios externos |
+| <img src="assets/oscar_espinoza.jpeg" alt="Oscar Espinoza" width="200"> | Oscar Leonardo Espinoza Quijandria | U202311842 | Ingeniería de Software | Desarrollo de software, análisis de requerimientos, diseño de arquitectura y documentación técnica. Colaboración en equipo para proponer soluciones y organizar el desarrollo del proyecto. |
+| <img src="assets/renzo_uribe.png" alt="Renzo Sebastián Uribe Livia" width="200"> | Renzo Sebastián Uribe Livia | U202311745 | Ingeniería de Software | Análisis y especificación de requisitos, elaboración de User Stories y criterios de aceptación, Impact Mapping, Product Backlog y documentación técnica. |
+| <img src="assets/stephano_landauri.jpg" alt="Stephano Landauri" width="200"> | Stephano Mayrzon Landauri Preciado | U202311828 | Ingeniería de Software | Análisis de requerimientos, investigación de usuarios y documentación técnica para soluciones de software. Experiencia en Needfinding, User Personas, User Stories, Ubiquitous Language y análisis competitivo, colaborando en equipo para definir funcionalidades y organizar el desarrollo de proyectos. |
 
 
 ### 1.2 Solution Profile
@@ -249,3 +254,6 @@ Las personas que se desplazan diariamente por la ciudad pueden presentar dificul
 ---
 
 ## Registro de Versiones del Informe
+
+
+<div style="break-before: page; page-break-before: always;"></div>
