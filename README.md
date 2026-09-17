@@ -481,6 +481,13 @@ Los escenarios refinados se presentan por prioridad. Cada ficha conserva el iden
 | **Issues** | La estimación de esfuerzo no aplica a proveedores que exijan nuevas capacidades del producto. |
 | **Decisiones relacionadas** | ADR01, ADR02 y ADR04. |
 
+<!-- 4.1.4. Clean Architecture -->
+<p align="center">
+  <img src="assets/4-1-4_clean_architecture.png"
+       alt="Clean Architecture de VSafe"
+       width="900">
+</p>
+
 ## 4.2. Strategic-Level Domain-Driven Design
 
 El diseño estratégico del dominio organiza VSafe alrededor de capacidades del negocio. La separación se fundamenta en diferencias de lenguaje, reglas, datos y ciclos de vida. Los cuatro contextos identificados se materializan en microservicios independientes, con contratos HTTP y eventos de integración.
@@ -520,14 +527,6 @@ Se propone una sesión de entre una y dos horas con representantes del equipo y 
 | Usuario | Solicitar otro recorrido. | `JourneyRouteChanged` | Se incrementa la versión de la ruta activa. |
 | Usuario o expiración | Finalizar el recorrido. | `JourneyClosed` | Se detienen las alertas y se elimina el estado temporal. |
 
-#### Flujo de planificación
-
-<!-- INSERTAR IMAGEN: EventStorming del flujo de planificación de rutas. -->
-
-#### Flujo de reportes y alertas
-
-<!-- INSERTAR IMAGEN: EventStorming del flujo de reportes y alertas. -->
-
 #### Hotspots identificados
 
 | Hotspot | Tratamiento propuesto |
@@ -538,6 +537,14 @@ Se propone una sesión de entre una y dos horas con representantes del equipo y 
 | Tiempo de vigencia. | Configurarlo por categoría; utilizar 24 horas como hipótesis inicial del piloto. |
 | Pertinencia de una alerta. | Evaluar incidente activo y proximidad al tramo restante de la ruta. |
 | Cambio de recorrido mientras se procesa una alerta. | Comprobar la versión vigente antes de entregar y mostrar la notificación. |
+
+<!-- 4.2.1. EventStorming -->
+<p align="center">
+  <img src="assets/VSafe_EventStorming.png"
+       alt="EventStorming de VSafe"
+       width="1200">
+</p>
+
 
 ### 4.2.2. Candidate Context Discovery
 
@@ -564,7 +571,12 @@ El grupo Navegación se divide porque la obtención de rutas y la estimación de
 
 La evolución propuesta queda representada así:
 
-<!-- INSERTAR IMAGEN: Evolución de los grupos iniciales hacia los cuatro bounded contexts candidatos. -->
+<!-- 4.2.2. Candidate Context Discovery -->
+<p align="center">
+  <img src="assets/4-2-2_descubrimiento_contextos.png"
+       alt="Descubrimiento de contextos de VSafe"
+       width="900">
+</p>
 
 #### Contextos candidatos
 
@@ -604,7 +616,12 @@ Los siguientes diagramas muestran escenarios concretos. Las variaciones y errore
 
 Un estudiante define origen y destino. Route Planning obtiene alternativas del proveedor cartográfico y solicita su evaluación a Risk Assessment. Finalmente, presenta información comparable para que el estudiante seleccione un recorrido.
 
-<!-- INSERTAR IMAGEN: Domain Storytelling de comparación informada de rutas. -->
+<!-- 4.2.3. Domain Message Flows Modeling: comparar rutas -->
+<p align="center">
+  <img src="assets/4-2-3a_story_comparar_rutas.png"
+       alt="Flujo de comparación de rutas"
+       width="900">
+</p>
 
 Si Risk Assessment no dispone de información suficiente, devuelve UNKNOWN con su causa. Route Planning conserva las alternativas cartográficas disponibles y permite comparar sus demás características.
 
@@ -616,7 +633,12 @@ Un trabajador reporta un incidente y confirma su ubicación aproximada. Incident
 
 Cuando el reporte se incorpora como incidente publicable, Risk Assessment y Journey Alerts reciben la información necesaria para actualizar sus proyecciones.
 
-<!-- INSERTAR IMAGEN: Domain Storytelling de registro y publicación de un incidente. -->
+<!-- 4.2.3. Domain Message Flows Modeling: reportar incidente -->
+<p align="center">
+  <img src="assets/4-2-3b_story_reportar_incidente.png"
+       alt="Flujo de reporte de incidentes"
+       width="900">
+</p>
 
 La detección de un posible duplicado evita crear un segundo incidente equivalente. Un reporte rechazado o todavía pendiente no se incorpora a la evaluación de rutas.
 
@@ -624,7 +646,12 @@ La detección de un posible duplicado evita crear un segundo incidente equivalen
 
 Journey Alerts recibe información de un incidente publicado, evalúa su relación con un recorrido activo y entrega una alerta. El usuario decide solicitar una nueva alternativa a Route Planning.
 
-<!-- INSERTAR IMAGEN: Domain Storytelling de alerta y cambio de recorrido. -->
+<!-- 4.2.3. Domain Message Flows Modeling: alerta y recálculo -->
+<p align="center">
+  <img src="assets/4-2-3c_story_alerta_recalculo.png"
+       alt="Flujo de alerta y recálculo de ruta"
+       width="900">
+</p>
 
 Si no existe una alternativa, se mantiene visible la información del incidente y se comunica la limitación. Si el usuario selecciona otra ruta, se incrementa su versión y se actualizan las condiciones utilizadas por Journey Alerts.
 
@@ -671,6 +698,13 @@ Su elaboración sigue una secuencia de definición general, identificación de r
 | **Capas de capacidades** | Experiencia de planificación; coordinación de consultas; integración cartográfica. |
 | **Crítica del diseño** | Debe evitar convertirse en un módulo que concentre todas las reglas. La estimación y la pertinencia de alertas permanecen en sus respectivos contextos. |
 
+<!-- 4.2.4. Bounded Context Canvas: Route Planning -->
+<p align="center">
+  <img src="assets/4-2-4a_canvas_route_planning.png"
+       alt="Bounded Context Canvas de Route Planning"
+       width="900">
+</p>
+
 #### Bounded Context Canvas: Risk Assessment
 
 | Elemento | Definición |
@@ -691,6 +725,13 @@ Su elaboración sigue una secuencia de definición general, identificación de r
 | **Límites** | No obtiene rutas del proveedor ni administra sesiones de navegación. |
 | **Capas de capacidades** | Preparación de información; evaluación; interpretación y comunicación de incertidumbre. |
 | **Crítica del diseño** | Debe distinguir calidad técnica de la inferencia y validez de la información. Un servicio disponible puede devolver una evaluación no utilizable. |
+
+<!-- 4.2.4. Bounded Context Canvas: Risk Assessment -->
+<p align="center">
+  <img src="assets/4-2-4b_canvas_risk_assessment.png"
+       alt="Bounded Context Canvas de Risk Assessment"
+       width="900">
+</p>
 
 #### Bounded Context Canvas: Incident Reporting
 
@@ -713,6 +754,13 @@ Su elaboración sigue una secuencia de definición general, identificación de r
 | **Capas de capacidades** | Recepción; evaluación; publicación y mantenimiento de vigencia. |
 | **Crítica del diseño** | La validación automática debe evitar aparentar una verificación de hechos. Los estados y mensajes deben expresar claramente qué comprobaciones se realizaron. |
 
+<!-- 4.2.4. Bounded Context Canvas: Incident Reporting -->
+<p align="center">
+  <img src="assets/4-2-4c_canvas_incident_reporting.png"
+       alt="Bounded Context Canvas de Incident Reporting"
+       width="900">
+</p>
+
 #### Bounded Context Canvas: Journey Alerts
 
 | Elemento | Definición |
@@ -734,6 +782,13 @@ Su elaboración sigue una secuencia de definición general, identificación de r
 | **Capas de capacidades** | Suscripción; determinación de pertinencia; entrega y recuperación. |
 | **Crítica del diseño** | Debe separar pertinencia y transporte. Una alerta correctamente generada puede no ser visible si el navegador pierde conexión o queda suspendido. |
 
+<!-- 4.2.4. Bounded Context Canvas: Journey Alerts -->
+<p align="center">
+  <img src="assets/4-2-4d_canvas_journey_alerts.png"
+       alt="Bounded Context Canvas de Journey Alerts"
+       width="900">
+</p>
+
 ### 4.2.5. Context Mapping
 
 El Context Map representa las relaciones estructurales entre los contextos y define quién proporciona información, quién la consume y cómo se evita trasladar modelos externos al dominio.
@@ -754,7 +809,12 @@ Los patrones seleccionados consideran las relaciones Customer/Supplier, Open Hos
 
 Las flechas representan suministro de información o servicios desde el proveedor hacia el consumidor.
 
-<!-- INSERTAR IMAGEN: Context Map de VSafe con relaciones entre contextos y proveedor cartográfico. -->
+<!-- 4.2.5. Context Mapping -->
+<p align="center">
+  <img src="assets/4-2-5_context_map.png"
+       alt="Mapa de contextos de VSafe"
+       width="1000">
+</p>
 
 #### Relaciones seleccionadas
 
@@ -791,7 +851,12 @@ El System Landscape ubica a VSafe dentro de su entorno de uso y desarrollo.
 
 Los estudiantes y trabajadores utilizan el producto. El proveedor cartográfico aporta mapas y alternativas de recorrido. El equipo mantiene el código, los contratos y los diagramas mediante GitHub.
 
-<!-- INSERTAR IMAGEN: System Landscape de VSafe como sistema de microservicios, sus usuarios, proveedor cartográfico y entorno de desarrollo. -->
+<!-- 4.3.1. Software Architecture System Landscape Diagram -->
+<p align="center">
+  <img src="assets/VSafe-Landscape.png"
+       alt="System Landscape de VSafe"
+       width="1000">
+</p>
 
 GitHub forma parte del entorno de construcción y mantenimiento. La navegación de los usuarios no depende de consultar GitHub durante su ejecución.
 
@@ -801,7 +866,12 @@ El diseño no presupone que exista una integración disponible con una municipal
 
 El Context Diagram representa a VSafe como un sistema único, delimitando sus usuarios y dependencias externas.
 
-<!-- INSERTAR IMAGEN: System Context de VSafe. Mantener el sistema como una unidad y reservar su descomposición en microservicios para Container. -->
+<!-- 4.3.2. Software Architecture Context Level Diagram -->
+<p align="center">
+  <img src="assets/VSafe-Context.png"
+       alt="Diagrama de contexto de VSafe"
+       width="1000">
+</p>
 
 #### Responsabilidades del sistema
 
@@ -819,7 +889,19 @@ La geolocalización procede del dispositivo a través de las capacidades del nav
 
 La solución incluye un API Gateway y cuatro microservicios de negocio desplegables de manera independiente. Cada servicio tiene su propia base de datos y administra sus procesos de recepción, consumo de eventos y publicación. RabbitMQ conecta productores y consumidores sin convertir sus bases en un almacenamiento compartido.
 
-<!-- INSERTAR IMAGEN: Container Diagram de microservicios. Mostrar Landing Page, aplicación web, API Gateway, Route Planning Service, Risk Assessment Service, Incident Reporting Service, Journey Alerts Service, RabbitMQ, una base por servicio, historial local, respaldos y proveedor cartográfico. -->
+<!-- 4.3.3. Software Architecture Container Level Diagram -->
+<p align="center">
+  <img src="assets/VSafe_Container_View_mejor_vista.png"
+       alt="Diagrama de contenedores de VSafe"
+       width="1200">
+</p>
+
+<!-- 4.3.3. Software Architecture Container Level Diagram -->
+<p align="center">
+  <img src="assets/VSafe_Container_View.png"
+       alt="Diagrama de contenedores de VSafe"
+       width="1200">
+</p>
 
 #### Descripción de containers
 
@@ -900,7 +982,19 @@ Los errores públicos utilizan códigos identificables, como `INVALID_LOCATION`,
 
 El entorno inicial contiene instancias separadas del gateway y de cada microservicio. Se propone un piloto en una región de AWS. La independencia de ejecución y despliegue se conserva aunque las instancias compartan una máquina virtual por razones operativas.
 
-<!-- INSERTAR IMAGEN: Deployment Diagram de microservicios. Mostrar reverse proxy, API Gateway, cuatro contenedores de servicios, RabbitMQ con volumen, servidor PostgreSQL con cuatro bases y credenciales independientes, respaldos externos y pipelines por servicio. -->
+<!-- 4.3.4. Software Architecture Deployment Diagram -->
+<p align="center">
+  <img src="assets/VSafe_Deployment_Mejor_vista.png"
+       alt="Diagrama de despliegue de VSafe"
+       width="1200">
+</p>
+
+<!-- 4.3.4. Software Architecture Deployment Diagram -->
+<p align="center">
+  <img src="assets/VSafe_Deployment.png"
+       alt="Diagrama de despliegue de VSafe"
+       width="1200">
+</p>
 
 #### Nodos de despliegue
 
