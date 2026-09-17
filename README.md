@@ -26,7 +26,6 @@
 | Stephano Mayrzon Landauri Preciado | u202311828 |
 | Oscar Leonardo Espinoza Quijandría | u202311842 |
 | Renzo Sebastián Uribe Livia | u202311745 |
-| Olimpo | U202312614 |
 
 </div>
 
