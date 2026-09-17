@@ -124,6 +124,19 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
 
 ### 2.2.2. Registro de entrevistas
 
+#### Segmento 1: Estudiantes universitarios
+
+| Campo | Información |
+| --- | --- |
+| **Nombre** | Zaida Preciado |
+| **Edad** | 42 años |
+| **Ocupación** | Jefa de Finanzas |
+| **Segmento** | Trabajador urbano |
+| **Duración** | 00:00 - 06:29 |
+| **Resumen** | Zaida Preciado, de 42 años, se desplaza diariamente en auto propio y utiliza principalmente Waze para sus recorridos habituales y Google Maps para viajes de mayor distancia. Al seleccionar una ruta prioriza la rapidez, incluso si implica recorrer más kilómetros; sin embargo, relató una experiencia negativa en la que una aplicación la dirigió por una zona desconocida y que percibió como peligrosa en Chorrillos. Indicó que actualmente no investiga previamente las zonas por las que transitará, sino que revisa principalmente el tiempo y la distancia del recorrido. Considera importante contar con alertas sobre cierres, accidentes y condiciones de las vías, así como conocer si una ruta presenta zonas de mayor riesgo estimado o características como vías no asfaltadas. Señaló que durante la noche estaría dispuesta a utilizar una ruta más larga si cuenta con información que indique un menor nivel de riesgo. También valoró disponer de rutas alternativas, alertas sobre recorridos no habituales, configuración de indicaciones por voz, participación de otros usuarios mediante comentarios y una posible integración con el calendario para recibir recomendaciones sobre cuándo iniciar un desplazamiento según las condiciones del tráfico. |
+
+#### Segmento 2: Trabajadores urbanos
+
 ### 2.2.3. Análisis de entrevistas
 
 ## 2.3. Needfinding
