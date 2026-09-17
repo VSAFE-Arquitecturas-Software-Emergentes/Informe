@@ -6,7 +6,7 @@
     <strong>1ASI0657  Fundamentos de Arquitectura de Software</strong><br>
     <strong>202610</strong>
     <br><br> 
-    <strong>NRC: 7940</strong>
+    <strong>NRC: 16363</strong>
      <br><br> 
     <strong>Profesor: Marino Humberto Jara Palacios</strong>
     <br>
