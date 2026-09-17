@@ -344,7 +344,7 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
   <img src="assets/Chapter-02/entre_fernanda.png" width="700">
 </p>
 
-## Entrevista 1: [Entrevista 1 || Trabajadores urbanos](https://youtu.be/35xNbh2UCRI)
+## Entrevista 1: [Link a la entrevista](https://youtu.be/35xNbh2UCRI)
 
 ##### Entrevista 2
 
@@ -360,7 +360,7 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
   <img src="assets/Chapter-02/entre_adriano.png" width="700">
 </p>
 
-## Entrevista 2: [Entrevista 1 || Trabajadores urbanos](https://youtu.be/OmTxK0tkRHo)
+## Entrevista 2: [Link a la entrevista](https://youtu.be/OmTxK0tkRHo)
 
 ##### Entrevista 3
 
@@ -376,7 +376,7 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
   <img src="assets/Chapter-02/entre_aixa.png" width="700">
 </p>
 
-## Entrevista 3: [Entrevista 1 || Trabajadores urbanos]https://youtu.be/nTg6DkAB5Uo)
+## Entrevista 3: Link a la entrevista]https://youtu.be/nTg6DkAB5Uo)
 
 #### Segmento 2: Trabajadores urbanos
 
@@ -395,7 +395,7 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
   <img src="assets/Chapter-02/entre_zayda.png" width="700">
 </p>
 
-## Entrevista 1: [Entrevista 1 || Trabajadores urbanos](https://youtu.be/6niMgI2TcJQ)
+## Entrevista 1: [Link a la entrevista](https://youtu.be/6niMgI2TcJQ)
 
 ##### Entrevista 2
 
@@ -411,7 +411,7 @@ Para cada segmento se elaboró un conjunto de diez preguntas. Las entrevistas bu
   <img src="assets/Chapter-02/entre_pedros.png" width="700">
 </p>
 
-## Entrevista 2: [Entrevista 1 || Trabajadores urbanos](https://youtu.be/B6ImZAACEMI)
+## Entrevista 2: [Link a la entrevista](https://youtu.be/B6ImZAACEMI)
 
 ### 2.2.3. Análisis de entrevistas
 
