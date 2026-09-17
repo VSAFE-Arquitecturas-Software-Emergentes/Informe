@@ -254,3 +254,6 @@ Las personas que se desplazan diariamente por la ciudad pueden presentar dificul
 ---
 
 ## Registro de Versiones del Informe
+
+
+<div style="break-before: page; page-break-before: always;"></div>
