@@ -112,3 +112,4 @@ La cadena de impacto prioriza primero la comprensión de la propuesta de valor y
 | 20 | TS04 | Proteger datos de ubicación | Limitar el uso de la ubicación a finalidades autorizadas. | 5 |
 
 
+<div style="break-before: page; page-break-before: always;"></div>
