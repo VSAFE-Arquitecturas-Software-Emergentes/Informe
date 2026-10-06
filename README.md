@@ -3081,3 +3081,146 @@ La preferencia interna detiene el uso de ubicación y cierra el recorrido; la re
 | Fallo externo / QA03 | Reintento con puntos conservados y acceso a reportes independientes. | Route Planning y adaptador cartográfico. |
 | Integridad / QA06 | Envío único percibido pese a retry; una alerta lógica con ID estable. | Outbox/inbox de los servicios y claves idempotentes. |
 
+
+# Conclusiones
+
+1. El desarrollo de VSafe permitió estructurar una propuesta de navegación urbana que incorpora tiempo, distancia e información de riesgo estimado para apoyar la elección de recorridos. El análisis inicial de estudiantes universitarios y trabajadores urbanos aportó necesidades relacionadas con la comparación de alternativas, la consulta de incidentes y la confianza en la información. La investigación específica del alcance peatonal deberá ampliarse durante las siguientes etapas.
+
+2. La aplicación de Domain-Driven Design permitió delimitar cuatro bounded contexts: Route Planning, Risk Assessment, Incident Reporting y Journey Alerts. Esta separación organiza las responsabilidades del negocio y mantiene modelos de dominio propios. Para el MVP, se propone implementar cada contexto mediante un microservicio con persistencia privada y despliegue independiente.
+
+3. Attribute-Driven Design permitió relacionar las decisiones arquitectónicas con escenarios de desempeño, oportunidad de alertas, privacidad, integridad, tolerancia a fallos y evolución independiente. Las métricas definidas constituyen objetivos de verificación para la implementación y el piloto.
+
+4. El diseño táctico concretó los contextos mediante entidades, objetos de valor, agregados, repositorios y políticas de dominio. La documentación de las capas Domain, Interface, Application e Infrastructure, junto con los diagramas de componentes, clases y bases de datos, proporciona una base común para implementar los servicios y revisar sus responsabilidades.
+
+5. La integración propuesta combina consultas HTTP y eventos asíncronos con contratos versionados. Los mecanismos de outbox, inbox e idempotencia permiten diseñar la recuperación ante reintentos y fallos, conservando transacciones locales y consistencia eventual entre los microservicios.
+
+6. El diseño UX/UI estableció una identidad visual, sistemas de organización y navegación, wireframes y mockups de la landing page, además de wireframes y wireflows de la aplicación. Los flujos contemplan planificación, comparación, alertas, reportes, historial y privacidad, e incorporan estados de incertidumbre y errores para orientar las decisiones del usuario.
+
+7. El avance alcanzado corresponde al análisis y diseño de la solución. Las siguientes etapas deberán implementar los microservicios y las interfaces, validar la cobertura y calidad del modelo de riesgo, comprobar las metas de calidad y realizar pruebas de usabilidad. Estas verificaciones permitirán evaluar la utilidad de la propuesta y ajustar las decisiones documentadas.
+
+# Referencias Bibliográficas
+
+## Antecedentes de la solución
+
+- Galbrun, E., Pelechrinis, K., & Terzi, E. (2016). *Urban navigation beyond shortest route: The case of safe paths*. Information Systems. https://doi.org/10.1016/j.is.2015.10.005
+
+- Mata, F., Torres-Ruiz, M., Guzmán, G., Quintero, R., Zagal-Flores, R., Moreno-Ibarra, M., & Loza, E. (2016). *A mobile information system based on crowd-sensed and official crime data for finding safe routes: A case study of Mexico City*. Mobile Information Systems, 2016, artículo 8068209. https://doi.org/10.1155/2016/8068209
+
+- Sohrabi, S., Weng, Y., Das, S., & Paal, S. G. (2022). *Safe route-finding: A review of literature and future directions*. Accident Analysis & Prevention. https://doi.org/10.1016/j.aap.2022.106816
+
+## Diseño arquitectónico, táctico y UX/UI
+
+Los identificadores R1–R12 corresponden a las citas utilizadas en los capítulos V y VI.
+
+- **[R1]** Microsoft. (s. f.). *Design a DDD-oriented microservice*. Microsoft Learn. https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice
+
+- **[R2]** Wojcik, R., Bachmann, F., Bass, L., Clements, P., Merson, P., Nord, R., & Wood, W. (2006). *Attribute-Driven Design (ADD), Version 2.0* (CMU/SEI-2006-TR-023). Software Engineering Institute. https://doi.org/10.1184/R1/6572066.v1
+
+- **[R3]** C4 Model. (s. f.). *Component diagram*. https://c4model.com/diagrams/component
+
+- **[R4]** Structurizr. (s. f.). *Language reference*. https://docs.structurizr.com/dsl/language
+
+- **[R5]** RabbitMQ. (s. f.). *Consumer acknowledgements and publisher confirms*. https://www.rabbitmq.com/docs/confirms
+
+- **[R6]** NestJS. (s. f.). *Server-Sent Events*. https://docs.nestjs.com/techniques/server-sent-events
+
+- **[R7]** PostGIS. (s. f.). *ST_DWithin*. https://postgis.net/docs/ST_DWithin.html
+
+- **[R8]** ONNX Runtime. (s. f.). *Get started with ONNX Runtime Node.js binding*. https://onnxruntime.ai/docs/get-started/with-javascript/node.html
+
+- **[R9]** World Wide Web Consortium. (s. f.). *How to meet WCAG: Quick reference*. https://www.w3.org/WAI/WCAG22/quickref/
+
+- **[R10]** PrimeVue. (s. f.). *Styled mode*. https://primevue.dev/theming/styled/
+
+- **[R11]** Google. (s. f.). *Meta tags and attributes that Google supports*. Google Search Central. https://developers.google.com/search/docs/crawling-indexing/special-tags
+
+- **[R12]** MDN Web Docs. (s. f.). *Geolocation API*. https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
+
+- Software Engineering Institute. (2003). *Quality Attribute Workshops (QAWs), Third Edition*. https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/
+
+- Microsoft. (s. f.). *Data considerations for microservices*. Microsoft Learn. https://learn.microsoft.com/en-us/azure/architecture/microservices/design/data-considerations
+
+- Mapbox. (s. f.). *Directions API*. https://docs.mapbox.com/api/navigation/directions/
+
+- Amazon Web Services. (s. f.). *Transactional outbox pattern*. AWS Prescriptive Guidance. https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
+
+- RabbitMQ. (s. f.). *Reliability guide*. https://www.rabbitmq.com/docs/reliability
+
+- Brandolini, A. (s. f.). *EventStorming*. https://www.eventstorming.com/
+
+- DDD Crew. (s. f.). *The Bounded Context Canvas*. https://github.com/ddd-crew/bounded-context-canvas
+
+- DDD Crew. (s. f.). *Context mapping*. https://github.com/ddd-crew/context-mapping
+
+- Domain Storytelling. (s. f.). *Quick-start guide*. https://domainstorytelling.org/quick-start-guide
+
+- C4 Model. (s. f.). *Container diagram*. https://c4model.com/diagrams/container
+
+- C4 Model. (s. f.). *Deployment diagram*. https://c4model.com/diagrams/deployment
+
+# Anexos
+
+## Anexo 1. Registro de entrevistas
+
+Se reúnen los enlaces de las entrevistas documentadas en el capítulo II, utilizados como material de consulta para el análisis inicial de necesidades.
+
+| Segmento | Entrevistado | Enlace |
+|---|---|---|
+| Estudiantes universitarios | Fernanda Valderrama | [Ver entrevista](https://youtu.be/35xNbh2UCRI) |
+| Estudiantes universitarios | Adrián Navarro | [Ver entrevista](https://youtu.be/OmTxK0tkRHo) |
+| Estudiantes universitarios | Aixa Valle | [Ver entrevista](https://youtu.be/nTg6DkAB5Uo) |
+| Trabajadores urbanos | Zayda Preciado | [Ver entrevista](https://youtu.be/6niMgI2TcJQ) |
+| Trabajadores urbanos | Pedro Romano Preciado Carvajal | [Ver entrevista](https://youtu.be/B6ImZAACEMI) |
+
+## Anexo 2. Diagramas del diseño táctico
+
+Los siguientes archivos complementan el capítulo V y permiten consultar los componentes, modelos de dominio y esquemas de persistencia de los cuatro bounded contexts.
+
+| Bounded Context | Componentes | Clases de dominio | Base de datos |
+|---|---|---|---|
+| Route Planning | [Ver componentes](assets/cap5/route_planning_componentes.png) | [Ver clases](assets/cap5/route_planning_clases.png) | [Ver base de datos](assets/cap5/route_planning_base_datos.png) |
+| Risk Assessment | [Ver componentes](assets/cap5/risk_assessment_componentes.png) | [Ver clases](assets/cap5/risk_assessment_clases.png) | [Ver base de datos](assets/cap5/risk_assessment_base_datos.png) |
+| Incident Reporting | [Ver componentes](assets/cap5/incident_reporting_componentes.png) | [Ver clases](assets/cap5/incident_reporting_clases.png) | [Ver base de datos](assets/cap5/incident_reporting_base_datos.png) |
+| Journey Alerts | [Ver componentes](assets/cap5/journey_alerts_componentes.png) | [Ver clases](assets/cap5/journey_alerts_clases.png) | [Ver base de datos](assets/cap5/journey_alerts_base_datos.png) |
+
+## Anexo 3. Diseños UX/UI
+
+Se presentan los archivos visuales que complementan el capítulo VI. Las pantallas, mapas y valores incluidos corresponden a ejemplos de diseño.
+
+| Artefacto | Archivos |
+|---|---|
+| Arquitectura de información | [Ver diagrama](assets/cap6/arquitectura_informacion.png) |
+| Landing Page Wireframe | [Desktop](assets/cap6/landing_desktop_wireframe.png) · [Mobile](assets/cap6/landing_mobile_wireframe.png) |
+| Landing Page Mock-up | [Desktop](assets/cap6/landing_desktop_mockup.png) · [Mobile](assets/cap6/landing_mobile_mockup.png) |
+| Aplicación en escritorio | [Ver wireframe](assets/cap6/aplicacion_desktop_wireframe.png) |
+| Planificación y comparación | [Planificación](assets/cap6/wireframes_planificacion.png) · [Comparación](assets/cap6/wireframes_comparacion.png) |
+| Recorrido y recálculo | [Acompañamiento](assets/cap6/wireframes_acompanamiento.png) · [Recálculo](assets/cap6/wireframes_recalculo.png) |
+| Registro y revisión de reportes | [Reporte](assets/cap6/wireframes_reporte.png) · [Revisión](assets/cap6/wireframes_revision.png) |
+| Seguimiento y preferencias | [Seguimiento](assets/cap6/wireframes_seguimiento.png) · [Preferencias](assets/cap6/wireframes_preferencias.png) |
+| Estados de error | [Ver wireframes](assets/cap6/wireframes_errores.png) |
+
+Los wireflows documentan las transiciones entre pantallas para los siguientes objetivos de usuario:
+
+| Objetivo | Wireflow |
+|---|---|
+| UG01. Comparar e iniciar un recorrido | [Ver flujo](assets/cap6/wireflow_rutas.png) |
+| UG02. Evaluar una alerta y cambiar la ruta | [Ver flujo](assets/cap6/wireflow_alertas.png) |
+| UG03. Reportar un incidente observado | [Ver flujo](assets/cap6/wireflow_reportes.png) |
+| UG04. Conocer el resultado de un reporte | [Ver flujo](assets/cap6/wireflow_estado.png) |
+| UG05. Reutilizar o borrar una consulta anterior | [Ver flujo](assets/cap6/wireflow_historial.png) |
+| UG06. Cambiar autorización y preferencias | [Ver flujo](assets/cap6/wireflow_privacidad.png) |
+
+## Anexo 4. Fuentes editables del diseño
+
+El paquete completo de diseño incluye archivos de trabajo para revisar y mantener los modelos. Estos archivos pueden incorporarse al repositorio junto con las figuras.
+
+| Fuente | Ubicación | Propósito |
+|---|---|---|
+| Modelo de componentes en Structurizr DSL | `fuentes/vsafe_componentes.dsl` | Revisar las vistas de componentes de los cuatro microservicios. |
+| Diagramas de clases en PlantUML | `fuentes/*_clases.puml` | Mantener atributos, métodos, visibilidad y relaciones. |
+| Diagramas de clases en Mermaid | `fuentes/*_clases.mmd` | Consultar y editar la estructura del dominio. |
+| Diagramas de bases de datos en Mermaid | `fuentes/*_base_datos.mmd` | Revisar entidades, relaciones y persistencia por servicio. |
+| Wireflows en Mermaid | `fuentes/wireflow_*.mmd` | Mantener las transiciones de los objetivos de usuario. |
+| Diccionario del diseño táctico | `modelos/modelo_tactico.json` | Consultar clases, capas y tablas del modelo propuesto. |
+
+Los artefactos documentan propuestas de diseño. Su incorporación al informe no constituye evidencia de implementación, ejecución en las herramientas exigidas ni validación con usuarios.
