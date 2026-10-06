@@ -26,7 +26,8 @@
 
 | Versión | Fecha | Autor(es) | Descripción |
 |---|---|---|---|
-
+| TB1 | 16/09/2026 | Oscar Espinoza.<br>Renzo Sebastián Uribe Livia.<br>Stephano Mayrzon Landauri Preciado.<br>Gianfranco Jared Durand Vega. | Elaboración y consolidación de los capítulos I al IV de VSafe. Se documentaron el perfil de la startup, la problemática, los segmentos objetivo y el proceso Lean UX; el análisis de competidores y las entrevistas; la especificación de requisitos y el Product Backlog; y el diseño estratégico de la solución basado en DDD, ADD y una arquitectura de microservicios. |
+| TP1 | 06/10/2026 | Oscar Espinoza.<br>Renzo Sebastián Uribe Livia.<br>Stephano Mayrzon Landauri Preciado.<br>Gianfranco Jared Durand Vega. | Elaboración y consolidación de los capítulos V y VI de VSafe. Se desarrolló el diseño táctico de los bounded contexts, incluyendo las capas, componentes, modelos de dominio y bases de datos de los microservicios. Asimismo, se documentaron las guías de estilo, la arquitectura de información, los wireframes y mock-ups de la landing page, y los wireframes y wireflows de la aplicación, manteniendo coherencia con DDD, ADD y los requisitos definidos. |
 ## Student Outcome
 
 El curso contribuye al cumplimiento del Student Outcome ABET:
