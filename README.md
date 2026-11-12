@@ -4024,6 +4024,301 @@ El corte utiliza los commits alcanzables desde `main` de cada producto y `Master
 | `Carbocnito5443` — [450d6ef](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/450d6ef38877dd8b98f6e948fab89d346dd86869) y [9d9c931](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/9d9c93101e49f190c1967bf037817dfe12ba7498) | Ajustes de las secciones de evidencias previos a la integración. |
 | `Oscar` — [40fba04](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/40fba04a05d7ee499dc5c6ab7b96ba5d700e266b) | Integración de Chapter-07 en Master conservando capítulos anteriores, conclusiones y referencias. |
 
+## 7.3 Validation Interviews
+
+## 2.2.1. Diseño de Entrevistas
+
+El proceso de validación de VSafe tiene como objetivo conocer las necesidades, percepciones y experiencias de los usuarios respecto a la seguridad durante sus desplazamientos. Asimismo, busca evaluar la claridad de la propuesta de valor presentada en la Landing Page, la facilidad de navegación, la accesibilidad y la utilidad de las funcionalidades propuestas en la aplicación.
+
+Para ello, se han definido dos segmentos objetivos: estudiantes universitarios y personas trabajadoras. Cada segmento contará con tres participantes, quienes responderán diez preguntas relacionadas con sus hábitos de desplazamiento y su experiencia de interacción con VSafe.
+
+### Segmento 1: Estudiantes universitarios
+
+**Objetivo:** Identificar las necesidades de seguridad de los estudiantes durante sus desplazamientos hacia sus centros de estudio y evaluar la facilidad de uso, comprensión y utilidad de VSafe.
+
+1. ¿Qué dificultades o situaciones de inseguridad has experimentado al trasladarte hacia tu universidad o regresar a casa?
+
+2. Después de explorar la Landing Page de VSafe, ¿lograste comprender cuál es su propósito y cómo podría ayudarte en tus desplazamientos diarios?
+
+3. ¿Qué tan sencillo te resultó navegar por la Landing Page y encontrar información sobre el funcionamiento de VSafe?
+
+4. ¿Qué opinas de los colores, textos, botones e imágenes utilizados en la Landing Page? ¿Consideras que son claros y fáciles de entender?
+
+5. ¿Puedes localizar el botón "Explorar rutas" y explicar qué esperarías encontrar después de seleccionarlo?
+
+6. Al utilizar el prototipo de VSafe, ¿qué tan fácil te resulta establecer una ruta desde tu universidad hasta tu hogar?
+
+7. Si VSafe te presenta una ruta más rápida y otra con menos incidentes reportados, ¿cuál elegirías y qué información te ayudaría a decidir?
+
+8. ¿Qué tan útiles consideras las alertas sobre incidentes cercanos cuando regresas de clases en horarios nocturnos? ¿Cómo esperarías recibirlas?
+
+9. ¿Qué tan cómodo te sentirías compartiendo tu ubicación con VSafe y qué información necesitarías para confiar en el uso de tus datos?
+
+10. Después de interactuar con VSafe, ¿qué mejorarías de la Landing Page o la aplicación para que sea más útil en tu vida universitaria?
+
+### Segmento 2: Personas trabajadoras
+
+**Objetivo:** Evaluar la utilidad de VSafe para trabajadores que realizan desplazamientos frecuentes por motivos laborales, considerando sus horarios, necesidades de seguridad, planificación de recorridos y facilidad de uso de la aplicación.
+
+1. ¿Cómo planificas normalmente tus desplazamientos hacia tu centro de trabajo y qué factores consideras para elegir una ruta?
+
+2. Después de revisar la Landing Page de VSafe, ¿consideras que explica claramente cómo funciona la aplicación y qué beneficios podría ofrecerte durante tu jornada laboral?
+
+3. ¿Qué tan fácil te resultó encontrar información importante dentro de la Landing Page, como sus funcionalidades, beneficios y acceso a la aplicación?
+
+4. ¿Consideras que el tamaño de los textos, el contraste de colores y la distribución de los botones permiten utilizar la Landing Page cómodamente? ¿Qué cambiarías?
+
+5. ¿Puedes encontrar la opción para comenzar a explorar rutas desde la Landing Page? ¿El proceso te parece intuitivo?
+
+6. Al interactuar con el prototipo, ¿qué tan sencillo te resulta planificar una ruta entre tu centro de trabajo y otro destino?
+
+7. ¿Qué tan útil te resulta comparar rutas considerando el tiempo de traslado, la distancia y los incidentes reportados, especialmente cuando tienes horarios laborales establecidos?
+
+8. Si durante tu recorrido laboral VSafe te muestra una alerta sobre un incidente cercano, ¿comprenderías qué está sucediendo y qué acción deberías tomar?
+
+9. ¿Qué preocupaciones tendrías sobre compartir tu ubicación mientras utilizas VSafe durante tu jornada laboral y qué medidas aumentarían tu confianza?
+
+10. Después de explorar VSafe, ¿la utilizarías para tus desplazamientos laborales? ¿Qué funcionalidades o mejoras necesitarías para incorporarla a tu rutina?
+
+### User Flows considerados para la validación
+
+Durante las entrevistas se evaluarán los siguientes flujos de interacción, con el propósito de identificar dificultades de usabilidad, navegación y comprensión de las funcionalidades propuestas.
+
+| Código | User Flow | Descripción |
+|---|---|---|
+| UF01 | Exploración de Landing Page | El usuario ingresa a la Landing Page y explora sus secciones para comprender la propuesta de valor de VSafe. |
+| UF02 | Acceso a la aplicación | El usuario identifica el botón "Explorar rutas" e intenta acceder a la aplicación. |
+| UF03 | Planificación de recorrido | El usuario establece un punto de origen y destino para consultar las alternativas de recorrido. |
+| UF04 | Comparación de rutas | El usuario compara diferentes rutas considerando tiempo, distancia e incidentes reportados. |
+| UF05 | Interpretación de alertas | El usuario interpreta las alertas de seguridad presentadas y determina qué acción realizaría. |
+| UF06 | Privacidad y ubicación | El usuario identifica la información disponible sobre el uso de su ubicación y evalúa su nivel de confianza. |
+
+Estos flujos permitirán recopilar observaciones sobre el comportamiento de los participantes y complementar sus respuestas con evidencia relacionada con la usabilidad, arquitectura de información y diseño inclusivo de VSafe. Los flujos que todavía no se encuentren implementados podrán evaluarse mediante prototipos interactivos.
+
+## Registro de entrevistas
+
+### Segmento 1: Estudiantes universitarios
+
+#### Entrevista 1
+
+| Campo | Información |
+|---|---|
+| **Nombre** | Diego Fernández |
+| **Edad** | 21 años |
+| **Distrito** | [Completar distrito] |
+| **Ocupación** | Estudiante de Ingeniería de Sistemas |
+| **Duración** | [00:00 - MM:SS] |
+| **URL de entrevista** | [Enlace de Microsoft Stream] |
+| **Resumen del perfil** | Diego Fernández es un estudiante universitario de 21 años que utiliza frecuentemente el transporte público para trasladarse hacia su centro de estudios. Debido a sus horarios académicos, suele regresar a casa durante la noche, por lo que considera importante identificar recorridos que reduzcan su exposición a situaciones de inseguridad. Utiliza aplicaciones de navegación para consultar tiempos de llegada, aunque también le interesa conocer información sobre incidentes en las zonas por las que transita. Su perfil permite evaluar la claridad de la landing page de VSafe, la facilidad para comparar recorridos y la utilidad potencial de las alertas de seguridad. |
+
+**Evidencia de entrevista:**
+
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/ef66d1c2-2a39-4cf3-a83d-84d0680b593b" />
+
+
+#### Entrevista 2
+
+| Campo | Información |
+|---|---|
+| **Nombre** | Valeria Mendoza |
+| **Edad** | 20 años |
+| **Distrito** | [Completar distrito] |
+| **Ocupación** | Estudiante de Administración |
+| **Duración** | [00:00 - MM:SS] |
+| **URL de entrevista** | [Enlace de Microsoft Stream] |
+| **Resumen del perfil** | Valeria Mendoza es una estudiante universitaria de 20 años que realiza desplazamientos frecuentes caminando y utilizando transporte público. Su principal preocupación está relacionada con la inseguridad en calles poco transitadas, especialmente cuando debe movilizarse después de sus clases. Prefiere recorridos conocidos e iluminados, aunque esto pueda representar un mayor tiempo de traslado. Su perfil resulta relevante para validar si la landing page comunica claramente los beneficios de VSafe y si la información visual sobre rutas, incidentes y niveles de riesgo permite tomar decisiones de manera sencilla. También es importante evaluar la confianza que le genera compartir su ubicación con la aplicación. |
+
+**Evidencia de entrevista:**
+
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/06045985-7806-45fd-a0e0-f09644862495" />
+
+
+#### Entrevista 3
+
+| Campo | Información |
+|---|---|
+| **Nombre** | Sebastián Rojas |
+| **Edad** | 23 años |
+| **Distrito** | [Completar distrito] |
+| **Ocupación** | Estudiante de Arquitectura |
+| **Duración** | [00:00 - MM:SS] |
+| **URL de entrevista** | [Enlace de Microsoft Stream] |
+| **Resumen del perfil** | Sebastián Rojas es un estudiante de Arquitectura de 23 años que combina sus actividades académicas con prácticas preprofesionales. Debido a esta rutina, necesita trasladarse entre diferentes distritos y adaptarse constantemente a nuevos recorridos. Generalmente busca rutas que le permitan llegar puntualmente a sus destinos, pero también considera importante evitar zonas desconocidas o con posibles riesgos. Su perfil permitirá analizar la facilidad de navegación de VSafe, la comprensión de sus funcionalidades y la utilidad de comparar rutas considerando tiempo, distancia e incidentes reportados. Asimismo, representa a usuarios que requieren información clara y rápida para planificar desplazamientos frecuentes. |
+
+**Evidencia de entrevista:**
+
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/7e7ac4e0-19ce-4881-adfa-bbc2b4fd4c09" />
+
+---
+
+### Segmento 2: Personas trabajadoras
+
+#### Entrevista 4
+
+| Campo | Información |
+|---|---|
+| **Nombre** | Andrea Castillo |
+| **Edad** | 29 años |
+| **Distrito** | [Completar distrito] |
+| **Ocupación** | Asistente administrativa |
+| **Duración** | [00:00 - MM:SS] |
+| **URL de entrevista** | [Enlace de Microsoft Stream] |
+| **Resumen del perfil** | Andrea Castillo es una trabajadora administrativa de 29 años que realiza desplazamientos diarios entre su domicilio y su centro laboral. Debido a sus responsabilidades profesionales, necesita organizar sus tiempos de traslado y ocasionalmente movilizarse después del anochecer. Prefiere utilizar avenidas principales y zonas transitadas para reducir su exposición a situaciones de inseguridad. Su perfil permite evaluar la utilidad de VSafe para personas con rutinas laborales establecidas, así como la claridad de su landing page y la facilidad para identificar recorridos alternativos. También será relevante analizar la comprensión de los mensajes de seguridad y la accesibilidad de los elementos visuales de la aplicación. |
+
+**Evidencia de entrevista:**
+
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/ef21a23d-91c2-40b2-bfa4-baaeffea5abe" />
+
+
+#### Entrevista 5
+
+| Campo | Información |
+|---|---|
+| **Nombre** | Luis Ramírez |
+| **Edad** | 35 años |
+| **Distrito** | [Completar distrito] |
+| **Ocupación** | Repartidor de delivery |
+| **Duración** | [00:00 - MM:SS] |
+| **URL de entrevista** | [Enlace de Microsoft Stream] |
+| **Resumen del perfil** | Luis Ramírez es un trabajador independiente de 35 años que realiza entregas en distintos distritos de Lima. Su actividad laboral requiere desplazamientos constantes, por lo que necesita identificar rutas eficientes y adaptarse a zonas que no siempre conoce. Debido a la naturaleza de su trabajo, considera importante equilibrar el tiempo de entrega con las condiciones de seguridad del recorrido. Su perfil resulta útil para validar las funcionalidades de comparación de rutas, identificación de incidentes y alertas de seguridad de VSafe. Además, permitirá evaluar si la información presentada por la aplicación puede comprenderse rápidamente y facilitar decisiones durante desplazamientos frecuentes. |
+
+**Evidencia de entrevista:**
+
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/3873cd5f-45da-4228-8e38-ffafa30835e3" />
+
+
+#### Entrevista 6
+
+| Campo | Información |
+|---|---|
+| **Nombre** | Mariana Torres |
+| **Edad** | 32 años |
+| **Distrito** | [Completar distrito] |
+| **Ocupación** | Enfermera |
+| **Duración** | [00:00 - MM:SS] |
+| **URL de entrevista** | [Enlace de Microsoft Stream] |
+| **Resumen del perfil** | Mariana Torres es una profesional de enfermería de 32 años que trabaja en turnos rotativos, incluyendo jornadas nocturnas. Debido a sus horarios variables, necesita trasladarse en momentos en los que existe menor circulación de personas y puede resultar más difícil identificar recorridos adecuados. Su principal necesidad es contar con información que le permita planificar sus desplazamientos con anticipación y reducir posibles riesgos. Su perfil permite evaluar la utilidad de VSafe para trabajadores con horarios irregulares, especialmente las funcionalidades de comparación de rutas y alertas de seguridad. También permitirá analizar la facilidad de uso, la claridad de la información y la confianza relacionada con el manejo de datos de ubicación. |
+
+**Evidencia de entrevista:**
+
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/85da7bb3-a028-4538-8bfc-42e639fc2f48" />
+
+
+## 7.3.3. Evaluaciones según heurísticas
+
+La evaluación heurística de VSafe tiene como finalidad analizar la experiencia de usuario ofrecida por la Landing Page y el prototipo de la aplicación, considerando aspectos relacionados con la usabilidad, la arquitectura de información, la accesibilidad y el diseño inclusivo.
+
+El proceso de evaluación contempla las sesiones de validación realizadas con los dos segmentos objetivos del proyecto: estudiantes universitarios y personas trabajadoras. Se consideran las heurísticas de usabilidad de Jakob Nielsen, principios de organización de la información y criterios de diseño inclusivo.
+
+La evaluación se organiza mediante los siguientes criterios:
+
+1. **Claridad de información:** Comprensión de la propuesta de valor, funcionalidades y beneficios de VSafe.
+2. **Facilidad de navegación:** Capacidad para encontrar secciones, botones y funcionalidades sin dificultades.
+3. **Consistencia y diseño visual:** Uniformidad de los elementos gráficos, textos, colores e íconos.
+4. **Accesibilidad y diseño inclusivo:** Legibilidad, contraste, comprensión de elementos y facilidad de interacción.
+5. **Visibilidad del estado del sistema:** Claridad de los mensajes, alertas e información presentada al usuario.
+6. **Prevención de errores:** Capacidad de la interfaz para evitar confusiones durante la planificación y selección de rutas.
+7. **Confianza y transparencia:** Comprensión de la información relacionada con privacidad, ubicación y estimaciones de riesgo.
+8. **Satisfacción general:** Percepción de utilidad, facilidad de aprendizaje e intención de uso de VSafe.
+
+### Segmento 1: Estudiantes universitarios
+
+La evaluación del primer segmento se enfoca en identificar posibles dificultades durante la navegación de la Landing Page y el uso de las funcionalidades de planificación de rutas, considerando las necesidades de estudiantes que se desplazan frecuentemente hacia sus centros educativos.
+
+| Entrevistado | Heurística | Evaluación |
+|---|---|---|
+| Diego Fernández | Claridad de información | Se evaluará si el participante comprende la propuesta de valor de VSafe mediante la Landing Page, identificando correctamente su propósito y los beneficios de comparar rutas considerando tiempo, distancia y riesgo estimado. |
+| Diego Fernández | Facilidad de navegación | Se verificará si logra encontrar las secciones principales y el botón "Explorar rutas" sin asistencia, identificando posibles dificultades durante la interacción. |
+| Diego Fernández | Visibilidad del estado del sistema | Se analizará si comprende la información presentada sobre las rutas disponibles y si las indicaciones de riesgo permiten interpretar las alternativas de recorrido. |
+| Valeria Mendoza | Accesibilidad y diseño inclusivo | Se evaluará la facilidad para leer los textos, distinguir los botones y comprender los íconos y colores utilizados en la interfaz. |
+| Valeria Mendoza | Confianza y transparencia | Se analizará si la información relacionada con el uso de la ubicación resulta comprensible y suficiente para tomar una decisión informada. |
+| Valeria Mendoza | Claridad de información | Se verificará si la explicación de las funcionalidades permite comprender cómo VSafe podría contribuir a la planificación de desplazamientos más informados. |
+| Sebastián Rojas | Facilidad de navegación | Se evaluará si el participante logra establecer un origen y destino utilizando el prototipo, identificando posibles dificultades durante la planificación. |
+| Sebastián Rojas | Consistencia y diseño visual | Se analizará si los botones, textos e íconos mantienen una presentación comprensible y coherente durante los diferentes pasos de interacción. |
+| Sebastián Rojas | Satisfacción general | Se recopilará su percepción sobre la utilidad de VSafe para desplazamientos frecuentes, así como las funcionalidades o mejoras que considere necesarias. |
+
+### Segmento 2: Personas trabajadoras
+
+La evaluación del segundo segmento se orienta a analizar la experiencia de usuarios que realizan desplazamientos constantes por motivos laborales, considerando especialmente la planificación de recorridos, la comprensión de las alertas y la facilidad para acceder a información relevante.
+
+| Entrevistado | Heurística | Evaluación |
+|---|---|---|
+| Andrea Castillo | Claridad de información | Se evaluará si la Landing Page comunica claramente las funcionalidades y beneficios de VSafe para personas que necesitan planificar desplazamientos hacia sus centros laborales. |
+| Andrea Castillo | Arquitectura de información | Se verificará si la participante encuentra fácilmente las secciones de funcionamiento, beneficios y acceso a la aplicación, identificando posibles problemas de organización. |
+| Andrea Castillo | Accesibilidad y diseño inclusivo | Se analizará la legibilidad de los textos, el contraste de colores y la facilidad para identificar los elementos interactivos. |
+| Luis Ramírez | Facilidad de navegación | Se evaluará si el participante comprende cómo establecer rutas y comparar alternativas mediante una secuencia de interacción sencilla e intuitiva. |
+| Luis Ramírez | Visibilidad del estado del sistema | Se verificará si las alertas e indicaciones de riesgo presentan información comprensible que permita identificar las condiciones del recorrido. |
+| Luis Ramírez | Prevención de errores | Se analizará si la interfaz permite diferenciar correctamente las alternativas disponibles, evitando interpretaciones equivocadas sobre el tiempo, la distancia o el nivel de riesgo. |
+| Mariana Torres | Claridad de información | Se evaluará si la participante comprende la utilidad de VSafe para planificar desplazamientos en diferentes horarios, especialmente durante jornadas nocturnas. |
+| Mariana Torres | Confianza y transparencia | Se analizará si la aplicación presenta información suficiente sobre el tratamiento de datos personales, ubicación y estimaciones de riesgo. |
+| Mariana Torres | Satisfacción general | Se recopilará su percepción sobre la facilidad de uso, utilidad de las alertas y posibles mejoras necesarias para incorporar VSafe a sus desplazamientos cotidianos. |
+
+### Evaluación de los User Flows
+
+La evaluación heurística también considera los principales flujos de interacción definidos para VSafe. Cada flujo será analizado en función de la facilidad con la que los participantes puedan comprender y completar las tareas propuestas.
+
+| User Flow | Heurística relacionada | Criterio de evaluación | Mejora propuesta |
+|---|---|---|---|
+| UF01: Explorar la Landing Page | Claridad de información | Verificar que el usuario comprenda la finalidad y los beneficios de VSafe. | Mantener mensajes breves y destacar las funcionalidades principales. |
+| UF02: Acceder a la aplicación | Facilidad de navegación | Comprobar que el botón de acceso sea visible y comprensible. | Utilizar llamados a la acción consistentes y fácilmente identificables. |
+| UF03: Planificar recorrido | Prevención de errores | Verificar que el usuario pueda establecer correctamente un origen y destino. | Incorporar indicaciones claras y mensajes de validación de datos. |
+| UF04: Comparar rutas | Arquitectura de información | Comprobar que las alternativas sean fáciles de comparar. | Presentar tiempo, distancia y riesgo mediante una estructura uniforme. |
+| UF05: Interpretar alertas | Visibilidad del estado del sistema | Evaluar si los mensajes de seguridad son comprensibles. | Utilizar textos descriptivos e indicadores visuales complementarios. |
+| UF06: Privacidad y ubicación | Confianza y transparencia | Verificar que el usuario comprenda cómo se utilizan sus datos. | Mostrar información clara sobre permisos, privacidad y uso de la ubicación. |
+
+### Escala de severidad
+
+Para clasificar los problemas de usabilidad identificados durante las sesiones de validación se utilizará una escala de severidad de 0 a 4.
+
+| Nivel | Severidad | Descripción |
+|---|---|---|
+| 0 | Sin problema | No se identifica una dificultad de usabilidad. |
+| 1 | Cosmético | Problema visual menor que no dificulta la realización de tareas. |
+| 2 | Menor | Dificultad que afecta parcialmente la experiencia, pero permite completar la tarea. |
+| 3 | Mayor | Problema importante que dificulta significativamente la interacción. |
+| 4 | Crítico | Problema que impide completar una tarea principal o compromete gravemente la experiencia. |
+
+La severidad de cada hallazgo se determinará considerando su frecuencia, impacto y persistencia durante las sesiones de validación.
+
+### Registro y análisis de hallazgos
+
+Los problemas identificados deberán documentarse mediante el siguiente formato:
+
+| Campo | Descripción |
+|---|---|
+| Identificador | Código del hallazgo: HE-01, HE-02, etc. |
+| Segmento | Estudiantes universitarios o personas trabajadoras. |
+| User Flow | Flujo de interacción donde ocurrió el problema. |
+| Heurística afectada | Principio de usabilidad, arquitectura de información o diseño inclusivo. |
+| Descripción del problema | Dificultad identificada durante la interacción. |
+| Evidencia | Captura de pantalla y minuto correspondiente del video de entrevista. |
+| Severidad | Valor entre 0 y 4. |
+| Recomendación | Cambio propuesto para resolver el problema identificado. |
+
+### Recomendaciones de mejora
+
+A partir de los criterios de evaluación establecidos, se plantean las siguientes oportunidades de mejora para VSafe, sujetas a su validación con los participantes:
+
+1. **Optimización de la navegación:** Mantener una estructura de secciones clara, permitiendo que los usuarios encuentren rápidamente las funcionalidades principales.
+
+2. **Claridad en la comparación de rutas:** Presentar de manera diferenciada el tiempo estimado, la distancia y el riesgo de cada alternativa, facilitando la toma de decisiones.
+
+3. **Mejora de las alertas de seguridad:** Utilizar mensajes comprensibles que indiquen el tipo de incidente, la zona relacionada y las acciones que podría considerar el usuario.
+
+4. **Fortalecimiento de la accesibilidad:** Revisar los contrastes de colores, tamaños de fuente y elementos interactivos para favorecer su utilización por diferentes perfiles de usuarios.
+
+5. **Transparencia en la información:** Explicar de manera sencilla cómo se calcula el riesgo estimado y cuáles son las fuentes de información utilizadas.
+
+6. **Protección de datos personales:** Comunicar claramente cuándo se utiliza la ubicación del usuario, qué información se almacena y cuáles son las opciones disponibles para administrar sus permisos.
+
+### Conclusión de la evaluación heurística
+
+La evaluación heurística de VSafe permitirá identificar oportunidades de mejora relacionadas con la usabilidad, navegación, accesibilidad y comprensión de las funcionalidades propuestas. La participación de estudiantes universitarios y personas trabajadoras facilitará el análisis de necesidades asociadas a diferentes rutinas y condiciones de desplazamiento.
+
+Los criterios definidos servirán como base para analizar las evidencias de las entrevistas, identificar problemas de interacción, asignar niveles de severidad y establecer recomendaciones de mejora fundamentadas en las observaciones de los participantes.
+
+De esta manera, el proceso de validación contribuirá al desarrollo de una experiencia de usuario más clara, accesible y confiable, alineada con el propósito de VSafe de brindar información útil para la planificación de recorridos urbanos.
+
 
 # Conclusiones
 
