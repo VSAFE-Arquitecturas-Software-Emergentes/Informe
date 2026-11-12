@@ -3916,11 +3916,6 @@ El corte utiliza los commits alcanzables desde `main` de cada producto y `Master
 | `Carbocnito5443` — [450d6ef](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/450d6ef38877dd8b98f6e948fab89d346dd86869) y [9d9c931](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/9d9c93101e49f190c1967bf037817dfe12ba7498) | Ajustes de las secciones de evidencias previos a la integración. |
 | `Oscar` — [40fba04](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/40fba04a05d7ee499dc5c6ab7b96ba5d700e266b) | Integración de Chapter-07 en Master conservando capítulos anteriores, conclusiones y referencias. |
 
-**Hallazgos para la revisión del equipo**
-
-El historial acredita colaboración documental y publicación de los tres productos, pero **todavía no acredita participación de todos los integrantes en la implementación de Landing Page, Web Services y WebApp**. Las asignaciones propuestas en 7.2.1.1 no se presentan como trabajo ejecutado únicamente por figurar en el planning. Tampoco se dispone en este corte de evidencia suficiente para afirmar que todos los cambios tuvieron revisión por pares.
-
-Para completar ese criterio, cada integrante deberá aportar cambios reales en los productos que le correspondan, registrar revisiones y enlazar historia, tarea, commit o Pull Request y prueba. Esas evidencias deben añadirse en una revisión posterior, conservando el historial existente. La limitación se declara expresamente en lugar de atribuir autorías no verificadas o generar commits artificiales para aparentar participación.
 
 # Conclusiones
 
