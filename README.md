@@ -88,6 +88,8 @@ En el siguiente cuadro se describe las acciones realizadas y enunciados de concl
       - [4.1.2.3. Constraints](#4123-constraints)
     - [4.1.3. Architectural Drivers Backlog](#413-architectural-drivers-backlog)
     - [4.1.4. Architectural Design Decisions](#414-architectural-design-decisions)
+      - [Tecnologías emergentes implementadas](#tecnologías-emergentes-implementadas)
+      - [ADR09. Blockchain para auditar la integridad de incidentes](#adr09-blockchain-para-auditar-la-integridad-de-incidentes)
     - [4.1.5. Quality Attribute Scenario Refinements](#415-quality-attribute-scenario-refinements)
   - [4.2. Strategic-Level Domain-Driven Design](#42-strategic-level-domain-driven-design)
     - [4.2.1. EventStorming](#421-eventstorming)
@@ -192,6 +194,8 @@ En el siguiente cuadro se describe las acciones realizadas y enunciados de concl
 ### 1.1.1 Descripción de la Startup
 
 VSafe es una startup tecnológica enfocada en mejorar la experiencia de desplazamiento de las personas dentro de la ciudad mediante una plataforma de navegación urbana inteligente. Nuestra solución utiliza inteligencia artificial, geolocalización y reportes de incidentes para permitir la evaluación de rutas considerando no solo aspectos como el tiempo y la distancia, sino también el nivel de riesgo estimado de las zonas por las que transita el usuario.
+
+El MVP incorpora dos tecnologías emergentes: **IA/ML con ONNX Runtime** para la evaluación de riesgo y **blockchain con contratos inteligentes en Solidity** para auditar la integridad de las versiones de incidentes. La segunda ya se utiliza desde Incident Reporting mediante el contrato `IncidentAudit` desplegado en Ethereum Sepolia; su funcionamiento y evidencia se especifican en ADR09 y en 7.2.1.7. La IA conserva un modelo sintético y se abstiene de clasificar riesgo real mientras no se complete su validación.
 
 A través de la plataforma, los usuarios podrán ingresar un punto de origen y destino para visualizar diferentes alternativas de recorrido, conocer incidentes reportados cerca de su ubicación y recibir alertas sobre situaciones que puedan afectar su desplazamiento. Asimismo, podrán contribuir con la comunidad registrando incidentes relacionados con robos, asaltos u otras situaciones que puedan representar un riesgo para las personas que transitan por determinadas zonas.
 
@@ -939,6 +943,17 @@ El orden arquitectónico no sustituye al Product Backlog. Por ejemplo, aunque TS
 
 ### 4.1.4. Architectural Design Decisions
 
+#### Tecnologías emergentes implementadas
+
+VSafe integra **dos tecnologías emergentes con responsabilidades distintas**. La primera procesa información para una estimación; la segunda permite comprobar si un registro conserva el compromiso de integridad anclado en la cadena.
+
+| Tecnología emergente | Software y componente responsable | Uso dentro de VSafe | Estado del MVP |
+|---|---|---|---|
+| **1. Inteligencia artificial / Machine Learning** | ONNX Runtime para Node.js, componente `OnnxInference` de Risk Assessment. | Ejecutar un modelo compacto y aplicar reglas de cobertura, vigencia y abstención al evaluar rutas y segmentos. | Integración implementada con `risk-demo.onnx` sintético; en modo real devuelve `UNKNOWN / MODEL_NOT_VALIDATED` hasta validar datos y modelo. Véanse ADR04 y 5.2.5. |
+| **2. Blockchain y contratos inteligentes** | Solidity, contrato `IncidentAudit`, ethers y Alchemy RPC; componente `BlockchainAudit` de Incident Reporting. | Anclar compromisos criptográficos por versión de incidente y contrastarlos mediante el endpoint de auditoría del propietario. | **En uso en Ethereum Sepolia**: contrato desplegado y dos transacciones de anclaje confirmadas, verificadas mediante consulta pública de la cadena. Véanse ADR09, 5.3.4 y 7.2.1.7. |
+
+La blockchain complementa la base privada del microservicio. No sustituye PostgreSQL/PostGIS, el procesamiento de duplicados ni la vigencia de los incidentes; tampoco convierte un reporte comunitario en un hecho confirmado.
+
 El análisis se estructura utilizando las etapas del QAW. La siguiente tabla describe cómo se aplicarán al proyecto y qué artefactos permiten revisar cada etapa; no representa un acta de una sesión realizada.
 
 | Etapa | Aplicación en VSafe | Resultado esperado |
@@ -971,6 +986,7 @@ Estas etapas siguen la organización propuesta por el SEI para el QAW. [Barbacci
 | CON01, QA03 | Integración cartográfica | **Adaptador con ACL.** Pro: contratos propios. Con: requiere traducción y pruebas. | **SDK dentro del dominio.** Pro: menos código inicial. Con: dependencia directa del proveedor. | **Motor cartográfico propio.** Pro: control de los datos. Con: mantenimiento y procesamiento adicionales. |
 | QA01, QA03 | Fallos externos | **Timeout y Circuit Breaker.** Pro: tiempos acotados. Con: rechazo temporal de solicitudes. | **Reintentos ilimitados.** Pro: algunas operaciones terminan recuperándose. Con: consumo y espera sin límites. | **Proveedor secundario.** Pro: alternativa ante fallos. Con: doble integración y diferencias de cobertura. |
 | QA04 | Estimación de riesgo | **Modelo versionado con abstención.** Pro: aprendizaje y límites explícitos. Con: exige datos y validación. | **Reglas fijas.** Pro: explicación sencilla. Con: umbrales rígidos y sin aprendizaje. | **Modelo generativo que califica zonas.** Pro: explicación textual. Con: difícil calibración y riesgo de afirmaciones no sustentadas. |
+| QA05, QA06 | Auditoría de integridad de incidentes | **Compromisos con sal en contrato Solidity.** Pro: referencia externa verificable sin publicar el contenido del registro. Con: requiere RPC, transacciones y confirmación asíncrona. | **Auditoría únicamente en PostgreSQL.** Pro: consulta local sencilla. Con: el registro y su evidencia dependen del mismo almacenamiento. | **Firma o hash conservado solo en el servidor.** Pro: evita transacciones en cadena. Con: depende de la custodia de las claves y del historial del servidor. |
 | QA06 | Publicación de eventos | **Transactional Outbox.** Pro: estado y evento se guardan juntos. Con: necesita procesamiento e inbox. | **Guardar y luego publicar.** Pro: implementación corta. Con: posible pérdida entre ambas operaciones. | **Event Sourcing completo.** Pro: reconstrucción histórica. Con: mayor complejidad de modelos y retención. |
 | QA02 | Comunicación de alertas | **SSE.** Pro: canal servidor-cliente y reconexión. Con: restricciones en segundo plano. | **Polling frecuente.** Pro: implementación sencilla. Con: solicitudes repetidas y retraso por intervalo. | **WebSocket.** Pro: comunicación bidireccional. Con: administración adicional de conexiones y protocolo. |
 | QA05, FD04 | Identidad e historial | **Sesión anónima e historial local.** Pro: menor almacenamiento central. Con: no sincroniza dispositivos. | **Cuenta persistente.** Pro: recuperación y sincronización. Con: amplía requisitos y gestión de credenciales. | **Consulta pública por identificador.** Pro: acceso simple. Con: riesgo de exposición de datos. |
@@ -1046,6 +1062,8 @@ Hasta disponer de un modelo y cobertura aceptables, VSafe podrá mostrar rutas e
 
 Cada resultado contendrá fecha de evaluación, vigencia, versión del método, cobertura y causa de incertidumbre cuando corresponda.
 
+**Estado implementado de la primera tecnología emergente.** Risk Assessment incorpora ONNX Runtime y el modelo sintético `risk-demo.onnx`. La integración técnica está implementada, pero no existe todavía un modelo validado con datos reales para clasificar el riesgo del piloto. Esta limitación se conserva explícita en las respuestas y en las evidencias; no se presenta como una validación predictiva completada.
+
 #### ADR05. Mensajería distribuida con RabbitMQ y outbox por servicio
 
 Incident Reporting guarda un reporte y su evento en una transacción de su base privada. Route Planning aplica el mismo principio a los cambios del recorrido. Cada productor ejecuta un relay de outbox propio que publica en RabbitMQ y conserva el pendiente hasta recibir confirmación. No existe un worker global con acceso a todas las bases. El outbox resuelve la separación entre guardar el estado y publicar su evento. [AWS, Transactional outbox pattern](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
@@ -1097,6 +1115,48 @@ Se realizarán respaldos diarios por base y se conservarán siete copias fuera d
 Los respaldos excluirán el estado transitorio de recorridos y la información personal que ya deba eliminarse. Tras una restauración completa, se iniciarán nuevos recorridos y se reconstruirán las proyecciones de incidentes. Las copias independientes se reconciliarán mediante IDs, versiones y snapshots del propietario; no se asumirá atomicidad entre bases.
 
 La independencia de despliegue no elimina los puntos únicos de fallo: el host, el gateway, el servidor de bases y el broker del piloto aún pueden interrumpir varias funciones. El RTO de 4 h, RPO de 24 h y disponibilidad objetivo se mantendrán sujetos a pruebas y medición; una evolución posterior puede distribuir instancias e infraestructura.
+
+#### ADR09. Blockchain para auditar la integridad de incidentes
+
+**Decisión y estado.** Se utiliza **blockchain con contratos inteligentes en Solidity como segunda tecnología emergente**. La integración está implementada en Incident Reporting y el contrato `IncidentAudit` está desplegado en **Ethereum Sepolia**, chain ID `11155111`, en la dirección [0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30](https://sepolia.etherscan.io/address/0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30). Sepolia es una red de pruebas para aplicaciones y contratos; esta evidencia no corresponde a Ethereum Mainnet [R13].
+
+**Problema que atiende.** Los reportes generan versiones de incidentes que pueden publicarse o expirar. Además de almacenarlas en PostgreSQL, VSafe necesita una referencia externa para contrastar si el contenido de una versión coincide con su compromiso previamente anclado. Esta capacidad se relaciona con US13 y US16, el procesamiento de reportes de TS03 y los drivers QA05 y QA06. La integridad del registro se mantiene separada de su confiabilidad como información del mundo real.
+
+**Software utilizado y responsabilidad.**
+
+| Elemento | Responsabilidad implementada |
+|---|---|
+| Contrato `IncidentAudit`, Solidity | Conserva el mapping `commitments`, identifica su despliegue y restringe `anchor(bytes32,bytes32)` al `writer` autorizado. No permite reemplazar el compromiso de una misma referencia por otro diferente. Emite el evento `Anchored`. |
+| `BlockchainAudit`, TypeScript y ethers | Ejecuta el worker de anclaje, espera recibos de transacción y consulta los compromisos para verificar versiones. ethers proporciona el acceso JSON-RPC y la interacción con el contrato [R15]. |
+| Alchemy RPC | Proporciona al servicio desplegado la conexión JSON-RPC con Sepolia; no almacena el dominio ni ejecuta las reglas de publicación de reportes. |
+| `PgReports` y tabla `audit_records` | Conservan el payload de la versión, sal, referencia opaca, compromiso, intentos, hash de transacción e instante de anclaje en `incident_reporting_db`. |
+| Endpoint de auditoría | `GET /api/v1/incident-reports/{id}/audit` permite consultar la integridad de las versiones del reporte de la sesión propietaria. |
+
+Los contratos Solidity conservan estado y ejecutan funciones mediante llamadas o transacciones de la EVM [R14]. En VSafe, el worker del backend inicia el anclaje; el contrato no ejecuta por sí mismo tareas periódicas.
+
+**Flujo implementado.**
+
+1. El usuario registra un reporte con `POST /api/v1/incident-reports`. Incident Reporting aplica autorización, validación, idempotencia y reglas de publicación.
+2. Al crear una versión de incidente, `PgReports` añade su auditoría pendiente en la transacción local. Genera una sal aleatoria y una referencia opaca y calcula `SHA256(sal + JSON_canónico(versión_del_incidente))`. La sal y el payload permanecen en la base privada.
+3. `BlockchainAudit.start()` activa un worker que consulta pendientes cada tres segundos. Utiliza ethers y la conexión de Alchemy para llamar a `anchor(recordRef, commitment)`, espera el recibo y guarda el hash de transacción, el identificador de despliegue y la fecha de anclaje.
+4. `IncidentAudit` admite la escritura del `writer` autorizado y conserva el compromiso asociado a la referencia. Las llamadas repetidas con el mismo valor no sustituyen el registro; un valor diferente para una referencia anclada se rechaza.
+5. La consulta autorizada de auditoría recalcula el compromiso del payload con su sal y lo compara con `commitments(recordRef)` en la cadena. Devuelve estados por versión y el alcance `RECORD_INTEGRITY_ONLY`.
+
+| Estado de auditoría | Interpretación |
+|---|---|
+| `PENDING` | La versión todavía no tiene un anclaje confirmado en el despliegue consultado. |
+| `VERIFIED` | El compromiso recalculado coincide con el almacenado en el contrato. |
+| `MISMATCH` | El compromiso recalculado difiere del anclaje; debe investigarse la discrepancia del registro. |
+| `UNAVAILABLE` | No fue posible consultar la cadena o el contrato; no se afirma integridad verificada. |
+| `NETWORK_RESET` | El registro de anclaje corresponde a un identificador de despliegue diferente. |
+
+**Persistencia, fallos y privacidad.** El anclaje es asíncrono y no bloquea la recepción del reporte esperando una confirmación blockchain. Si el RPC o la transacción fallan, la auditoría conserva el pendiente para un nuevo intento. La cadena almacena referencias y compromisos opacos; no recibe descripciones, identidad de sesión, sal ni coordenadas en texto abierto. La clave de firma se configura únicamente en el servidor. Los compromisos de versiones anteriores permanecen en la cadena y no constituyen un mecanismo de borrado.
+
+**Evidencia de uso.** El 12 de noviembre de 2026 se consultaron el bytecode del contrato, dos recibos exitosos, sus eventos `Anchored` y los compromisos conservados en Sepolia. El [registro verificable de la comprobación](assets/Chapter-07/Blockchain_Sepolia_Verification.json) y las transacciones enlazadas en 7.2.1.7 acreditan uso del contrato, además de su despliegue. Esta consulta pública no accede al payload ni a la sal de la base privada y no sustituye la comprobación autorizada por propietario del endpoint de auditoría.
+
+**Trazabilidad de implementación.** El repositorio [Microservices, commit fe60f47](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices/commit/fe60f4708777221354bc54123fdec0ce3b022251) contiene el [contrato IncidentAudit](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices/blob/fe60f4708777221354bc54123fdec0ce3b022251/packages/blockchain/contracts/IncidentAudit.sol), el [adaptador BlockchainAudit](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices/blob/fe60f4708777221354bc54123fdec0ce3b022251/services/incident-reporting/src/infrastructure/blockchain-audit.ts) y el [registro transaccional de las auditorías](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices/blob/fe60f4708777221354bc54123fdec0ce3b022251/services/incident-reporting/src/infrastructure/pg-reports.ts).
+
+La verificación acredita coincidencia del registro con su compromiso; **no acredita la ocurrencia del incidente ni determina que una ruta sea segura**. Los estados de publicación comunitaria, vigencia y estimación de riesgo conservan sus propias reglas.
 
 ### 4.1.5. Quality Attribute Scenario Refinements
 
@@ -2249,6 +2309,8 @@ Los adaptadores de entrada validan el contrato y la identidad; delegan las decis
 | InternalIncidentSnapshotController | snapshot(cursor, watermark): SnapshotPage | Entrega una vista consistente y paginada para reconstruir proyecciones privadas. |
 | ReportOwnerGuard | assertOwner(report, context): void | Protege el acceso a reportes privados aun cuando el cliente conozca su ID. |
 
+**Auditoría blockchain disponible en el MVP.** La implementación concentra estas entradas en `ReportsController` e incorpora `GET /api/v1/incident-reports/{id}/audit`. La operación valida el UUID y la sesión propietaria y delega en `ReportService.verify()`; devuelve `incidentId`, `versions` y `scope: RECORD_INTEGRITY_ONLY`. La documentación y ejemplos del contrato HTTP se incluyen en 7.2.1.6.
+
 
 ### 5.3.3. Application Layer
 
@@ -2265,6 +2327,8 @@ Los handlers coordinan repositorios, políticas y puertos. Un command modifica e
 | ExpireIncidentsHandler; − dependencies: PublishedIncidentRepository, UnitOfWork y Clock; + execute(input): Promise<Result> | ExpireIncidentsCommand | Expira incidentes vigentes según su reloj de negocio y añade IncidentExpired a la outbox. |
 | BuildIncidentSnapshotHandler; − dependencies: PublishedIncidentRepository y SnapshotStore; + execute(input): Promise<Result> | SnapshotQuery | Obtiene un watermark consistente con el orden de publicación del productor. |
 
+En la implementación, `ReportService` depende del puerto `AuditPort`, cuya operación `verify(owner, id)` resuelve la consulta de integridad. La implementación de infraestructura es `BlockchainAudit`; las dependencias de ethers y JSON-RPC quedan fuera del dominio. El composition root inicia el worker de auditoría y lo detiene al cerrar el servicio.
+
 
 ### 5.3.4. Infrastructure Layer
 
@@ -2280,6 +2344,17 @@ Cada implementación se registra por inyección de dependencias en el servicio p
 | PostgresIdempotencyStore; − dataSource: PrivateDataSource; + reserve(key, hash): Promise<Result>; + resolve(key): Promise<Result> | Puerto de Application Layer | Retiene la clave por 24 h; cuerpo diferente con igual clave devuelve conflicto. |
 | IncidentOutboxRelay; − outboxStore: OutboxStore; − publisher: EventPublisher; + publishPending(limit): Promise<int> | Publicación técnica | Publica IncidentPublished/IncidentExpired mediante RabbitMQ y confirma entrega al broker. |
 | IncidentAssessmentScheduler; − handler: ApplicationHandler; − clock: Clock; + tick(now): Promise<void> | Programación técnica | Reintenta reportes pendientes y ejecuta expiraciones; utiliza los casos de uso del servicio. |
+
+**Integración implementada de la segunda tecnología emergente**
+
+| Componente o artefacto | Función en la implementación | Evidencia |
+|---|---|---|
+| `enqueueAudit` del módulo `pg-reports.ts` | Registra una auditoría por versión con sal aleatoria, referencia opaca y compromiso SHA-256 en la transacción del incidente. | Tabla `audit_records` de `incident_reporting_db`; no utiliza bases ajenas. |
+| `BlockchainAudit` | Implementa `AuditPort`; el worker procesa pendientes y la consulta de integridad devuelve el estado por versión. | Integración ethers y variables `BLOCKCHAIN_RPC_URL`, `BLOCKCHAIN_CONTRACT_ADDRESS` y `BLOCKCHAIN_PRIVATE_KEY`. |
+| `IncidentAudit.sol` | Restringe el anclaje al writer, conserva compromisos y emite `Anchored`. | Contrato desplegado en Sepolia y recibos de las dos transacciones de 7.2.1.7. |
+| `main.ts` de Incident Reporting | Construye el adaptador con el pool propio, ejecuta `audit.start()` y lo inyecta en `ReportService`. | El worker forma parte del proceso desplegado; no es un quinto microservicio. |
+
+El estado operativo y el flujo se especifican en ADR09. El [registro de comprobación de Sepolia](assets/Chapter-07/Blockchain_Sepolia_Verification.json) conserva la evidencia pública de que se ejecutaron anclajes y sus compromisos permanecen consultables.
 
 
 ### 5.3.5. Bounded Context Software Architecture Component Level Diagrams
@@ -3134,6 +3209,7 @@ La configuración toma como punto de partida las decisiones de los capítulos IV
 | Persistencia | PostgreSQL y PostGIS | Una base y un rol por servicio; migraciones, volúmenes y datos de prueba. |
 | Mensajería | RabbitMQ | Conexiones, permisos, exchange, colas por suscripción y tratamiento de reentregas. |
 | Evaluación de riesgo | ONNX Runtime para Node.js | Modelo, versión y checksum; condiciones para devolver `UNKNOWN`. |
+| Auditoría blockchain de integridad | Solidity, ethers y Ethereum Sepolia mediante Alchemy RPC | Contrato `IncidentAudit`, worker de Incident Reporting, dirección y red, credencial de firma del servidor y estados del endpoint de auditoría. Integración desplegada y en uso; véanse ADR09 y 7.2.1.7. |
 | Cartografía externa | Mapbox | Adaptador de rutas, token del servidor y token público restringido para la visualización del mapa. |
 
 **Herramientas del ciclo de vida**
@@ -3157,6 +3233,7 @@ Las herramientas se organizan según la actividad que apoyan. Sus referencias pe
 | Persistencia geoespacial | PostgreSQL y PostGIS | Administrar las cuatro bases privadas y ejecutar consultas espaciales con permisos separados. | [PostgreSQL](https://www.postgresql.org/download/) · [PostGIS](https://postgis.net/documentation/getting_started/) |
 | Mensajería | RabbitMQ | Propagar eventos entre servicios mediante colas, confirmaciones y consumidores idempotentes. | [Instalar RabbitMQ](https://www.rabbitmq.com/docs/download) |
 | Inferencia de riesgo | ONNX Runtime para Node.js | Ejecutar un modelo versionado dentro de Risk Assessment cuando exista un artefacto validado. | [ONNX Runtime Node.js](https://onnxruntime.ai/docs/get-started/with-javascript/node.html) |
+| Blockchain y contratos inteligentes | Solidity, Hardhat, ethers, Alchemy y Ethereum Sepolia | Compilar y desplegar `IncidentAudit` y ejecutar desde Incident Reporting el anclaje y la verificación de compromisos por versión. Hardhat apoya el desarrollo; el contrato del piloto se utiliza en Sepolia. | [Solidity](https://docs.soliditylang.org/en/latest/contracts.html) · [ethers JSON-RPC](https://docs.ethers.org/v6/api/providers/jsonrpc/) · [Redes Ethereum](https://ethereum.org/developers/docs/networks/) |
 | Calidad de código | ESLint y Prettier | Comprobar reglas de código y aplicar formato consistente en desarrollo y CI. | [ESLint](https://eslint.org/docs/latest/use/getting-started) · [Prettier](https://prettier.io/docs/install) |
 | Software Testing | Vitest, Jest, Cucumber.js y Playwright | Cubrir componentes Vue, unidades e integración de NestJS, escenarios Gherkin y recorridos del navegador. | [Vitest](https://vitest.dev/guide/) · [Jest](https://jestjs.io/docs/getting-started) · [Cucumber.js](https://github.com/cucumber/cucumber-js) · [Playwright](https://playwright.dev/docs/intro) |
 | Ejecución reproducible | Docker Engine y Docker Compose | Levantar dependencias locales y ejecutar cada servicio como contenedor independiente. | [Docker Engine](https://docs.docker.com/engine/install/) · [Docker Compose](https://docs.docker.com/compose/install/) |
@@ -3885,6 +3962,20 @@ La construcción directa con npm resuelve el error de ubicación de `npm-cli.js`
 
 Como evidencia externa del anclaje se conservan las transacciones [af0f0ac…59244](https://sepolia.etherscan.io/tx/0xaf0f0acabe00f9ab1b3a58099283508ae06a6d1904ad3b7f8046675933759244) y [318b296…170e4](https://sepolia.etherscan.io/tx/0x318b296e3b57cd267bae80742ce81d6967732b7946b24e814e8028348a2170e4), correspondientes a dos versiones del registro de prueba. La comprobación de esos compromisos acredita integridad del registro, no la ocurrencia del incidente. La blockchain no almacena las descripciones ni las coordenadas en texto abierto.
 
+**Comprobación del uso de la segunda tecnología emergente**
+
+El 12 de noviembre de 2026 se realizó una consulta de solo lectura a Sepolia para comprobar el contrato y los anclajes anteriores. Se utilizó un RPC público independiente para contrastar la evidencia de la cadena; la integración de Incident Reporting desplegada continúa utilizando Alchemy. Los resultados se conservan en [Blockchain_Sepolia_Verification.json](assets/Chapter-07/Blockchain_Sepolia_Verification.json).
+
+| Evidencia consultada | Resultado observado |
+|---|---|
+| Red e identidad del contrato | Chain ID `11155111` y bytecode presente en `0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30`. |
+| Primera transacción de anclaje | `af0f0ac…59244`: recibo exitoso en el bloque `12117670`, llamada a `anchor(bytes32,bytes32)` y evento `Anchored`. |
+| Segunda transacción de anclaje | `318b296…170e4`: recibo exitoso en el bloque `12117671`, llamada a `anchor(bytes32,bytes32)` y evento `Anchored`. |
+| Control del writer | En ambas transacciones, la dirección remitente coincide con el writer del contrato. |
+| Compromisos almacenados | Los dos valores consultados mediante `commitments(recordRef)` coinciden con los parámetros de las transacciones y sus eventos. |
+
+Los recibos y eventos acreditan que **blockchain está integrada y se ha utilizado para anclar registros**, además de encontrarse desplegada. La consulta pública comprueba los compromisos en cadena; no expone ni recalcula el payload privado, no valida la veracidad de los incidentes y no constituye una prueba de uso en Mainnet.
+
 **Trazabilidad de los productos publicados**
 
 | Producto | Commit de código utilizado como base |
@@ -3948,7 +4039,9 @@ El corte utiliza los commits alcanzables desde `main` de cada producto y `Master
 
 6. El diseño UX/UI estableció una identidad visual, sistemas de organización y navegación, wireframes y mockups de la landing page, además de wireframes y wireflows de la aplicación. Los flujos contemplan planificación, comparación, alertas, reportes, historial y privacidad, e incorporan estados de incertidumbre y errores para orientar las decisiones del usuario.
 
-7. El avance alcanzado corresponde al análisis y diseño de la solución. Las siguientes etapas deberán implementar los microservicios y las interfaces, validar la cobertura y calidad del modelo de riesgo, comprobar las metas de calidad y realizar pruebas de usabilidad. Estas verificaciones permitirán evaluar la utilidad de la propuesta y ajustar las decisiones documentadas.
+7. El avance alcanzado incorpora el análisis, diseño, implementación y despliegue del MVP en Cloudflare y Railway, junto con el contrato de integridad en Sepolia. Permanecen pendientes la validación de la cobertura y calidad del modelo de riesgo con datos reales, la comprobación de las metas de calidad y las pruebas de usabilidad del piloto. Estas verificaciones permitirán evaluar la utilidad de la solución y ajustar las decisiones documentadas.
+
+8. El MVP incorpora dos tecnologías emergentes con responsabilidades diferenciadas: IA/ML mediante ONNX Runtime para la evaluación de riesgo y blockchain mediante Solidity y Ethereum Sepolia para la integridad de registros de incidentes. La segunda está desplegada y en uso, con dos anclajes confirmados y verificables; la primera conserva un modelo sintético y devuelve `UNKNOWN / MODEL_NOT_VALIDATED` en modo real. Esta distinción permite documentar el avance técnico sin atribuir una validación predictiva o factual que todavía no existe.
 
 # Referencias Bibliográficas
 
@@ -3962,7 +4055,7 @@ El corte utiliza los commits alcanzables desde `main` de cada producto y `Master
 
 ## Diseño arquitectónico, táctico y UX/UI
 
-Los identificadores R1–R12 corresponden a las citas utilizadas en los capítulos V y VI.
+Los identificadores R1–R15 corresponden a las referencias técnicas utilizadas en el informe.
 
 - **[R1]** Microsoft. (s. f.). *Design a DDD-oriented microservice*. Microsoft Learn. https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice
 
@@ -3987,6 +4080,12 @@ Los identificadores R1–R12 corresponden a las citas utilizadas en los capítul
 - **[R11]** Google. (s. f.). *Meta tags and attributes that Google supports*. Google Search Central. https://developers.google.com/search/docs/crawling-indexing/special-tags
 
 - **[R12]** MDN Web Docs. (s. f.). *Geolocation API*. https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
+
+- **[R13]** Ethereum.org. (s. f.). *Networks*. https://ethereum.org/developers/docs/networks/
+
+- **[R14]** Solidity. (s. f.). *Contracts*. https://docs.soliditylang.org/en/latest/contracts.html
+
+- **[R15]** ethers. (s. f.). *JSON-RPC Provider*. https://docs.ethers.org/v6/api/providers/jsonrpc/
 
 - Software Engineering Institute. (2003). *Quality Attribute Workshops (QAWs), Third Edition*. https://www.sei.cmu.edu/library/quality-attribute-workshops-qaws-third-edition/
 

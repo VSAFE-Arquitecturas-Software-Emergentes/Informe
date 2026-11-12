@@ -1,0 +1,51 @@
+{
+  "checkedAtUtc": "2026-11-12T10:02:34.683Z",
+  "network": "Ethereum Sepolia",
+  "chainId": 11155111,
+  "verificationMode": "READ_ONLY_JSON_RPC",
+  "rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+  "contract": {
+    "address": "0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30",
+    "bytecodePresent": true,
+    "bytecodeKeccak256": "0x8fb140b2e86f2f07212f4e40a13ef6df8941af6eaae72e3d802f7b04fbca1eb6",
+    "writer": "0x5Cd30ee2c11050529fa5d8460575DaA1992f595C",
+    "deploymentId": "0x9c73ffb13f0d583ffb3c4fe860c7435b60a34b20a3896f4c9df7e95033d4759e",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30"
+  },
+  "transactions": [
+    {
+      "hash": "0xaf0f0acabe00f9ab1b3a58099283508ae06a6d1904ad3b7f8046675933759244",
+      "status": "SUCCESS",
+      "blockNumber": 12117670,
+      "blockTimestampUtc": "2026-11-12T08:30:24.000Z",
+      "to": "0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30",
+      "senderMatchesWriter": true,
+      "function": "anchor(bytes32,bytes32)",
+      "event": "Anchored",
+      "recordRef": "0x27a475336f74f45ed5cec6e59c52b51526cf6bbc878a63fc86be459836931049",
+      "commitment": "0x159700ad5eb52af1e267dce4b19367336477f0ab88ee14d1d12f5f3b535b9e68",
+      "storedCommitmentMatchesTransaction": true,
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0xaf0f0acabe00f9ab1b3a58099283508ae06a6d1904ad3b7f8046675933759244"
+    },
+    {
+      "hash": "0x318b296e3b57cd267bae80742ce81d6967732b7946b24e814e8028348a2170e4",
+      "status": "SUCCESS",
+      "blockNumber": 12117671,
+      "blockTimestampUtc": "2026-11-12T08:30:36.000Z",
+      "to": "0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30",
+      "senderMatchesWriter": true,
+      "function": "anchor(bytes32,bytes32)",
+      "event": "Anchored",
+      "recordRef": "0x7d079d11e80821fe1a1befc810532615bba0465b7e3048ebb84267491eb7391b",
+      "commitment": "0x792d091b1f1f03a0f6f86c1f48e2f587e1e948ac75334bc8792cfb831103c904",
+      "storedCommitmentMatchesTransaction": true,
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0x318b296e3b57cd267bae80742ce81d6967732b7946b24e814e8028348a2170e4"
+    }
+  ],
+  "scope": "RECORD_INTEGRITY_ONLY",
+  "limitations": [
+    "Se verifican recibos, eventos y compromisos opacos en la cadena; no se comprueban la ocurrencia ni la veracidad de los incidentes.",
+    "La comparación del payload privado y su sal requiere una consulta autorizada del propietario al endpoint de auditoría; esta comprobación pública no accede a esos datos.",
+    "Sepolia es una red de pruebas y no representa uso en Ethereum Mainnet."
+  ]
+}
