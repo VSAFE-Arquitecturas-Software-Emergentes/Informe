@@ -544,3 +544,19 @@ Se ejecutaron las tres pruebas de dominio de WebApp con Node.js 24.8.0 y un carg
 <p align="center">
   <em>Figura. Ejecución de las pruebas de dominio de VSafe WebApp con Node.js 24.8.0.</em>
 </p>
+
+#### 7.2.1.5. Execution Evidence for Sprint Review
+
+Durante el Sprint 1 se implementó la landing page de VSafe para presentar su propuesta de valor y explicar cómo la aplicación permite definir un recorrido, comparar rutas y recibir alertas. En la ejecución local se verificaron el cambio de idioma de inglés a español y la navegación desde el menú principal hasta la sección «Cómo funciona».
+
+<p align="center">
+  <img src="assets/Chapter-07/Execution_Landing_Home.png" width="650" alt="Pantalla de inicio de la landing de VSafe en español">
+</p>
+<p align="center"><em>Figura. Pantalla de inicio de la landing page de VSafe.</em></p>
+
+<p align="center">
+  <img src="assets/Chapter-07/Execution_Landing_Capabilities.png" width="650" alt="Sección Cómo funciona de la landing de VSafe">
+</p>
+<p align="center"><em>Figura. Sección «Cómo funciona», que presenta las capacidades principales de VSafe.</em></p>
+
+[Video de visualización y navegación de la landing page](assets/Chapter-07/VSafe_Sprint1_Landing.mp4)
