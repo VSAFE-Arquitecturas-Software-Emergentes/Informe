@@ -3559,6 +3559,101 @@ Las siguientes salidas permitirán revisar cada tarea antes de cambiarla a `Done
 La inicialización de repositorios y herramientas habilita los primeros cambios. Los contenidos y componentes de la landing pueden avanzar en paralelo con la entrada de la aplicación; la conexión de los CTA depende de que esa entrada esté disponible. Las comprobaciones integradas preceden a la publicación y a la aceptación del incremento. Los bloqueos y ajustes de alcance se registrarán en el tablero durante el sprint.
 
 
+### 7.2.1.3. Development Evidence for Sprint Review
+
+A continuación, se presenta una recopilación visual del historial
+de commits de los repositorios Informe, Microservices, WebApp y
+landing-page del proyecto VSafe, como evidencia del trabajo
+registrado durante el sprint.
+
+<p align="center">
+  <img src="assets/Chapter-07/Historial_commits.png" width="850">
+</p>
+
+<p align="center">
+  <em>Figura. Recopilación del historial de commits de VSafe.</em>
+</p>
+
+#### 7.2.1.4. Testing Suite Evidence for Sprint Review
+
+El Sprint 1 comprende las historias US01 (comprender la propuesta de valor), US02 (conocer las capacidades principales) y US03 (acceder a la aplicación). La evidencia de las pruebas se presenta por nivel: pruebas unitarias, de integración y de aceptación. Se incluye la cobertura adicional implementada en el MVP para rutas, recorridos, incidentes, alertas y estimación de riesgo.
+
+##### Unit Tests
+
+Se identificaron tres casos automatizados en WebApp y quince en Microservices. Los archivos incluyen comprobaciones de lógica de dominio y de dependencias entre capas. La tabla indica el componente y el comportamiento comprobado por cada caso o grupo de casos.
+
+| Repositorio | Clase, función o componente | Comportamiento comprobado | Casos |
+| --- | --- | --- | ---: |
+| WebApp | `currentHistory` | Descarta entradas caducadas y limita el historial a 20 elementos. | 1 |
+| WebApp | `projectPosition` | Determina el segmento, la fracción recorrida y la distancia desde una posición GPS. | 1 |
+| WebApp | Capas de dominio y aplicación | Comprueba que las capas revisadas carezcan de importaciones directas de Vue y adaptadores de infraestructura. | 1 |
+| Microservices | `JourneyAggregate` | Verifica el ciclo de vida, las versiones y el cierre del recorrido. | 1 |
+| Microservices | `JourneyPolicy` | Valida cambios de ruta según estado y versión, rechaza muestras antiguas y segmentos inválidos, y calcula la geometría restante. | 3 |
+| Microservices | `IncidentAggregate` | Impide publicar duplicados y verifica que la expiración incremente la versión una vez. | 1 |
+| Microservices | `RiskAssessmentAggregate` | Rechaza versiones de modelo mezcladas, comparaciones incompletas y puntuaciones asignadas a `UNKNOWN`. | 1 |
+| Microservices | `RiskService` | Rechaza un modelo sintético fuera del modo demo explícito. | 1 |
+| Microservices | `RiskPolicy` | Devuelve incertidumbre ante muestras insuficientes, proyecciones desactualizadas, modelos sin validar o cobertura insuficiente. | 2 |
+| Microservices | `AlertPolicy` | Evalúa la proximidad, la vigencia del progreso y el periodo activo para emitir alertas. | 1 |
+| Microservices | `ReportPolicy` | Valida la antigüedad y vigencia de observaciones y aproxima las coordenadas del reporte. | 2 |
+| Microservices | `targetFor` | Impide enrutar endpoints internos desde el gateway y asigna los endpoints públicos a sus servicios. | 1 |
+| Microservices | `canonical` y `commitment` | Conservan el compromiso ante cambios en el orden de claves y detectan modificaciones del contenido. | 1 |
+| Microservices | Capas de dominio y aplicación | Comprueba las restricciones de dependencias de los cuatro servicios revisados. | 1 |
+
+##### Integration Tests
+
+El archivo `scripts/integration.mjs` contiene 14 comprobaciones de integración para el MVP. Utiliza el API Gateway en modo demo y requiere servicios locales, PostgreSQL/PostGIS, RabbitMQ y la red local de Hardhat. Las historias de la tabla pertenecen al Product Backlog y amplían el alcance funcional del Sprint 1.
+
+| Servicio o flujo | Comprobaciones diseñadas | Historias relacionadas |
+| --- | --- | --- |
+| API Gateway | Rechazo de solicitudes sin protección CSRF y de acceso a recorridos desde otra sesión. | US08, TS04 |
+| Route Planning y Risk Assessment | Búsqueda de rutas, abstención ante evidencia insuficiente, proyección de eventos de RabbitMQ hacia ONNX y reconciliación ante una secuencia incompleta. | US06, US07, TS01, TS02 |
+| Route Planning | Inicio idempotente del recorrido, rechazo de solicitudes con contenido incompatible bajo la misma clave, rechazo de actualizaciones obsoletas, cierre y propagación del evento. | US08 |
+| Incident Reporting y blockchain | Idempotencia, detección de duplicados espaciales, autorización de la auditoría, verificación del compromiso en Solidity y detección de un registro alterado. | US13, US16, TS03 |
+| Journey Alerts | Entrega de una alerta por SSE a través del gateway y confirmación de recepción. | US10 |
+| Persistencia | Rechazo de una conexión a la base de otro servicio con un rol ajeno. | Control técnico transversal |
+
+Microservices incluye además `scripts/load.mjs` para pruebas de carga. Su ejecución quedó pendiente.
+
+##### Acceptance Tests
+
+Se identificaron cinco escenarios de navegador implementados con Playwright, uno en landing-page y cuatro en WebApp.
+
+| Repositorio | Escenario automatizado | Relación con historias o tareas |
+| --- | --- | --- |
+| landing-page | Abre la landing, comprueba el encabezado, verifica el destino del CTA, cambia entre inglés y español y revisa el ancho móvil. | Cobertura parcial de US01 y US03. La adaptación móvil se relaciona con WI06 de US02. |
+| WebApp | Introduce coordenadas manuales y verifica que la ruta solicitada use la coordenada ingresada. | US04 y entrada manual relacionada con US05. |
+| WebApp | Activa el historial, compara rutas, inicia y finaliza un recorrido y vuelve a consultar la ruta desde el historial. | US06, US08 y US12. |
+| WebApp | Revisa un reporte, comprueba que el formulario conserve los datos al cancelar, envía el reporte y consulta la evidencia de integridad. | US13 y US16. |
+| WebApp | Comprueba que las vistas principales no tengan desplazamiento horizontal en móvil y que la comparación muestre alternativas. | US06 y comprobación transversal de interfaz móvil. |
+
+##### Resultados de ejecución
+
+Se ejecutaron las tres pruebas de dominio de WebApp con Node.js 24.8.0 y un cargador auxiliar de importaciones TypeScript. El resultado fue **3 aprobadas y 0 fallidas**. Los scripts oficiales de npm se detuvieron antes de ejecutar las suites debido a dependencias faltantes. La instalación se bloqueó por un error de resolución DNS del registro npm y por paquetes ausentes de la caché local. Las pruebas de navegador, integración y carga quedaron pendientes.
+
+<p align="center">
+  <img src="assets/Chapter-07/Testing_WebApp.png" width="850" alt="Salida de consola de WebApp con tres pruebas de dominio aprobadas">
+</p>
+
+<p align="center">
+  <em>Figura. Ejecución de las pruebas de dominio de VSafe WebApp con Node.js 24.8.0.</em>
+</p>
+
+#### 7.2.1.5. Execution Evidence for Sprint Review
+
+Durante el Sprint 1 se implementó la landing page de VSafe para presentar su propuesta de valor y explicar cómo la aplicación permite definir un recorrido, comparar rutas y recibir alertas. En la ejecución local se verificaron el cambio de idioma de inglés a español y la navegación desde el menú principal hasta la sección «Cómo funciona».
+
+<p align="center">
+  <img src="assets/Chapter-07/Execution_Landing_Home.png" width="650" alt="Pantalla de inicio de la landing de VSafe en español">
+</p>
+<p align="center"><em>Figura. Pantalla de inicio de la landing page de VSafe.</em></p>
+
+<p align="center">
+  <img src="assets/Chapter-07/Execution_Landing_Capabilities.png" width="650" alt="Sección Cómo funciona de la landing de VSafe">
+</p>
+<p align="center"><em>Figura. Sección «Cómo funciona», que presenta las capacidades principales de VSafe.</em></p>
+
+[Video de visualización y navegación de la landing page](assets/Chapter-07/VSafe_Sprint1_Landing.mp4)
+
 # Conclusiones
 
 1. El desarrollo de VSafe permitió estructurar una propuesta de navegación urbana que incorpora tiempo, distancia e información de riesgo estimado para apoyar la elección de recorridos. El análisis inicial de estudiantes universitarios y trabajadores urbanos aportó necesidades relacionadas con la comparación de alternativas, la consulta de incidentes y la confianza en la información. La investigación específica del alcance peatonal deberá ampliarse durante las siguientes etapas.
