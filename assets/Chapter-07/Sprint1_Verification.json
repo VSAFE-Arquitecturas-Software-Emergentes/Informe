@@ -1,0 +1,235 @@
+{
+  "checkedAt": "2026-11-12T09:15:26.021Z",
+  "gateway": "https://gateway-production-61ce8b27.up.railway.app",
+  "frontend": "https://vsafe-web.pages.dev",
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/health/live",
+      "status": 200,
+      "body": {
+        "service": "gateway",
+        "status": "ok"
+      },
+      "expected": true
+    },
+    {
+      "method": "GET",
+      "path": "/health/ready",
+      "status": 200,
+      "body": {
+        "service": "gateway",
+        "status": "ready"
+      },
+      "expected": true
+    },
+    {
+      "method": "GET",
+      "path": "/sessions",
+      "status": 200,
+      "expected": true,
+      "demo": false
+    },
+    {
+      "method": "POST",
+      "path": "/routes/search",
+      "status": 201,
+      "expected": true,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "path": "/journeys",
+      "status": 201,
+      "expected": true,
+      "code": null
+    },
+    {
+      "method": "GET",
+      "path": "/journeys/{id}",
+      "status": 200,
+      "expected": true,
+      "code": null
+    },
+    {
+      "method": "PATCH",
+      "path": "/journeys/{id}/route",
+      "status": 200,
+      "expected": true,
+      "code": null
+    },
+    {
+      "method": "PATCH",
+      "path": "/journeys/{id}/progress",
+      "status": 200,
+      "expected": true,
+      "code": null
+    },
+    {
+      "method": "GET",
+      "path": "/incidents",
+      "status": 200,
+      "expected": true,
+      "code": null
+    },
+    {
+      "method": "GET",
+      "path": "/incident-reports",
+      "status": 200,
+      "expected": true,
+      "code": null
+    },
+    {
+      "method": "GET",
+      "path": "/incident-reports/{id}",
+      "status": 404,
+      "expected": true,
+      "code": "REPORT_NOT_FOUND"
+    },
+    {
+      "method": "GET",
+      "path": "/incident-reports/{id}/audit",
+      "status": 404,
+      "expected": true,
+      "code": "REPORT_NOT_FOUND"
+    },
+    {
+      "method": "POST",
+      "path": "/incident-reports",
+      "status": 400,
+      "expected": true,
+      "code": "VALIDATION_FAILED"
+    },
+    {
+      "method": "GET",
+      "path": "/journeys/{id}/alerts/stream",
+      "status": 200,
+      "expected": true,
+      "contentType": "text/event-stream; charset=utf-8",
+      "connected": true
+    },
+    {
+      "method": "POST",
+      "path": "/journeys/{id}/alerts/{alertId}/ack",
+      "status": 404,
+      "expected": true,
+      "code": "ALERT_NOT_FOUND"
+    },
+    {
+      "method": "DELETE",
+      "path": "/journeys/{id}",
+      "status": 200,
+      "expected": true,
+      "code": null
+    }
+  ],
+  "note": "Las comprobaciones crean y cierran un recorrido de muestra. No crean incidentes públicos.",
+  "openApiOperations": 16,
+  "routeSample": {
+    "routeCount": 1,
+    "demo": false,
+    "notice": "SINGLE_ALTERNATIVE",
+    "distance": 1472.179,
+    "duration": 998.462,
+    "risk": {
+      "level": "UNKNOWN",
+      "score": null,
+      "cause": "MODEL_NOT_VALIDATED",
+      "coverage": 0,
+      "sampleCount": 0,
+      "methodVersion": "synthetic-logistic-v1",
+      "validUntil": "2026-11-12T09:16:27.647Z",
+      "demo": true
+    }
+  },
+  "sampleJourneyClosed": true,
+  "swaggerChecks": {
+    "health": 200,
+    "incidents": 200,
+    "routePost": 403,
+    "routePostCode": "ORIGIN_NOT_ALLOWED"
+  },
+  "captures": [
+    {
+      "file": "Swagger_OpenAPI.png",
+      "description": "Captura Playwright del Swagger publicado"
+    },
+    {
+      "file": "Swagger_Health_Ready.png",
+      "description": "GET /health/ready ejecutado en Swagger"
+    },
+    {
+      "file": "Swagger_Incidents_Response.png",
+      "description": "GET /api/v1/incidents ejecutado en Swagger"
+    },
+    {
+      "file": "Swagger_Routes_Origin_Error.png",
+      "description": "POST de muestra rechazado por política de origen en Swagger"
+    },
+    {
+      "file": "Deployment_Railway_Services.png",
+      "description": "Captura proporcionada durante el despliegue de los cuatro servicios"
+    },
+    {
+      "file": "Deployment_PostGIS_Databases.png",
+      "description": "Captura proporcionada: PostGIS habilitado en las cuatro bases"
+    },
+    {
+      "file": "Deployment_RabbitMQ_Volume.png",
+      "description": "Captura proporcionada: ruta persistente del broker"
+    },
+    {
+      "file": "Deployment_Cloudflare_Variables.png",
+      "description": "Captura proporcionada: variables públicas de la landing"
+    },
+    {
+      "file": "Deployment_Landing_Cloudflare.png",
+      "description": "Landing publicada y capturada con Playwright"
+    },
+    {
+      "file": "Deployment_WebApp_Mapbox.png",
+      "description": "WebApp publicada, consulta real a Mapbox y abstención del modelo"
+    },
+    {
+      "file": "Deployment_Sepolia_Contract.png",
+      "description": "Captura proporcionada: salida del despliegue del contrato"
+    },
+    {
+      "file": "Collaboration_Microservices.png",
+      "description": "GitHub Insights Contributors de Microservices"
+    },
+    {
+      "file": "Collaboration_WebApp.png",
+      "description": "GitHub Insights Contributors de WebApp"
+    },
+    {
+      "file": "Collaboration_Landing.png",
+      "description": "GitHub Insights Contributors de landing-page"
+    },
+    {
+      "file": "Collaboration_Informe_Commits.png",
+      "description": "Historial público de Master de Informe"
+    }
+  ],
+  "filesInThisUpdate": [
+    "README.md",
+    "assets/Chapter-07/Swagger_OpenAPI.png",
+    "assets/Chapter-07/Swagger_Health_Ready.png",
+    "assets/Chapter-07/Swagger_Incidents_Response.png",
+    "assets/Chapter-07/Swagger_Routes_Origin_Error.png",
+    "assets/Chapter-07/Deployment_Railway_Services.png",
+    "assets/Chapter-07/Deployment_PostGIS_Databases.png",
+    "assets/Chapter-07/Deployment_RabbitMQ_Volume.png",
+    "assets/Chapter-07/Deployment_Cloudflare_Variables.png",
+    "assets/Chapter-07/Deployment_Landing_Cloudflare.png",
+    "assets/Chapter-07/Deployment_WebApp_Mapbox.png",
+    "assets/Chapter-07/Deployment_Sepolia_Contract.png",
+    "assets/Chapter-07/Collaboration_Microservices.png",
+    "assets/Chapter-07/Collaboration_WebApp.png",
+    "assets/Chapter-07/Collaboration_Landing.png",
+    "assets/Chapter-07/Collaboration_Informe_Commits.png",
+    "assets/Chapter-07/OpenAPI_Gateway_Sprint1.json",
+    "assets/Chapter-07/Sprint1_Verification.json",
+    "assets/Chapter-07/Sprint1_Collaboration.json"
+  ]
+}

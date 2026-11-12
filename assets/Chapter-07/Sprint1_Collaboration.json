@@ -1,0 +1,158 @@
+{
+  "scope": "Commits alcanzables desde main de los productos y Master del informe",
+  "since": "2026-11-09T00:00:00-05:00",
+  "until": "2026-11-12T09:07:00Z",
+  "includesMergeCommits": true,
+  "warning": "Los nombres Git son identidades de autoría; los conteos no acreditan por sí solos trabajo en pareja, revisión ni aceptación de historias.",
+  "repositories": [
+    {
+      "name": "Microservices",
+      "ref": "origin/main",
+      "head": "fe60f4708777221354bc54123fdec0ce3b022251",
+      "commitCount": 1,
+      "authors": {
+        "Oscar": 1
+      },
+      "commits": [
+        {
+          "id": "fe60f4708777221354bc54123fdec0ce3b022251",
+          "author": "Oscar",
+          "date": "2026-11-12T00:05:49-05:00",
+          "subject": "feat: implement VSafe microservices MVP"
+        }
+      ]
+    },
+    {
+      "name": "WebApp",
+      "ref": "origin/main",
+      "head": "2c595904d02409a455ffff22fe91572b0ec35b3f",
+      "commitCount": 1,
+      "authors": {
+        "Oscar": 1
+      },
+      "commits": [
+        {
+          "id": "2c595904d02409a455ffff22fe91572b0ec35b3f",
+          "author": "Oscar",
+          "date": "2026-11-12T00:05:54-05:00",
+          "subject": "feat: add VSafe Vue web application"
+        }
+      ]
+    },
+    {
+      "name": "landing-page",
+      "ref": "origin/main",
+      "head": "e0a81763bb3a12c8d2251d4f97925d1f2f189752",
+      "commitCount": 1,
+      "authors": {
+        "Oscar": 1
+      },
+      "commits": [
+        {
+          "id": "e0a81763bb3a12c8d2251d4f97925d1f2f189752",
+          "author": "Oscar",
+          "date": "2026-11-12T00:05:58-05:00",
+          "subject": "feat: add VSafe landing page"
+        }
+      ]
+    },
+    {
+      "name": "Informe",
+      "ref": "origin/Master",
+      "head": "40fba04a05d7ee499dc5c6ab7b96ba5d700e266b",
+      "commitCount": 14,
+      "authors": {
+        "Oscar": 1,
+        "Carbocnito5443": 2,
+        "JKOlimpo": 4,
+        "Mayrzon02": 7
+      },
+      "commits": [
+        {
+          "id": "40fba04a05d7ee499dc5c6ab7b96ba5d700e266b",
+          "author": "Oscar",
+          "date": "2026-11-12T03:56:36-05:00",
+          "subject": "docs(report): merge Chapter-07 sprint evidence into Master"
+        },
+        {
+          "id": "9d9c93101e49f190c1967bf037817dfe12ba7498",
+          "author": "Carbocnito5443",
+          "date": "2026-11-12T02:43:26-05:00",
+          "subject": "fix: Remove Sprint Review evidence sections from README"
+        },
+        {
+          "id": "450d6ef38877dd8b98f6e948fab89d346dd86869",
+          "author": "Carbocnito5443",
+          "date": "2026-11-12T02:41:25-05:00",
+          "subject": "feat: Enhance README with sprint review evidence sections"
+        },
+        {
+          "id": "d9cc7d61ebecbe3769257ffa9e38514ca78f3d4e",
+          "author": "JKOlimpo",
+          "date": "2026-11-12T01:25:52-05:00",
+          "subject": "docs(student-outcome): record Oscar TB2 contributions"
+        },
+        {
+          "id": "d74835e820455f1fb14822bba41c8c59dfccc40b",
+          "author": "JKOlimpo",
+          "date": "2026-11-12T01:18:02-05:00",
+          "subject": "docs(student-outcome): record Renzo TB2 contributions"
+        },
+        {
+          "id": "ed024399bec3839c2eda6a1766ccbc2ed02f702e",
+          "author": "Mayrzon02",
+          "date": "2026-11-12T01:10:01-05:00",
+          "subject": "docs(chapter01): Add student outcome"
+        },
+        {
+          "id": "031161baae64715458311a2f12a9c5d94a153703",
+          "author": "Mayrzon02",
+          "date": "2026-11-12T00:59:54-05:00",
+          "subject": "Add files via upload"
+        },
+        {
+          "id": "d24f6929d8b0ee2a632c99e9523e8d4c322d3366",
+          "author": "Mayrzon02",
+          "date": "2026-11-12T00:58:46-05:00",
+          "subject": "docs(chapter07): Add Execution Evidence for Sprint Review"
+        },
+        {
+          "id": "c431debefe978b9dbd39c36472dfa3dad2a3807e",
+          "author": "Mayrzon02",
+          "date": "2026-11-12T00:42:33-05:00",
+          "subject": "docs(chapter07): Add Testing Suite Evidence for Sprint Review"
+        },
+        {
+          "id": "1f9137091230799462bc20ac2e7c696fefa99959",
+          "author": "Mayrzon02",
+          "date": "2026-11-12T00:39:34-05:00",
+          "subject": "Add files via upload"
+        },
+        {
+          "id": "3f67521805493fdd79fa1bf1d24474c138ec8e21",
+          "author": "Mayrzon02",
+          "date": "2026-11-12T00:23:45-05:00",
+          "subject": "docs(chapter07): Add Development Evidence for Sprint Review"
+        },
+        {
+          "id": "3279cc558b36cb5ddcd926f0b881a4ac3bdd6028",
+          "author": "Mayrzon02",
+          "date": "2026-11-12T00:22:13-05:00",
+          "subject": "Add files via upload"
+        },
+        {
+          "id": "068ef7c4815fb6b6e11c86b02a0478ae3b70f0f1",
+          "author": "JKOlimpo",
+          "date": "2026-11-11T10:36:32-05:00",
+          "subject": "docs(report): merge chapter 7 into Master"
+        },
+        {
+          "id": "733db92d45a196ba16ca9c8b67efede6e8ba332d",
+          "author": "JKOlimpo",
+          "date": "2026-11-11T10:32:34-05:00",
+          "subject": "docs(chapter07): add configuration and sprint 1 plan"
+        }
+      ]
+    }
+  ]
+}

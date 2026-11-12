@@ -1,0 +1,398 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/sessions": {
+      "get": {
+        "operationId": "GatewayController_session",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/routes/search": {
+      "post": {
+        "operationId": "GatewayController_routes",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                      },
+                      "lng": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                      },
+                      "lng": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "origin",
+                  "destination"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Compare routes",
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/journeys": {
+      "post": {
+        "operationId": "GatewayController_start",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "alternativeId"
+                ],
+                "properties": {
+                  "alternativeId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/journeys/{id}": {
+      "get": {
+        "operationId": "GatewayController_journey",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      },
+      "delete": {
+        "operationId": "GatewayController_close",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/journeys/{id}/route": {
+      "patch": {
+        "operationId": "GatewayController_route",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/journeys/{id}/progress": {
+      "patch": {
+        "operationId": "GatewayController_progress",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/incident-reports": {
+      "post": {
+        "operationId": "GatewayController_report",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "THEFT",
+                      "ASSAULT",
+                      "HARASSMENT",
+                      "OBSTRUCTION"
+                    ]
+                  },
+                  "location": {
+                    "type": "object",
+                    "properties": {
+                      "lat": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                      },
+                      "lng": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                      }
+                    },
+                    "required": [
+                      "lat",
+                      "lng"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "observedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  "description": {
+                    "default": "",
+                    "type": "string",
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "category",
+                  "location",
+                  "observedAt",
+                  "description"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      },
+      "get": {
+        "operationId": "GatewayController_reports",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/incident-reports/{id}": {
+      "get": {
+        "operationId": "GatewayController_reportStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/incident-reports/{id}/audit": {
+      "get": {
+        "operationId": "GatewayController_audit",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/incidents": {
+      "get": {
+        "operationId": "GatewayController_incidents",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/journeys/{id}/alerts/stream": {
+      "get": {
+        "operationId": "GatewayController_stream",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/api/v1/journeys/{id}/alerts/{alertId}/ack": {
+      "post": {
+        "operationId": "GatewayController_ack",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Gateway"
+        ]
+      }
+    },
+    "/health/live": {
+      "get": {
+        "operationId": "Health_live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "Health_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "VSafe gateway",
+    "description": "",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "internal": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-vsafe-token"
+      }
+    },
+    "schemas": {}
+  }
+}

@@ -171,6 +171,12 @@ En el siguiente cuadro se describe las acciones realizadas y enunciados de concl
     - [7.2.1. Sprint 1](#721-sprint-1)
       - [7.2.1.1. Sprint Planning 1](#7211-sprint-planning-1)
       - [7.2.1.2. Sprint Backlog 1](#7212-sprint-backlog-1)
+      - [7.2.1.3. Development Evidence for Sprint Review](#7213-development-evidence-for-sprint-review)
+      - [7.2.1.4. Testing Suite Evidence for Sprint Review](#7214-testing-suite-evidence-for-sprint-review)
+      - [7.2.1.5. Execution Evidence for Sprint Review](#7215-execution-evidence-for-sprint-review)
+      - [7.2.1.6. Services Documentation Evidence for Sprint Review](#7216-services-documentation-evidence-for-sprint-review)
+      - [7.2.1.7. Software Deployment Evidence for Sprint Review](#7217-software-deployment-evidence-for-sprint-review)
+      - [7.2.1.8. Team Collaboration Insights during Sprint](#7218-team-collaboration-insights-during-sprint)
 - [Conclusiones](#conclusiones)
 - [Referencias Bibliográficas](#referencias-bibliográficas)
 - [Anexos](#anexos)
@@ -3653,6 +3659,268 @@ Durante el Sprint 1 se implementó la landing page de VSafe para presentar su pr
 <p align="center"><em>Figura. Sección «Cómo funciona», que presenta las capacidades principales de VSafe.</em></p>
 
 [Video de visualización y navegación de la landing page](assets/Chapter-07/VSafe_Sprint1_Landing.mp4)
+
+#### 7.2.1.6. Services Documentation Evidence for Sprint Review
+
+Durante esta revisión se publicó la documentación OpenAPI 3.0 del API Gateway de VSafe y se comprobó su acceso mediante Swagger UI. El catálogo contiene **16 operaciones públicas: 14 de aplicación y dos de salud**. Incluye sesiones anónimas, consultas de rutas, gestión de recorridos, reportes de incidentes, verificación de integridad y alertas SSE. El Sprint 1 planificado prioriza US01–US03; las operaciones de rutas, reportes y alertas constituyen implementación adicional del Product Backlog y su disponibilidad técnica no equivale a la aceptación de todas esas historias.
+
+La documentación desplegada está disponible en [Swagger UI](https://gateway-production-61ce8b27.up.railway.app/docs) y su contrato en [OpenAPI JSON](https://gateway-production-61ce8b27.up.railway.app/openapi.json). Se conserva una [instantánea del contrato consultado](assets/Chapter-07/OpenAPI_Gateway_Sprint1.json), obtenida el **12 de noviembre de 2026**. El código pertenece al repositorio [Microservices](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices).
+
+**Convenciones de llamada y control de acceso**
+
+- La base pública es `https://gateway-production-61ce8b27.up.railway.app`. La WebApp accede mediante `https://vsafe-web.pages.dev/api/v1`, cuyo proxy mantiene las peticiones en el mismo origen del navegador.
+- Se inicia la sesión con `GET /api/v1/sessions`. El servidor entrega la cookie `vsafe_session` con `HttpOnly`, `Secure` y `SameSite=Lax`, además de `csrfToken` en el JSON. Las operaciones de aplicación posteriores requieren esa cookie; los `POST`, `PATCH` y `DELETE` también requieren el encabezado `x-csrf-token` obtenido de la sesión.
+- Los cuerpos de las operaciones REST utilizan `Content-Type: application/json`. `Idempotency-Key` identifica de manera estable la creación de un recorrido o reporte y admite entre 8 y 100 caracteres.
+- `{id}`, `{alertId}` y `alternativeId` representan UUID. Los identificadores utilizados por cada persona deben obtenerse dentro de su propia sesión. Las fechas se expresan en ISO 8601 UTC y las coordenadas en grados decimales.
+- Los ejemplos siguientes muestran campos relevantes del contrato, omitiendo geometrías extensas y valores temporales de autenticación. No constituyen respuestas completas ni implican que se hayan ejecutado todos los escenarios de éxito.
+
+**Relación de endpoints públicos**
+
+| Acción implementada / trazabilidad | Verbo HTTP y sintaxis | Parámetros y cuerpo | Ejemplo de response y explicación | OpenAPI |
+|---|---|---|---|---|
+| Inicializar o recuperar sesión; soporte de US03 y TS04. | `GET /api/v1/sessions` | Sin parámetros. Reutiliza la cookie si sigue vigente. | `200`: `{ "ownerRef": "uuid", "csrfToken": "valor-temporal", "demo": false }`. Identifica la sesión y entrega la protección CSRF. | [Ver][o-session] |
+| Buscar y comparar recorridos; US04, US06, US07, TS01 y TS02. | `POST /api/v1/routes/search` | JSON con `origin` y `destination`, cada uno con `lat` y `lng`. El producto restringe la cobertura a Lima. | `201`: `{ "routes": [{ "id": "uuid", "distance": 1472.179, "duration": 998.462 }], "generatedAt": "fecha-UTC", "demo": false, "notice": null }`, donde `routes` contiene las alternativas encontradas. Si solo hay una, `notice` es `SINGLE_ALTERNATIVE`. El ejemplo observado se desarrolla más abajo. | [Ver][o-routes] |
+| Iniciar un recorrido; US08. | `POST /api/v1/journeys` | Encabezado `Idempotency-Key`; JSON `{ "alternativeId": "uuid-obtenido-en-la-busqueda" }`. | `201`: `{ "id": "uuid", "version": 1, "status": "ACTIVE", "route": {}, "progress": null, "expiresAt": "fecha-UTC" }`. Crea el recorrido a partir de una opción vigente. | [Ver][o-start] |
+| Consultar un recorrido de la sesión; US08. | `GET /api/v1/journeys/{id}` | UUID `id` en la ruta. | `200`: recorrido con `id`, `version`, `status`, `route`, `progress` y `expiresAt`. `404 JOURNEY_NOT_FOUND` si no pertenece a la sesión o no existe. | [Ver][o-journey] |
+| Cambiar la alternativa del recorrido; US11. | `PATCH /api/v1/journeys/{id}/route` | UUID `id`; JSON `{ "expectedVersion": 1, "alternativeId": "uuid" }`. | `200`: `{ "id": "uuid", "version": 2, "status": "ACTIVE", "route": {}, "progress": null }`. Incrementa la versión y reinicia el progreso. Una versión obsoleta produce `409`. | [Ver][o-route] |
+| Actualizar el avance para evaluar el trayecto restante; soporte de US10 y US11. | `PATCH /api/v1/journeys/{id}/progress` | JSON `{ "routeVersion": 2, "segmentIndex": 0, "fractionAlong": 0, "observedAt": "fecha-UTC-actual" }`. Índice no negativo y fracción entre 0 y 1. | `200`: `{ "updated": true }`. Confirma la muestra de progreso; una actualización incompatible puede producir `409 PROGRESS_CONFLICT`. | [Ver][o-progress] |
+| Finalizar el recorrido y retirar su estado transitorio; US08 y TS04. | `DELETE /api/v1/journeys/{id}` | UUID `id` en la ruta. | `200`: `{ "closed": true }`. Cierra el recorrido, retira su geometría y publica el evento de cierre. | [Ver][o-close] |
+| Registrar un incidente; US13, US14, US15 y TS03. | `POST /api/v1/incident-reports` | Encabezado `Idempotency-Key`; JSON con `category`, `location`, `observedAt` y `description` de hasta 500 caracteres. Categorías: `THEFT`, `ASSAULT`, `HARASSMENT`, `OBSTRUCTION`. | `201`: `{ "id": "uuid", "status": "PUBLISHED", "verification": "COMMUNITY_UNVERIFIED", "auditStatus": "PENDING" }`. Un duplicado espacial puede quedar en `DUPLICATE`. El registro comunitario no acredita veracidad. | [Ver][o-report] |
+| Listar reportes propios; US16. | `GET /api/v1/incident-reports` | Sin parámetros adicionales; utiliza la sesión. | `200`: `[]` si todavía no existen reportes propios; en otro caso, una lista con categoría, ubicación aproximada, vigencia, estado y descripción. | [Ver][o-reports] |
+| Consultar el estado de un reporte propio; US16. | `GET /api/v1/incident-reports/{id}` | UUID `id` del reporte. | `200`: `{ "id": "uuid", "status": "PUBLISHED", "version": 1, "verification": "COMMUNITY_UNVERIFIED" }`. `404 REPORT_NOT_FOUND` para un ID inexistente o ajeno. | [Ver][o-reportStatus] |
+| Comprobar integridad de versiones; US16 y TS03. | `GET /api/v1/incident-reports/{id}/audit` | UUID `id` del reporte propio. | `200`: `{ "incidentId": "uuid", "versions": [{ "version": 1, "status": "VERIFIED", "transactionHash": "0x..." }], "scope": "RECORD_INTEGRITY_ONLY" }`. También puede informar `PENDING`, `UNAVAILABLE`, `MISMATCH` o `NETWORK_RESET`. La confirmación es asíncrona. | [Ver][o-audit] |
+| Consultar incidentes públicos vigentes; US09 y TS01. | `GET /api/v1/incidents?bbox={oeste},{sur},{este},{norte}` | `bbox` opcional: cuatro números separados por comas. Ejemplo: `bbox=-77.05,-12.15,-77.01,-12.10`. | `200`: `[]` cuando no hay incidentes aplicables; en otro caso, una lista con `id`, `category`, `location`, `observedAt`, `validUntil`, `version`, `status` y `demo`. Ausencia de reportes no significa ausencia de riesgo. | [Ver][o-incidents] |
+| Recibir alertas durante un recorrido; US10. | `GET /api/v1/journeys/{id}/alerts/stream` | UUID `id`; encabezado opcional `Last-Event-ID` numérico para reanudar. Requiere recorrido activo y contexto de sesión. | `200`, `text/event-stream`. El inicio observado fue `: connected` seguido de una línea vacía. Cuando existe una alerta pertinente, el evento `alert` contiene `id`, `eventId`, `journeyId`, `incidentId`, `routeVersion`, `category` y vigencia. No es un JSON único. | [Ver][o-stream] |
+| Confirmar recepción de una alerta; US10. | `POST /api/v1/journeys/{id}/alerts/{alertId}/ack` | UUID del recorrido y de la alerta; sin cuerpo obligatorio. | `201` sin cuerpo JSON al confirmar. `404 ALERT_NOT_FOUND` si la alerta no existe o no corresponde a la sesión. | [Ver][o-ack] |
+| Comprobar que el proceso responde; operación técnica. | `GET /health/live` | Sin sesión ni parámetros. | `200`: `{ "service": "gateway", "status": "ok" }`. Comprueba liveness del proceso consultado. | [Ver][o-live] |
+| Comprobar readiness; operación técnica. | `GET /health/ready` | Sin sesión ni parámetros. | `200`: `{ "service": "gateway", "status": "ready" }`. En los microservicios con persistencia ejecuta además `SELECT 1`; el Gateway no tiene base propia. Por sí solo no certifica todos los servicios, el broker o la IA. | [Ver][o-ready] |
+
+**Contratos internos y documentación por servicio**
+
+Los cuatro servicios de negocio generan sus propios `/docs` y `/openapi.json`, pero permanecen en la red privada de Railway. El catálogo público anterior corresponde al Gateway, que retransmite las operaciones de aplicación. Los endpoints internos siguientes no se exponen mediante él y exigen identidad técnica firmada, con audiencia y emisor autorizados.
+
+| Servicio / acción interna | Verbo y sintaxis | Parámetros / response resumido | Consulta local de su OpenAPI |
+|---|---|---|---|
+| Risk Assessment: evaluar hasta tres geometrías. | `POST /internal/v1/risk-assessments` | JSON `routes`, lista de `{ id, geometry: { type: "LineString", coordinates: [[lng,lat],[lng,lat]] } }`. `201`: objeto indexado por ID con `level`, `score`, `cause`, cobertura y versión del método. Solo lo solicita Route Planning. | [Swagger local, puerto 3102](http://localhost:3102/docs) |
+| Incident Reporting: reconciliar proyecciones. | `GET /internal/v1/incidents/snapshot` | Sin cuerpo. `200`: `{ "incidents": [], "watermark": 0 }`. El watermark permite reconstruir el punto de sincronización; lo consumen Risk Assessment y Journey Alerts. | [Swagger local, puerto 3103](http://localhost:3103/docs) |
+| Route Planning: consultar geometría restante de un recorrido. | `GET /internal/v1/journeys/{id}/active` | UUID `id`. `200`: `id`, `ownerRef`, `version`, `geometry`, `progressObservedAt` y `leaseUntil`; `410 JOURNEY_NOT_ACTIVE` cuando no procede. Solo lo solicita Journey Alerts. | [Swagger local, puerto 3101](http://localhost:3101/docs) |
+
+Journey Alerts tiene su [Swagger local en el puerto 3104](http://localhost:3104/docs). Estas direcciones locales requieren levantar el entorno de desarrollo; no son URLs públicas del despliegue. Cada proceso comparte las rutas técnicas `/health/live` y `/health/ready`, identificándose por su propio nombre de servicio.
+
+**Ejemplo de solicitud y respuesta observada**
+
+La solicitud siguiente se ejecutó desde el origen autorizado de WebApp, con cookie y protección CSRF:
+
+```http
+POST /api/v1/routes/search
+Content-Type: application/json
+x-csrf-token: <obtenido-de-la-sesion>
+```
+
+```json
+{
+  "origin": { "lat": -12.1213, "lng": -77.0300 },
+  "destination": { "lat": -12.1318, "lng": -77.0309 }
+}
+```
+
+La respuesta fue `201`. Este extracto conserva los campos de distancia, duración y abstención observados; omite el UUID, las coordenadas de la geometría y las fechas temporales:
+
+```json
+{
+  "routes": [
+    {
+      "distance": 1472.179,
+      "duration": 998.462,
+      "risk": {
+        "level": "UNKNOWN",
+        "score": null,
+        "cause": "MODEL_NOT_VALIDATED",
+        "coverage": 0,
+        "sampleCount": 0,
+        "methodVersion": "synthetic-logistic-v1",
+        "demo": true
+      },
+      "demo": false
+    }
+  ],
+  "demo": false,
+  "notice": "SINGLE_ALTERNATIVE"
+}
+```
+
+`distance` está en metros y `duration` en segundos. La ruta procede de Mapbox (`demo: false`), mientras que `risk.demo: true` informa que el artefacto disponible fue entrenado con datos sintéticos. Al ejecutarse en modo real, el servicio se abstiene de asignar una puntuación. La consulta no demuestra que la ruta sea segura.
+
+Para un reporte, el cuerpo esperado tiene esta estructura; la fecha debe sustituirse por la observación real en UTC y no deben publicarse incidentes ficticios para probar producción:
+
+```json
+{
+  "category": "OBSTRUCTION",
+  "location": { "lat": -12.125, "lng": -77.033 },
+  "observedAt": "<fecha-ISO-8601-UTC-de-la-observacion>",
+  "description": "<descripcion-del-hecho-observado>"
+}
+```
+
+**Capturas y resultados de interacción**
+
+<p align="center"><img src="assets/Chapter-07/Swagger_OpenAPI.png" width="900" alt="Catálogo de operaciones de VSafe en Swagger UI desplegado"></p>
+<p align="center"><em>Figura 7.2.1.6-A. Swagger UI publicado en Railway y operaciones agrupadas del Gateway.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Swagger_Health_Ready.png" width="900" alt="Ejecución de GET health ready desde Swagger con respuesta HTTP 200"></p>
+<p align="center"><em>Figura 7.2.1.6-B. Try it out y Execute permiten comprobar GET /health/ready; se obtuvo HTTP 200 y status ready.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Swagger_Incidents_Response.png" width="900" alt="Consulta de incidentes desde Swagger con respuesta HTTP 200 y arreglo vacío"></p>
+<p align="center"><em>Figura 7.2.1.6-C. Tras inicializar la sesión, GET /api/v1/incidents respondió 200 con una lista vacía. Se conserva la diferencia entre no tener reportes y garantizar seguridad.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Swagger_Routes_Origin_Error.png" width="900" alt="Solicitud POST de rutas con coordenadas de muestra y respuesta 403 ORIGIN_NOT_ALLOWED en Swagger"></p>
+<p align="center"><em>Figura 7.2.1.6-D. Interacción real con coordenadas de muestra desde Swagger: el Gateway rechazó el origen del propio panel con 403 ORIGIN_NOT_ALLOWED.</em></p>
+
+La última captura registra una limitación pendiente del cliente de documentación: `FRONTEND_ORIGINS` autoriza la WebApp, pero no el origen de Swagger alojado en el Gateway. Además, Swagger no prepara automáticamente `x-csrf-token`. Por ello no se presenta ese intento como un POST exitoso. La misma operación sí respondió `201` desde el origen autorizado de WebApp. El OpenAPI enumera las operaciones, pero todavía faltan declaraciones completas de algunos parámetros de ruta/query, encabezados, esquemas de respuesta y errores; las tablas anteriores complementan el contrato implementado y no sustituyen esas mejoras pendientes del backend.
+
+El [registro de comprobaciones](assets/Chapter-07/Sprint1_Verification.json) contiene 16 observaciones con los resultados esperados: salud, sesión, consulta, inicio, lectura, cambio de ruta, progreso, cierre, listados, apertura SSE y rechazos controlados. Para consultar un reporte y su auditoría se usaron IDs inexistentes (`404`); para crear un reporte se usó un cuerpo inválido (`400`); para confirmar una alerta inexistente se obtuvo `404`. Esas pruebas negativas no acreditan sus flujos de éxito. El recorrido de muestra quedó cerrado y no se crearon incidentes públicos durante esta revisión. La entrega de una alerta demo y la verificación de dos versiones en Sepolia se habían comprobado durante la preparación del despliegue; son evidencias distintas de este registro.
+
+**Commits relacionados con la documentación de servicios**
+
+| Repositorio / commit | Relación comprobable con la documentación |
+|---|---|
+| [Microservices — fe60f4708777221354bc54123fdec0ce3b022251](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices/commit/fe60f4708777221354bc54123fdec0ce3b022251) | Incluye `packages/platform/src/http.ts`, que genera Swagger/OpenAPI mediante NestJS, y `services/gateway/src/interfaces/controller.ts`, con las operaciones y los cuerpos documentados. Es el commit de implementación disponible, no un commit exclusivo de documentación. |
+| [Informe — 40fba04a05d7ee499dc5c6ab7b96ba5d700e266b](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/40fba04a05d7ee499dc5c6ab7b96ba5d700e266b) | Integra las evidencias previas del capítulo VII en Master y constituye la base de esta revisión documental. |
+
+[o-session]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_session
+[o-routes]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_routes
+[o-start]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_start
+[o-journey]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_journey
+[o-route]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_route
+[o-progress]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_progress
+[o-close]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_close
+[o-report]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_report
+[o-reports]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_reports
+[o-reportStatus]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_reportStatus
+[o-audit]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_audit
+[o-incidents]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_incidents
+[o-stream]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_stream
+[o-ack]: https://gateway-production-61ce8b27.up.railway.app/docs#/Gateway/GatewayController_ack
+[o-live]: https://gateway-production-61ce8b27.up.railway.app/docs#/Health/Health_live
+[o-ready]: https://gateway-production-61ce8b27.up.railway.app/docs#/Health/Health_ready
+
+#### 7.2.1.7. Software Deployment Evidence for Sprint Review
+
+Durante este incremento se publicaron la landing, WebApp, el API Gateway y los cuatro microservicios. Se configuraron PostgreSQL/PostGIS, RabbitMQ, rutas reales de Mapbox y el contrato de integridad en Ethereum Sepolia. La infraestructura efectivamente utilizada fue **Cloudflare Pages y Railway**; AWS EC2, S3 y Nginx descritos como propuesta en 7.1.4 no corresponden al despliegue realizado. El modelo ONNX disponible continúa siendo sintético y se mantiene la abstención en modo real.
+
+**Productos y recursos publicados**
+
+| Producto / recurso | Plataforma y configuración efectiva | Acceso o evidencia |
+|---|---|---|
+| Landing Page | Cloudflare Pages; repositorio `landing-page`, rama `main`, raíz `/`, Node 24, build `VITE_APP_URL=https://vsafe-web.pages.dev npm run build`, salida `dist`. | [Landing publicada](https://landing-page-5hy.pages.dev/) |
+| WebApp | Cloudflare Pages; repositorio `WebApp`, rama `main`, raíz `/`, Node 24, build `npm run build`, salida `dist`. | [Aplicación publicada](https://vsafe-web.pages.dev/explore) |
+| API Gateway | Railway; Node 24, puerto 8080, dominio HTTPS público y healthcheck `/health/ready`. | [OpenAPI desplegado](https://gateway-production-61ce8b27.up.railway.app/docs) |
+| Route Planning, Risk Assessment, Incident Reporting y Journey Alerts | Cuatro procesos Railway conectados al repositorio `Microservices`, con build, migración, arranque y base propios. | Red privada `*.railway.internal`; la imagen 7.2.1.7-A registra su estado Online durante la configuración. |
+| PostgreSQL/PostGIS | Una instancia con volumen persistente y **cuatro bases lógicas**, cada una con un propietario exclusivo. | `route_planning_db`, `risk_assessment_db`, `incident_reporting_db` y `journey_alerts_db`. |
+| RabbitMQ | Imagen administrada `rabbitmq:4-management`, usuario/vhost del proyecto, nombre estable del nodo y volumen en `/var/lib/rabbitmq`. | AMQP privado, puerto 5672; publicación/consumo con outbox e inbox. |
+| Mapbox | Directions API con perfil peatonal `walking`; token configurado en Route Planning. | Se comprobó una consulta real con geometría y una alternativa disponible. |
+| Blockchain de integridad | RPC de Alchemy y contrato `IncidentAudit` en Sepolia, chain ID `11155111`. | [Contrato 0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30](https://sepolia.etherscan.io/address/0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30) |
+
+**Proceso de configuración y publicación**
+
+1. **Accesos y repositorios.** Se configuró el acceso a GitHub desde Railway y Cloudflare y se vincularon los tres repositorios de producto. Se configuraron las cuentas de Mapbox y Alchemy, además de una wallet destinada a la red de pruebas. La separación de repositorios permite construir la landing, WebApp y servicios de forma independiente.
+2. **Persistencia por servicio.** Se creó una instancia PostGIS con almacenamiento persistente. Dentro de ella se crearon las cuatro bases y los roles `vsafe_routes`, `vsafe_risk`, `vsafe_incidents` y `vsafe_alerts`. Se revocó el acceso público a cada base y se habilitó PostGIS dentro de cada una. Se comprobó que cada rol accediera a su base y no a las otras tres. El acceso TCP externo se utilizó para administración y comprobaciones; las aplicaciones usan la red privada.
+3. **Mensajería.** Se publicó RabbitMQ con credenciales propias, el vhost `vsafe`, `RABBITMQ_NODENAME` estable y el volumen persistente. Los cuatro servicios recibieron `AMQP_URL`; se verificaron publicación y recepción de eventos mediante los registros de outbox e inbox. Gateway no necesita conexión al broker.
+4. **Construcción de servicios.** Cada servicio Railway usa la raíz `/` del repositorio para resolver los npm workspaces. Se compilan primero `@vsafe/contracts` y `@vsafe/platform`, y después el servicio seleccionado. La migración se ejecuta como pre-deploy del propietario; Gateway no ejecuta migraciones.
+5. **Configuración de acceso.** Se asignaron `NODE_ENV=production`, `PORT=8080`, el mismo `INTERNAL_SECRET` a los cinco procesos y un `SESSION_SECRET` diferente al Gateway. Cada servicio de negocio recibió su propia `DATABASE_URL`. Solo Gateway recibió un dominio público; las URLs entre procesos utilizan dominios privados. Los valores secretos permanecen en la configuración local y del proveedor y no forman parte de estas evidencias.
+6. **Publicación de WebApp.** Se configuraron `NODE_VERSION=24`, `VITE_API_BASE_URL=/api/v1` y el secreto `API_ORIGIN` con el origen HTTPS del Gateway. La función `functions/api/[[path]].ts` retransmite las peticiones y conserva cookies y streaming. Se añadió `https://vsafe-web.pages.dev` a `FRONTEND_ORIGINS` y se verificó una escritura protegida por CSRF desde ese origen.
+7. **Publicación de la landing.** Se configuró `VITE_APP_URL` con la URL de WebApp. El primer bundle seguía apuntando a localhost; se fijó el valor en el comando de compilación y se volvió a desplegar. Se comprobó el botón de acceso en el navegador hasta llegar a `/explore`.
+8. **Activación de integraciones.** Se configuró `MAPBOX_ACCESS_TOKEN` en Route Planning y `DATA_MODE=real` en los cinco servicios. Se obtuvo Sepolia ETH de prueba, se compiló el contrato y se ejecutó su despliegue con el RPC de Sepolia. En Incident Reporting se configuraron `BLOCKCHAIN_RPC_URL`, `BLOCKCHAIN_CONTRACT_ADDRESS` y `BLOCKCHAIN_PRIVATE_KEY`. Las dos evidencias pendientes se anclaron; se contrastaron recibos confirmados y compromisos calculados con los valores de la cadena.
+9. **Comprobación del incremento.** Se verificaron HTTP 200 de las páginas y salud, sesión, rutas de Mapbox, operaciones de recorrido, errores controlados y apertura del canal SSE a través de Cloudflare. El detalle de esta comprobación está en `Sprint1_Verification.json`. Estos resultados no sustituyen pruebas de carga, restauración de respaldos ni validación de la IA con datos reales.
+
+| Servicio | Custom Build Command | Pre-deploy Command | Start Command |
+|---|---|---|---|
+| Gateway | `npm run build -w @vsafe/contracts && npm run build -w @vsafe/platform && npm run build -w @vsafe/gateway` | No aplica. | `npm run start -w @vsafe/gateway` |
+| Route Planning | `npm run build -w @vsafe/contracts && npm run build -w @vsafe/platform && npm run build -w @vsafe/route-planning` | `node scripts/migrate.mjs route-planning` | `npm run start -w @vsafe/route-planning` |
+| Risk Assessment | `npm run build -w @vsafe/contracts && npm run build -w @vsafe/platform && npm run build -w @vsafe/risk-assessment` | `node scripts/migrate.mjs risk-assessment` | `npm run start -w @vsafe/risk-assessment` |
+| Incident Reporting | `npm run build -w @vsafe/contracts && npm run build -w @vsafe/platform && npm run build -w @vsafe/incident-reporting` | `node scripts/migrate.mjs incident-reporting` | `npm run start -w @vsafe/incident-reporting` |
+| Journey Alerts | `npm run build -w @vsafe/contracts && npm run build -w @vsafe/platform && npm run build -w @vsafe/journey-alerts` | `node scripts/migrate.mjs journey-alerts` | `npm run start -w @vsafe/journey-alerts` |
+
+La construcción directa con npm resuelve el error de ubicación de `npm-cli.js` encontrado al usar inicialmente `scripts/build-service.mjs` en Railpack. La configuración se aplicó en el panel de Railway: no se afirma que los archivos `railway.json` del repositorio reflejen ese ajuste. No se incorporaron Dockerfiles para las aplicaciones; Railway administra internamente el entorno de ejecución y las imágenes de PostgreSQL/PostGIS y RabbitMQ. La automatización alcanzada corresponde a la integración con Git y a los pasos de construcción, pre-deploy y arranque del proveedor; no se presenta un workflow de GitHub Actions como evidencia de esta entrega.
+
+**Capturas del proceso y del resultado**
+
+<p align="center"><img src="assets/Chapter-07/Deployment_Railway_Services.png" width="900" alt="RabbitMQ, PostGIS y los cuatro microservicios Online en Railway"></p>
+<p align="center"><em>Figura 7.2.1.7-A. Captura proporcionada durante la configuración: los cuatro microservicios, PostGIS y RabbitMQ aparecen Online. Gateway se incorporó después y su respuesta pública se muestra en la figura 7.2.1.6-B.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Deployment_PostGIS_Databases.png" width="900" alt="Consulta de la versión PostGIS en las cuatro bases de datos de VSafe"></p>
+<p align="center"><em>Figura 7.2.1.7-B. La consulta devuelve el nombre de cada base y su versión de PostGIS; instalar la extensión en la base inicial no la habilitaba automáticamente en las otras cuatro.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Deployment_RabbitMQ_Volume.png" width="650" alt="Ruta de montaje del volumen persistente de RabbitMQ en Railway"></p>
+<p align="center"><em>Figura 7.2.1.7-C. Volumen del broker montado en /var/lib/rabbitmq para conservar su estado entre reinicios.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Deployment_Cloudflare_Variables.png" width="850" alt="Configuración de NODE_VERSION y VITE_APP_URL en Cloudflare"></p>
+<p align="center"><em>Figura 7.2.1.7-D. Variables públicas de compilación de la landing. La captura registra los valores configurados; su incorporación al bundle se resolvió fijando VITE_APP_URL en el comando de build y redesplegando.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Deployment_Landing_Cloudflare.png" width="900" alt="Landing de VSafe publicada en Cloudflare Pages en español"></p>
+<p align="center"><em>Figura 7.2.1.7-E. Landing publicada en landing-page-5hy.pages.dev. El botón Explorar rutas condujo a la WebApp desplegada.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Deployment_WebApp_Mapbox.png" width="900" alt="WebApp publicada con una ruta real peatonal y riesgo no disponible"></p>
+<p align="center"><em>Figura 7.2.1.7-F. WebApp accesible en vsafe-web.pages.dev: la consulta entre los lugares predefinidos devolvió una ruta peatonal real de aproximadamente 1,2 km y 13 minutos. La interfaz comunica información insuficiente para el riesgo; no presenta el modelo sintético como validado.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Deployment_Sepolia_Contract.png" width="900" alt="Salida de consola del despliegue de IncidentAudit con su dirección de contrato"></p>
+<p align="center"><em>Figura 7.2.1.7-G. Despliegue del contrato 0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30. El texto heredado del script dice local; la red se verificó por RPC como Sepolia, chain ID 11155111, con código de contrato y writer correspondiente a la wallet de prueba.</em></p>
+
+Como evidencia externa del anclaje se conservan las transacciones [af0f0ac…59244](https://sepolia.etherscan.io/tx/0xaf0f0acabe00f9ab1b3a58099283508ae06a6d1904ad3b7f8046675933759244) y [318b296…170e4](https://sepolia.etherscan.io/tx/0x318b296e3b57cd267bae80742ce81d6967732b7946b24e814e8028348a2170e4), correspondientes a dos versiones del registro de prueba. La comprobación de esos compromisos acredita integridad del registro, no la ocurrencia del incidente. La blockchain no almacena las descripciones ni las coordenadas en texto abierto.
+
+**Trazabilidad de los productos publicados**
+
+| Producto | Commit de código utilizado como base |
+|---|---|
+| Web Services | [Microservices — fe60f47](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices/commit/fe60f4708777221354bc54123fdec0ce3b022251) |
+| Aplicación web | [WebApp — 2c59590](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/WebApp/commit/2c595904d02409a455ffff22fe91572b0ec35b3f) |
+| Landing Page | [landing-page — e0a8176](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/landing-page/commit/e0a81763bb3a12c8d2251d4f97925d1f2f189752) |
+
+Los secretos, dominios y comandos del panel son configuración de los proveedores; no generan por sí solos commits adicionales. Al cierre de esta evidencia quedan pendientes el entrenamiento y evaluación con datos reales, completar la experiencia Try it out para las escrituras y comprobar restauración y carga del despliegue.
+
+#### 7.2.1.8. Team Collaboration Insights during Sprint
+
+El trabajo se distribuyó documentalmente mediante las responsabilidades propuestas en el Sprint Planning y los repositorios separados de landing, WebApp, Web Services e informe. Para esta revisión se contrastó esa planificación con las autorías y los commits disponibles en GitHub. Las capturas y los conteos siguientes describen la evidencia registrada; no atribuyen implementación, revisiones por pares o aceptación de historias que no estén respaldadas por el historial consultado.
+
+**Corte y método de revisión**
+
+El corte utiliza los commits alcanzables desde `main` de cada producto y `Master` de Informe, entre el **9 de noviembre de 2026 a las 00:00, America/Lima**, y el **12 de noviembre de 2026 a las 09:07 UTC (04:07, America/Lima)**. Los conteos Git incluyen merges. Las capturas de GitHub Insights muestran su ventana de tres meses y excluyen merges, por lo que no deben compararse como si tuvieran exactamente el mismo filtro. Se conserva el [detalle reproducible del corte](assets/Chapter-07/Sprint1_Collaboration.json).
+
+| Repositorio | Commits en el corte | Autoría registrada | Evidencia relacionada |
+|---|---:|---|---|
+| [Microservices](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices) | 1 | `Oscar`: 1; GitHub lo asocia a `Carbocnito5443`. | `fe60f47`: implementación de los servicios, contratos, migraciones, OpenAPI y pruebas. [Historial](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices/commits/main/) · [Contributors](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Microservices/graphs/contributors) |
+| [WebApp](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/WebApp) | 1 | `Oscar`: 1; GitHub lo asocia a `Carbocnito5443`. | `2c59590`: aplicación Vue/TypeScript/PrimeVue, features y pruebas. [Historial](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/WebApp/commits/main/) · [Contributors](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/WebApp/graphs/contributors) |
+| [landing-page](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/landing-page) | 1 | `Oscar`: 1; GitHub lo asocia a `Carbocnito5443`. | `e0a8176`: landing, estilos, traducciones, CTA y pruebas. [Historial](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/landing-page/commits/main/) · [Contributors](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/landing-page/graphs/contributors) |
+| [Informe](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe) | 14 | `Mayrzon02`: 7; `JKOlimpo`: 4; `Carbocnito5443`: 2; `Oscar`: 1. | Planificación, evidencias, Student Outcome e integración en Master. [Historial](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commits/Master/) |
+
+`Oscar` y `Carbocnito5443` no se contabilizan como dos integrantes distintos: son representaciones de autoría asociadas por GitHub. Tampoco se equipara automáticamente el número de nombres Git del informe con el número de integrantes. La cantidad de commits describe actividad registrada, no horas trabajadas ni calidad de la contribución.
+
+**Capturas de colaboración y commits**
+
+<p align="center"><img src="assets/Chapter-07/Collaboration_Microservices.png" width="900" alt="GitHub Insights de Microservices con un commit y un contribuidor"></p>
+<p align="center"><em>Figura 7.2.1.8-A. Contributors de Microservices: la implementación consultada está concentrada en una autoría.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Collaboration_WebApp.png" width="900" alt="GitHub Insights de WebApp con un commit y un contribuidor"></p>
+<p align="center"><em>Figura 7.2.1.8-B. Contributors de WebApp: un commit de implementación visible en la rama principal.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Collaboration_Landing.png" width="900" alt="GitHub Insights de landing-page con un commit y un contribuidor"></p>
+<p align="center"><em>Figura 7.2.1.8-C. Contributors de landing-page: un commit de implementación visible en la rama principal.</em></p>
+
+<p align="center"><img src="assets/Chapter-07/Collaboration_Informe_Commits.png" width="900" alt="Historial de Master en Informe con aportes de diferentes cuentas GitHub"></p>
+<p align="center"><em>Figura 7.2.1.8-D. El informe contiene aportes documentales de distintas cuentas y el merge de Chapter-07. Esa actividad documental no acredita por sí sola participación en el código de los otros tres productos.</em></p>
+
+| Identidad Git / commit del informe | Actividad comprobable |
+|---|---|
+| `JKOlimpo` — [733db92](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/733db92d45a196ba16ca9c8b67efede6e8ba332d) | Incorporación de la configuración y planificación del Sprint 1. |
+| `Mayrzon02` — [3f67521](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/3f67521805493fdd79fa1bf1d24474c138ec8e21), [c431deb](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/c431debefe978b9dbd39c36472dfa3dad2a3807e) y [d24f692](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/d24f6929d8b0ee2a632c99e9523e8d4c322d3366) | Documentación de evidencias de desarrollo, pruebas y ejecución de la landing. |
+| `Carbocnito5443` — [450d6ef](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/450d6ef38877dd8b98f6e948fab89d346dd86869) y [9d9c931](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/9d9c93101e49f190c1967bf037817dfe12ba7498) | Ajustes de las secciones de evidencias previos a la integración. |
+| `Oscar` — [40fba04](https://github.com/VSAFE-Arquitecturas-Software-Emergentes/Informe/commit/40fba04a05d7ee499dc5c6ab7b96ba5d700e266b) | Integración de Chapter-07 en Master conservando capítulos anteriores, conclusiones y referencias. |
+
+**Hallazgos para la revisión del equipo**
+
+El historial acredita colaboración documental y publicación de los tres productos, pero **todavía no acredita participación de todos los integrantes en la implementación de Landing Page, Web Services y WebApp**. Las asignaciones propuestas en 7.2.1.1 no se presentan como trabajo ejecutado únicamente por figurar en el planning. Tampoco se dispone en este corte de evidencia suficiente para afirmar que todos los cambios tuvieron revisión por pares.
+
+Para completar ese criterio, cada integrante deberá aportar cambios reales en los productos que le correspondan, registrar revisiones y enlazar historia, tarea, commit o Pull Request y prueba. Esas evidencias deben añadirse en una revisión posterior, conservando el historial existente. La limitación se declara expresamente en lugar de atribuir autorías no verificadas o generar commits artificiales para aparentar participación.
 
 # Conclusiones
 
