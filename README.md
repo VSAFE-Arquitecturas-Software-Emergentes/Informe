@@ -1626,13 +1626,15 @@ La arquitectura se representa mediante las vistas System Landscape, System Conte
 
 En C4, un container representa una aplicación o un almacén de datos. Por ello, las vistas de containers describen responsabilidades lógicas y tecnologías, mientras que Deployment muestra dónde se ejecutan sus instancias. [Brown, Container diagram](https://c4model.com/diagrams/container); [Brown, Deployment diagram](https://c4model.com/diagrams/deployment).
 
-Los diagramas siguientes presentan el modelo para revisión. La versión formal del informe deberá conservar su fuente en Structurizr, de acuerdo con CON05.
+Los diagramas siguientes representan la implementación del MVP al 12 de noviembre de 2026: Cloudflare Pages para los productos web y el proxy, Railway para el gateway, los cuatro microservicios, PostgreSQL/PostGIS y RabbitMQ, y Ethereum Sepolia para el contrato de integridad. La fuente de las ocho vistas se conserva en [Structurizr DSL](assets/vsafe-c4-actual.dsl), de acuerdo con CON05. Los componentes internos de cada microservicio se detallan en 5.1.5, 5.2.5, 5.3.5 y 5.4.5.
+
+Las dos tecnologías emergentes incorporadas son la inferencia de IA/ML con ONNX Runtime y la auditoría de integridad con blockchain y Solidity. El modelo disponible utiliza datos sintéticos; en modo real el riesgo permanece en `UNKNOWN / MODEL_NOT_VALIDATED` hasta completar su validación. El contrato `IncidentAudit` está desplegado en la red de pruebas Sepolia.
 
 ### 4.3.1. Software Architecture System Landscape Diagram
 
 El System Landscape ubica a VSafe dentro de su entorno de uso y desarrollo.
 
-Los estudiantes y trabajadores utilizan el producto. El proveedor cartográfico aporta mapas y alternativas de recorrido. El equipo mantiene el código, los contratos y los diagramas mediante GitHub.
+Los estudiantes y trabajadores utilizan el producto. Mapbox Directions API calcula alternativas peatonales, OpenStreetMap aporta las teselas utilizadas por Leaflet y Alchemy proporciona acceso RPC al contrato en Ethereum Sepolia. El equipo mantiene el código, los contratos y los diagramas mediante GitHub.
 
 <!-- 4.3.1. Software Architecture System Landscape Diagram -->
 <p align="center">
@@ -1642,6 +1644,8 @@ Los estudiantes y trabajadores utilizan el producto. El proveedor cartográfico 
 </p>
 
 GitHub forma parte del entorno de construcción y mantenimiento. La navegación de los usuarios no depende de consultar GitHub durante su ejecución.
+
+[Abrir System Landscape en resolución original](assets/VSafe-Landscape.png).
 
 El diseño no presupone que exista una integración disponible con una municipalidad o una fuente oficial de incidentes. La incorporación de esas fuentes requerirá comprobar acceso, cobertura, formato y condiciones de uso.
 
@@ -1662,11 +1666,14 @@ El Context Diagram representa a VSafe como un sistema único, delimitando sus us
 |---|---|
 | Estudiante | Definir recorridos, comparar alternativas y aportar información de incidentes. |
 | Trabajador | Planificar desplazamientos, consultar contexto y reaccionar ante alertas. |
-| VSafe | Coordinar navegación, estimación de riesgo, reportes y acompañamiento. |
-| Proveedor cartográfico | Entregar datos cartográficos y alternativas de recorrido. |
-| Operador técnico | Supervisar disponibilidad, fallos, trabajos pendientes y recuperación. |
+| VSafe | Coordinar navegación, evaluación con abstención, reportes, alertas y verificación de integridad. |
+| Mapbox Directions API | Calcular recorridos peatonales y las alternativas disponibles. |
+| OpenStreetMap | Entregar las teselas del mapa utilizado por Leaflet. |
+| Alchemy RPC | Proporcionar acceso JSON-RPC a Ethereum Sepolia para transacciones y consultas del contrato. |
 
 La geolocalización procede del dispositivo a través de las capacidades del navegador y requiere autorización. VSafe debe informar al usuario cuando origen y destino se envían al proveedor para calcular las rutas.
+
+[Abrir System Context en resolución original](assets/VSafe-Context.png).
 
 ### 4.3.3. Software Architecture Container Level Diagrams
 
@@ -1674,45 +1681,43 @@ La solución incluye un API Gateway y cuatro microservicios de negocio desplegab
 
 <!-- 4.3.3. Software Architecture Container Level Diagram -->
 <p align="center">
-  <img src="assets/VSafe_Container_View_mejor_vista.png"
-       alt="Diagrama de contenedores de VSafe"
+  <img src="assets/VSafe-Containers.png"
+       alt="Contenedores de VSafe con proxy de Cloudflare, cuatro bases privadas, ONNX y contrato en Sepolia"
        width="1200">
 </p>
 
-<!-- Diagrama de contenedores -->
-<p align="center">
-  <img src="assets/VSafe-Containers.png"
-       alt="Diagrama de contenedores de VSafe"
-       width="1200">
-</p>
+[Abrir Container Diagram en resolución original](assets/VSafe-Containers.png).
 
 #### Descripción de containers
 
-| Container | Tecnología propuesta | Responsabilidad |
+| Container | Tecnología utilizada | Responsabilidad |
 |---|---|---|
-| **Landing Page** | HTML5, CSS3 y JavaScript. | Comunicar la propuesta de valor y conducir a la aplicación. |
-| **Aplicación web** | Vue, TypeScript y PrimeVue. | Gestionar mapas, comparación, reportes, permisos y visualización de alertas. |
-| **API Gateway** | NestJS y TypeScript. | Verificar la sesión, emitir contexto interno autorizado, enrutar solicitudes y retransmitir SSE. |
+| **Landing Page** | HTML5, CSS3, JavaScript y Vite. | Comunicar la propuesta de valor y conducir a la aplicación. |
+| **Aplicación web** | Vue, TypeScript, PrimeVue y Leaflet. | Organizar las funcionalidades por features y Clean Architecture; gestionar mapas, comparación, reportes, permisos y alertas. |
+| **Proxy de API** | Cloudflare Pages Functions y TypeScript. | Reenviar `/api` al gateway conservando cookies y streaming SSE desde el mismo origen de la WebApp. |
+| **API Gateway** | NestJS y TypeScript. | Verificar sesión anónima JWT, CSRF y orígenes; limitar y enrutar solicitudes, retransmitir SSE y publicar OpenAPI. |
 | **Route Planning Service** | NestJS y TypeScript. | Obtener alternativas, consultar evaluaciones y administrar recorridos; publicar sus eventos. |
-| **Risk Assessment Service** | NestJS, TypeScript y ONNX Runtime. | Mantener la proyección de incidentes, evaluar rutas y devolver incertidumbre cuando corresponda. |
-| **Incident Reporting Service** | NestJS y TypeScript. | Registrar, evaluar, publicar y expirar reportes; mantener su outbox y relay. |
+| **Risk Assessment Service** | NestJS, TypeScript y ONNX Runtime. | Mantener la proyección de incidentes y ejecutar inferencia local cuando proceda. El modelo sintético actual exige abstención en modo real. |
+| **Incident Reporting Service** | NestJS, TypeScript y ethers. | Registrar, publicar y expirar reportes; mantener su outbox y procesar la auditoría de integridad en blockchain. |
 | **Journey Alerts Service** | NestJS y TypeScript. | Consumir eventos, evaluar pertinencia, deduplicar alertas y entregarlas mediante SSE. |
-| **Message Broker** | RabbitMQ. | Enrutar eventos mediante exchange, colas durables por consumidor y colas de errores. |
+| **Message Broker** | RabbitMQ 4 y AMQP. | Enrutar eventos mediante exchange topic, colas durables por consumidor, reintentos y colas de errores. |
 | **Route Planning Database** | PostgreSQL y PostGIS. | Recorridos temporales, versiones y outbox; acceso exclusivo de Route Planning. |
 | **Risk Assessment Database** | PostgreSQL y PostGIS. | Proyección analítica, inbox, checkpoints y metadatos de evaluación; acceso exclusivo de Risk Assessment. |
-| **Incident Reporting Database** | PostgreSQL y PostGIS. | Reportes, incidentes, estados, categorías y outbox; acceso exclusivo de Incident Reporting. |
+| **Incident Reporting Database** | PostgreSQL y PostGIS. | Reportes, incidentes, idempotencia, outbox y registros de auditoría; acceso exclusivo de Incident Reporting. |
 | **Journey Alerts Database** | PostgreSQL y PostGIS. | Proyecciones temporales, inbox, checkpoints, alertas y estado de entrega; acceso exclusivo de Journey Alerts. |
-| **Historial local** | IndexedDB. | Conservar consultas autorizadas en el navegador. |
-| **Respaldos** | Almacenamiento de objetos fuera del host. | Conservar copias por servicio con políticas de retención y recuperación. |
+| **Historial y preferencias locales** | localStorage. | Conservar consultas optativas, consentimiento e idioma en el navegador. |
+| **IncidentAudit** | Solidity y EVM en Ethereum Sepolia. | Conservar compromisos opacos por versión y restringir la escritura al writer autorizado. Permite verificar integridad; no acredita la veracidad del incidente. |
+
+ONNX Runtime se ejecuta dentro de Risk Assessment; no constituye un servicio externo. El contrato `IncidentAudit` es un artefacto propio desplegado en la EVM y no añade un quinto microservicio de negocio.
 
 #### Distribución de contextos y despliegues
 
 | Bounded Context | Microservicio | Base privada | Unidad de despliegue |
 |---|---|---|---|
-| Route Planning | Route Planning Service. | `route_planning_db`. | Imagen y pipeline `route-planning-service`. |
-| Risk Assessment | Risk Assessment Service. | `risk_assessment_db`. | Imagen y pipeline `risk-assessment-service`. |
-| Incident Reporting | Incident Reporting Service. | `incident_reporting_db`. | Imagen y pipeline `incident-reporting-service`. |
-| Journey Alerts | Journey Alerts Service. | `journey_alerts_db`. | Imagen y pipeline `journey-alerts-service`. |
+| Route Planning | Route Planning Service. | `route_planning_db`, rol `vsafe_routes`. | Servicio Railway `route-planning`. |
+| Risk Assessment | Risk Assessment Service. | `risk_assessment_db`, rol `vsafe_risk`. | Servicio Railway `risk-assessment`. |
+| Incident Reporting | Incident Reporting Service. | `incident_reporting_db`, rol `vsafe_incidents`. | Servicio Railway `incident-reporting`. |
+| Journey Alerts | Journey Alerts Service. | `journey_alerts_db`, rol `vsafe_alerts`. | Servicio Railway `journey-alerts`. |
 
 Cada servicio controla sus repositorios y migraciones. Sus relays e inbox pertenecen al mismo propietario; no existe una tabla de integración que permita a todos los servicios leer los datos privados de los demás. PostgreSQL puede compartir servidor físico en el piloto, pero las bases, roles y permisos se mantienen separados.
 
@@ -1722,17 +1727,20 @@ La aplicación accede a rutas públicas a través del gateway. Risk Assessment e
 
 | Origen | Destino | Mecanismo | Finalidad |
 |---|---|---|---|
-| Aplicación web. | API Gateway. | HTTPS y JSON. | Acceder a las operaciones públicas mediante una entrada controlada. |
+| Aplicación web. | Proxy de API de Cloudflare. | HTTPS, JSON y SSE. | Consultar `/api/v1` desde el mismo origen, con cookie de sesión y CSRF. |
+| Proxy de API de Cloudflare. | API Gateway. | HTTPS, cookies y streaming. | Reenviar las operaciones al backend en Railway. |
 | API Gateway. | Route Planning, Incident Reporting o Journey Alerts. | HTTP protegido y contexto de identidad verificable. | Enrutar la solicitud al propietario de la capacidad. |
 | Route Planning Service. | Risk Assessment Service. | HTTP interno síncrono con timeout. | Solicitar evaluación de alternativas sin consultar su base. |
 | Journey Alerts Service. | Route Planning Service. | HTTP interno autenticado. | Obtener y renovar el mínimo estado vigente de un recorrido. |
 | Route Planning Service. | Mapbox. | HTTPS. | Obtener alternativas cartográficas. |
-| Aplicación web. | Proveedor de mapas. | HTTPS. | Obtener cartografía con credenciales públicas restringidas. |
+| Aplicación web. | OpenStreetMap. | HTTPS. | Obtener las teselas utilizadas por Leaflet. |
+| Risk Assessment y Journey Alerts. | Incident Reporting. | HTTP interno autenticado. | Reconciliar sus proyecciones mediante snapshot y watermark. |
 | Route Planning e Incident Reporting. | RabbitMQ. | AMQP protegido y publisher confirms. | Publicar eventos desde sus respectivos outboxes. |
 | RabbitMQ. | Risk Assessment y Journey Alerts. | Colas por consumidor y acuse manual. | Entregar eventos para actualizar proyecciones privadas. |
-| Journey Alerts Service. | Aplicación web, mediante gateway. | SSE sobre HTTPS. | Entregar alertas autorizadas y recuperar mensajes vigentes. |
+| Journey Alerts Service. | Aplicación web, mediante gateway y proxy de Cloudflare. | SSE sobre HTTPS. | Entregar alertas autorizadas y recuperar mensajes vigentes. |
 | Cada microservicio. | Su propia base. | Credencial exclusiva y conexión protegida. | Mantener datos, versiones y transacciones locales. |
-| Tarea operativa de respaldo. | Bases privadas y almacenamiento de copias. | Acceso administrativo restringido. | Generar y recuperar respaldos por propietario. |
+| Incident Reporting. | Alchemy RPC. | HTTPS y JSON-RPC. | Enviar transacciones firmadas y consultar compromisos de integridad. |
+| Alchemy RPC. | IncidentAudit en Sepolia. | Ethereum JSON-RPC y EVM. | Ejecutar transacciones y consultas del contrato en la red de pruebas. |
 
 #### Contratos públicos propuestos
 
@@ -1763,62 +1771,58 @@ Los errores públicos utilizan códigos identificables, como `INVALID_LOCATION`,
 
 ### 4.3.4. Software Architecture Deployment Diagrams
 
-El entorno inicial contiene instancias separadas del gateway y de cada microservicio. Se propone un piloto en una región de AWS. La independencia de ejecución y despliegue se conserva aunque las instancias compartan una máquina virtual por razones operativas.
+El entorno implementado publica la landing y la WebApp en Cloudflare Pages y utiliza un proxy de Pages Functions para acceder al backend. Railway ejecuta el gateway, cuatro microservicios independientes, PostgreSQL/PostGIS y RabbitMQ. El contrato `IncidentAudit` se ejecuta en Ethereum Sepolia y se consulta mediante Alchemy. Esta vista sustituye la propuesta anterior de una VM en AWS.
 
 <!-- 4.3.4. Software Architecture Deployment Diagram -->
 <p align="center">
-  <img src="assets/VSafe_Deployment_Mejor_vista.png"
-       alt="Diagrama de despliegue de VSafe"
+  <img src="assets/VSafe-Deployment.png"
+       alt="Despliegue de VSafe en Cloudflare Pages, Railway y Ethereum Sepolia"
        width="1200">
 </p>
 
-<!-- Diagrama de despliegue -->
-<p align="center">
-  <img src="assets/VSafe-Deployment.png"
-       alt="Diagrama de despliegue de VSafe"
-       width="1200">
-</p>
+[Abrir Deployment Diagram en resolución original](assets/VSafe-Deployment.png).
 
 #### Nodos de despliegue
 
 | Nodo | Elementos alojados | Consideraciones |
 |---|---|---|
-| Dispositivo del usuario | Navegador e IndexedDB. | Permisos y persistencia local optativa. |
-| Reverse proxy | HTTPS y archivos estáticos. | Entrada pública, retransmisión de SSE sin buffering y enrutamiento al gateway. |
-| API Gateway | Aplicación NestJS independiente. | Control de entrada y transporte; no contiene reglas de riesgo ni acceso a bases de negocio. |
-| Route Planning | Contenedor del servicio. | Imagen propia, credencial de `route_planning_db`, timeout y Circuit Breaker. |
-| Risk Assessment | Contenedor del servicio e inferencia ONNX. | Imagen y modelo versionados; credencial de `risk_assessment_db`. |
-| Incident Reporting | Contenedor del servicio con su procesamiento y relay. | Imagen propia y credencial de `incident_reporting_db`. |
-| Journey Alerts | Contenedor del servicio con consumidores y SSE. | Imagen propia y credencial de `journey_alerts_db`. |
-| Message Broker | RabbitMQ con almacenamiento persistente. | Colas y permisos por servicio; puerto y administración sin exposición pública. |
-| Servidor de persistencia | PostgreSQL y PostGIS. | Cuatro bases lógicas privadas y volumen persistente. |
-| Almacenamiento de respaldos | Copias externas al host. | Retención, cifrado y acceso operativo restringido. |
-| Proveedor cartográfico | Mapbox. | Dependencia externa separada de la operación interna. |
+| Dispositivo del usuario | SPA Vue y localStorage en el navegador. | Geolocalización autorizada e historial optativo; descarga los archivos desde Cloudflare. |
+| Cloudflare Pages: landing-page-5hy | Archivos estáticos de la landing. | HTTPS y enlace a la WebApp. |
+| Cloudflare Pages: vsafe-web | Archivos de la SPA y proxy de Pages Functions. | El proxy conserva cookies y streaming SSE al reenviar `/api` al gateway. |
+| Railway: gateway | Aplicación NestJS, Node.js 24 y puerto de aplicación 8080. | Entrada HTTPS pública, sesión, CSRF, límites, OpenAPI y enrutamiento. |
+| Railway: route-planning | Proceso NestJS independiente. | Red privada, base `route_planning_db`, Mapbox y Risk Assessment. |
+| Railway: risk-assessment | Proceso NestJS con ONNX Runtime CPU. | Red privada, base `risk_assessment_db` y abstención mientras el modelo no esté validado. |
+| Railway: incident-reporting | Proceso NestJS con ethers y worker de auditoría. | Base `incident_reporting_db`, eventos y conexión RPC a Sepolia. |
+| Railway: journey-alerts | Proceso NestJS con consumidores y SSE. | Base `journey_alerts_db` y consulta del trayecto restante. |
+| Railway: RabbitMQ | Broker RabbitMQ 4. | Puerto AMQP privado 5672 y volumen persistente en `/var/lib/rabbitmq`. |
+| Railway: PostGIS | Instancia PostgreSQL/PostGIS. | Puerto privado 5432, volumen persistente y cuatro bases con roles exclusivos. |
+| Mapbox y OpenStreetMap | Directions API y teselas, respectivamente. | Dependencias externas por HTTPS con responsabilidades distintas. |
+| Alchemy Cloud | Acceso RPC a Ethereum Sepolia. | Transporte de transacciones firmadas y consultas del contrato. |
+| Ethereum Sepolia | Contrato Solidity `IncidentAudit`. | Red de pruebas con chain ID `11155111`; conserva compromisos opacos por versión. |
 
-#### Configuración operativa propuesta
+#### Configuración operativa del MVP
 
 | Aspecto | Definición |
 |---|---|
 | Entornos | Desarrollo local y piloto con datos, colas y secretos separados. |
-| Construcción | Una imagen por servicio y otra para el gateway; cada imagen tiene versión propia. |
-| Pipelines | Construcción, pruebas de contrato, despliegue y rollback seleccionables por servicio. |
-| Despliegue | Actualizar solo el servicio modificado cuando sus contratos sean compatibles; conservar los demás hashes de imagen. |
-| Descubrimiento | DNS de la red de contenedores y nombres configurados por entorno; sin direcciones fijas dentro del código. |
+| Construcción | Railpack construye el gateway y cada servicio desde el monorepositorio; Vite genera los productos web. No se requieren Dockerfiles propios. |
+| Despliegue | Cada servicio Railway tiene build y start propios; las migraciones se ejecutan en su pre-deploy. Cloudflare publica los productos web por separado. |
+| Descubrimiento | DNS privado `*.railway.internal` y variables de entorno para los destinos internos. |
 | Persistencia | Database per Service, credenciales exclusivas y migraciones ejecutadas por el propietario. |
 | Mensajería | RabbitMQ, colas durables por suscripción, confirmaciones, inbox y reintentos limitados. |
 | Seguridad | HTTPS público, autenticación interna, sesiones verificables y broker/bases en red privada. |
-| Escalado | Ajustar recursos o réplicas por microservicio según métricas; comprobar concurrencia e idempotencia antes de aumentar consumidores. |
-| Recuperación | Respaldos por base, reconstrucción de proyecciones, reinicio controlado de consumidores y pruebas de reconciliación. |
+| Escalado | El diagrama representa una instancia de cada proceso; cualquier aumento de réplicas requiere comprobar concurrencia e idempotencia. |
+| Recuperación | Volúmenes persistentes y reconstrucción de proyecciones. La configuración y restauración de respaldos externos requieren evidencia adicional. |
 | Observabilidad | Correlation ID entre gateway, HTTP y eventos; latencia por servicio, backlog de colas, antigüedad de outbox, UNKNOWN y errores. |
-| Limitación inicial | Host, gateway, PostgreSQL y RabbitMQ sin redundancia; no se presupone alta disponibilidad. |
+| Limitación inicial | No se representa redundancia ni alta disponibilidad. La persistencia del volumen no sustituye una prueba de restauración. |
 
 #### Secuencia de despliegue de una versión compatible
 
-1. Construir la imagen del servicio modificado y ejecutar sus pruebas y contratos.
+1. Seleccionar el commit del servicio modificado y ejecutar sus pruebas, contratos y construcción.
 2. Ejecutar migraciones aditivas de su base con la credencial del propietario.
-3. Publicar la nueva imagen y actualizar únicamente esa instancia o conjunto de réplicas.
+3. Publicar el servicio en Railway o el producto web en Cloudflare, conservando la compatibilidad con los demás.
 4. Comprobar readiness, errores, consumo de eventos y compatibilidad con los servicios existentes.
-5. Conservar la imagen anterior para rollback; las eliminaciones de campos se posponen hasta retirar consumidores antiguos.
+5. Conservar la referencia del despliegue anterior para rollback; las eliminaciones de campos se posponen hasta retirar consumidores antiguos.
 
 Las actualizaciones incompatibles exigen una transición de versiones del contrato. No se consideran independientes si requieren cambiar simultáneamente todos los servicios para que el producto continúe funcionando.
 
@@ -1831,22 +1835,23 @@ Las actualizaciones incompatibles exigen una transición de versiones del contra
 | Reportes comunitarios. | Incident Reporting, persistencia privada y relay de outbox. |
 | Alertas oportunas. | RabbitMQ, Journey Alerts, contratos de recorrido activo y SSE. |
 | Integridad ante reintentos. | Transacciones locales, outbox por productor, inbox por consumidor y claves idempotentes. |
+| Integridad del registro. | Worker de Incident Reporting, ethers, Alchemy y contrato `IncidentAudit` en Sepolia; no equivale a verificar la ocurrencia del incidente. |
 | Protección de ubicación. | Gateway, autorización por recurso en cada servicio, historial local y expiración de proyecciones. |
 | Tolerancia a fallos. | Timeouts y límites de concurrencia por llamada, Circuit Breaker y abstención ante información no sincronizada. |
-| Recuperabilidad. | Supervisión por proceso, almacenamiento durable, respaldos y reconciliación entre servicios. |
+| Recuperabilidad. | Supervisión por proceso, almacenamiento durable y reconciliación entre servicios; restauración de respaldos pendiente de evidencia. |
 | Modificabilidad. | APIs y eventos versionados, adaptadores y pruebas de contratos. |
-| Despliegue independiente. | Imágenes, pipelines, migraciones y datos privados de cada servicio; QA09 y CON08. |
+| Despliegue independiente. | Build, start, migraciones y datos privados de cada servicio Railway; QA09 y CON08. |
 
 La arquitectura responde al requisito de microservicios mediante independencia de despliegue, propiedad de datos y comunicación contractual. Sus metas de desempeño y recuperación deberán verificarse con servicios y broker ejecutándose como procesos separados. La validación del dominio y de la información de riesgo continúa siendo necesaria para que la solución resulte útil.
 
 # Capítulo V: Tactical-Level Software Design
 
 
-El diseño táctico de VSafe materializa los cuatro bounded contexts del capítulo IV en microservicios independientes: Route Planning, Risk Assessment, Incident Reporting y Journey Alerts. Cada servicio mantiene su modelo de dominio, persistencia privada, contratos e imagen de despliegue. Las clases y esquemas descritos constituyen la propuesta de diseño para la implementación del MVP.
+El diseño táctico de VSafe materializa los cuatro bounded contexts del capítulo IV en microservicios independientes: Route Planning, Risk Assessment, Incident Reporting y Journey Alerts. Cada servicio mantiene su modelo de dominio, persistencia privada, contratos y despliegue propio. Las tablas de clases y esquemas conservan la propuesta de diseño; las vistas de componentes de 5.1.5, 5.2.5, 5.3.5 y 5.4.5 se actualizan con los nombres y dependencias de la implementación del MVP.
 
 Se utiliza DDD para expresar entidades, objetos de valor, agregados, repositorios y políticas con el lenguaje del negocio. Las reglas se ejecutan en el dominio, mientras la aplicación coordina casos de uso y la infraestructura implementa acceso a datos e integraciones. Esta separación mantiene el modelo independiente del framework y de la persistencia [R1]. ADD orienta las decisiones a los drivers del capítulo IV: oportunidad, respuesta, incertidumbre, privacidad, integridad y evolución independiente [R2].
 
-El API Gateway conserva la verificación de sesión y el enrutamiento. No se convierte en un bounded context de negocio ni accede a las bases privadas. PostgreSQL/PostGIS, RabbitMQ, NestJS/TypeScript, Vue/PrimeVue y ONNX Runtime se conservan como tecnologías propuestas del diseño estratégico.
+El API Gateway conserva la verificación de sesión y el enrutamiento. No se convierte en un bounded context de negocio ni accede a las bases privadas. La implementación utiliza PostgreSQL/PostGIS, RabbitMQ, NestJS/TypeScript, Vue/PrimeVue y ONNX Runtime, e incorpora ethers y Solidity para verificar la integridad de registros en Sepolia. ONNX continúa pendiente de validación con datos reales.
 
 **Criterios comunes de diseño**
 
@@ -1985,7 +1990,9 @@ La vista de componentes descompone el container del microservicio y conserva sus
 </p>
 
 
-La entrada se traduce a casos de uso, el dominio aplica las reglas y los adaptadores utilizan exclusivamente route_planning_db. Las integraciones se ejecutan por HTTP, inferencia o mensajería según la responsabilidad del contexto. El archivo `fuentes/vsafe_componentes.dsl` contiene las cuatro vistas para Structurizr [R4].
+`PlanningController` delega en `PlanningService`, que coordina `JourneyAggregate` y `JourneyPolicy`, la persistencia `PgJourneys`, `MapboxProvider` y `HttpRiskAdapter`. `PgJourneys` utiliza exclusivamente `route_planning_db` y escribe el outbox en la misma transacción; `EventRuntime` publica sus eventos con confirmaciones de RabbitMQ. La inferencia pertenece a Risk Assessment y se solicita mediante HTTP interno autenticado.
+
+[Abrir componentes de Route Planning en resolución original](assets/route_planning_componentes.png). La fuente se conserva en [Structurizr DSL](assets/vsafe-c4-actual.dsl) [R4].
 
 
 ### 5.1.6. Bounded Context Software Architecture Code Level Diagrams
@@ -2128,7 +2135,9 @@ La vista de componentes descompone el container del microservicio y conserva sus
 </p>
 
 
-La entrada se traduce a casos de uso, el dominio aplica las reglas y los adaptadores utilizan exclusivamente risk_assessment_db. Las integraciones se ejecutan por HTTP, inferencia o mensajería según la responsabilidad del contexto. El archivo `fuentes/vsafe_componentes.dsl` contiene las cuatro vistas para Structurizr [R4].
+`RiskController` recibe las evaluaciones internas de Route Planning y las delega a `RiskService`. `RiskPolicy` y `RiskAssessmentAggregate` aplican las reglas de cobertura, vigencia y abstención. `PgEvidence` conserva la proyección en `risk_assessment_db` y la reconcilia con Incident Reporting; `EventRuntime` procesa eventos del broker. `OnnxInference` carga `risk-demo.onnx` dentro del mismo proceso y solo infiere cuando procede. El artefacto actual utiliza datos sintéticos: en modo real se devuelve `UNKNOWN / MODEL_NOT_VALIDATED`.
+
+[Abrir componentes de Risk Assessment en resolución original](assets/risk_assessment_componentes.png). La fuente se conserva en [Structurizr DSL](assets/vsafe-c4-actual.dsl) [R4].
 
 
 ### 5.2.6. Bounded Context Software Architecture Code Level Diagrams
@@ -2284,7 +2293,9 @@ La vista de componentes descompone el container del microservicio y conserva sus
 </p>
 
 
-La entrada se traduce a casos de uso, el dominio aplica las reglas y los adaptadores utilizan exclusivamente incident_reporting_db. Las integraciones se ejecutan por HTTP, inferencia o mensajería según la responsabilidad del contexto. El archivo `fuentes/vsafe_componentes.dsl` contiene las cuatro vistas para Structurizr [R4].
+`ReportsController` delega los casos de uso en `ReportService`; `IncidentAggregate` y `ReportPolicy` controlan publicación, duplicados y vigencia. `PgReports` utiliza exclusivamente `incident_reporting_db` y registra datos, outbox y auditorías pendientes. `EventRuntime` publica incidentes, expiraciones y watermarks. `BlockchainAudit` procesa los compromisos con sal, conserva los recibos y consulta el contrato `IncidentAudit` mediante ethers y Alchemy RPC. El anclaje en Sepolia permite contrastar integridad sin almacenar descripciones ni coordenadas en texto abierto; no demuestra que el incidente haya ocurrido.
+
+[Abrir componentes de Incident Reporting en resolución original](assets/incident_reporting_componentes.png). La fuente se conserva en [Structurizr DSL](assets/vsafe-c4-actual.dsl) [R4].
 
 
 ### 5.3.6. Bounded Context Software Architecture Code Level Diagrams
@@ -2438,7 +2449,9 @@ La vista de componentes descompone el container del microservicio y conserva sus
 </p>
 
 
-La entrada se traduce a casos de uso, el dominio aplica las reglas y los adaptadores utilizan exclusivamente journey_alerts_db. Las integraciones se ejecutan por HTTP, inferencia o mensajería según la responsabilidad del contexto. El archivo `fuentes/vsafe_componentes.dsl` contiene las cuatro vistas para Structurizr [R4].
+`AlertsController` abre el stream SSE y recibe confirmaciones de alertas mediante `AlertsService`. `AlertPolicy` y `JourneyAlertAggregate` determinan relevancia, vigencia y deduplicación. `PgAlerts` mantiene las proyecciones en `journey_alerts_db`, consulta el trayecto restante a Route Planning y reconcilia incidentes con Incident Reporting. `EventRuntime` consume eventos de recorridos e incidentes. El SSE llega a la WebApp a través del gateway y del proxy de Cloudflare.
+
+[Abrir componentes de Journey Alerts en resolución original](assets/journey_alerts_componentes.png). La fuente se conserva en [Structurizr DSL](assets/vsafe-c4-actual.dsl) [R4].
 
 
 ### 5.4.6. Bounded Context Software Architecture Code Level Diagrams
@@ -3319,81 +3332,85 @@ Feature: Access the VSafe web application
 
 ### 7.1.4. Software Deployment Configuration
 
-El piloto mantendrá la configuración planteada en la arquitectura: una VM Linux en AWS EC2 ejecutará contenedores independientes y un reverse proxy Nginx expondrá la entrada HTTPS. La landing y la aplicación se publicarán como archivos estáticos; el gateway y cada microservicio tendrán una imagen propia. El servidor PostgreSQL/PostGIS y RabbitMQ utilizarán almacenamiento persistente.
+El MVP utiliza Cloudflare Pages para la landing y la WebApp, Pages Functions para el proxy de API y Railway para el gateway, los cuatro microservicios, PostgreSQL/PostGIS y RabbitMQ. El contrato `IncidentAudit` está desplegado en Ethereum Sepolia y se conecta mediante Alchemy RPC. La construcción de los servicios utiliza Railpack y comandos del monorepositorio, sin Dockerfiles propios.
 
-La configuración descrita corresponde al despliegue objetivo. La publicación inicial del Sprint 1 comprende la landing y la estructura de acceso de la aplicación; los servicios de negocio se incorporarán conforme a las historias de sus siguientes iteraciones. El dominio y las URL del piloto se registrarán al habilitar el entorno.
+Esta configuración sustituye la propuesta inicial de AWS EC2, S3 y Nginx. Las evidencias del despliegue y los comandos por servicio se registran en 7.2.1.7. El modelo ONNX disponible continúa siendo sintético y la estimación de riesgo en modo real permanece en `UNKNOWN / MODEL_NOT_VALIDATED`.
 
 **Deployment Diagram de C4 Model**
 
-La siguiente vista conserva el despliegue del modelo arquitectónico de VSafe. Muestra instancias y nodos del piloto, de acuerdo con el propósito del [Deployment Diagram de C4](https://c4model.com/diagrams/deployment). Las modificaciones del modelo se mantendrán en Structurizr.
+La siguiente vista utiliza el mismo modelo de 4.3.4 y distingue instancias, infraestructura y proveedores, de acuerdo con el propósito del [Deployment Diagram de C4](https://c4model.com/diagrams/deployment). Su fuente está disponible en [Structurizr DSL](assets/vsafe-c4-actual.dsl).
 
-![Diagrama C4 de despliegue de VSafe en el piloto AWS](assets/Chapter-07/deployment-pilot-aws.png)
+![Diagrama C4 de despliegue de VSafe en Cloudflare, Railway y Sepolia](assets/VSafe-Deployment.png)
 
-*Figura 7.1. Despliegue objetivo del piloto de VSafe: procesos independientes en una VM, persistencia privada por servicio y respaldos externos. [Abrir la imagen completa](assets/Chapter-07/deployment-pilot-aws.png).*
+*Figura 7.1. Despliegue del MVP: productos web en Cloudflare, gateway y cuatro microservicios en Railway, cuatro bases privadas sobre una instancia PostGIS, RabbitMQ persistente y contrato de integridad en Sepolia. [Abrir la imagen completa](assets/VSafe-Deployment.png).*
 
-| Elemento | Configuración prevista |
+| Elemento | Configuración del MVP |
 |---|---|
-| Navegador | Ejecuta la aplicación Vue y conserva el historial optativo en IndexedDB, bajo los límites de retención definidos. |
-| Reverse proxy | Sirve la landing y los archivos de la aplicación; publica HTTPS y enruta `/api/v1/` al gateway. |
-| Aplicación web | Se construye con una base compatible con `/app/`; Vue Router resuelve `/app/map` y la recarga de rutas mediante el fallback de la aplicación. |
-| API Gateway | Verifica la sesión, emite contexto interno autorizado y enruta HTTP/SSE sin acceder a las bases de negocio. |
+| Navegador | Ejecuta la SPA Vue descargada desde Cloudflare y conserva el historial optativo y las preferencias en localStorage. |
+| Landing Page | [landing-page-5hy.pages.dev](https://landing-page-5hy.pages.dev/) presenta el producto y enlaza a la WebApp mediante `VITE_APP_URL`. |
+| WebApp | [vsafe-web.pages.dev/explore](https://vsafe-web.pages.dev/explore) permite comparar rutas, consultar reportes y recibir alertas. Vite genera los archivos estáticos. |
+| Proxy de API | Pages Functions recibe `/api`, reenvía al gateway de Railway y conserva cookies y streaming SSE. |
+| API Gateway | [gateway-production-61ce8b27.up.railway.app/docs](https://gateway-production-61ce8b27.up.railway.app/docs) publica Swagger. Verifica sesión, CSRF y orígenes, emite identidad interna y enruta sin acceder a las bases de negocio. |
 | Route Planning | Integra Mapbox y Risk Assessment; utiliza exclusivamente `route_planning_db`. |
-| Risk Assessment | Evalúa rutas con su proyección y un modelo ONNX validado; utiliza `risk_assessment_db` y devuelve `UNKNOWN` cuando corresponde. |
-| Incident Reporting | Registra y procesa reportes; conserva outbox y relay propios en `incident_reporting_db`. |
+| Risk Assessment | Utiliza `risk_assessment_db`, una proyección de incidentes y ONNX Runtime dentro del proceso. Se abstiene en modo real mientras el modelo no esté validado. |
+| Incident Reporting | Registra y procesa reportes; conserva outbox y auditorías en `incident_reporting_db` y conecta con el contrato de Sepolia. |
 | Journey Alerts | Consume eventos, mantiene proyecciones temporales y entrega SSE; utiliza `journey_alerts_db`. |
-| PostgreSQL/PostGIS | Cuatro bases lógicas y roles separados sobre almacenamiento persistente. Las migraciones pertenecen a cada servicio. |
-| RabbitMQ | Colas durables por suscripción, mensajes persistentes, confirmaciones y permisos por servicio en la red interna. |
-| Respaldos | Copias por base fuera de la VM en Amazon S3, con acceso restringido y retención inicial de siete copias diarias. |
+| PostgreSQL/PostGIS | Una instancia Railway con cuatro bases lógicas, roles separados y volumen persistente. Las migraciones pertenecen a cada servicio. |
+| RabbitMQ | Servicio Railway con AMQP privado, colas durables, confirmaciones, inbox y volumen en `/var/lib/rabbitmq`. |
+| Blockchain de integridad | [IncidentAudit en Sepolia](https://sepolia.etherscan.io/address/0xE775Fd6A4Ee1CA64c99b672C8e7aA0bad8272B30), chain ID `11155111`; acceso por Alchemy RPC. |
 
-El navegador consumirá la API desde el mismo origen público. Nginx atenderá `/app/` como aplicación y `/api/v1/` como API, evitando que una operación de API devuelva el HTML del frontend. Para SSE, tanto el proxy como el gateway permitirán conexiones persistentes y heartbeats y deshabilitarán el buffering del flujo.
+El navegador utiliza `VITE_API_BASE_URL=/api/v1` desde el mismo origen de la WebApp. Pages Functions reenvía las solicitudes al gateway; este consulta los servicios mediante DNS privado `*.railway.internal` y autenticación interna. Las conexiones SSE atraviesan ambos intermediarios conservando el streaming.
 
 **Parámetros por entorno**
 
-Los nombres siguientes constituyen la convención propuesta de configuración. Cada proyecto documentará los valores obligatorios y validará su presencia al iniciar.
+Los nombres siguientes corresponden a la configuración de los repositorios. Solo se documentan su propósito y consumidor; las credenciales se suministran mediante variables protegidas del entorno.
 
 | Parámetro | Consumidor | Propósito |
 |---|---|---|
-| `NODE_ENV`, `PORT`, `PUBLIC_ORIGIN` | Gateway y servicios según corresponda | Definir modo de ejecución, puerto y origen público permitido. |
-| `DATABASE_URL` | Cada servicio de negocio | Acceder exclusivamente a la base del propietario con su rol correspondiente. |
+| `NODE_ENV`, `PORT`, `DATA_MODE` | Gateway y servicios según corresponda | Definir ejecución, puerto asignado por Railway y modo de datos; el despliegue utiliza `DATA_MODE=real`. |
+| `DATABASE_URL` o la variable `<SERVICIO>_DATABASE_URL` correspondiente | Cada servicio de negocio | Acceder exclusivamente a la base del propietario con su rol. Se admiten los prefijos `ROUTE_PLANNING`, `RISK_ASSESSMENT`, `INCIDENT_REPORTING` y `JOURNEY_ALERTS`. |
 | `AMQP_URL` | Productores y consumidores | Conectar al broker con credenciales y permisos del servicio. |
-| `RISK_SERVICE_URL`, `ROUTE_PLANNING_SERVICE_URL` | Consumidores internos autorizados | Resolver servicios mediante DNS de la red de contenedores. |
+| `ROUTE_PLANNING_URL`, `RISK_ASSESSMENT_URL`, `INCIDENT_REPORTING_URL`, `JOURNEY_ALERTS_URL` | Gateway y consumidores internos según corresponda | Resolver los destinos HTTP mediante DNS privado de Railway. |
 | `MAPBOX_ACCESS_TOKEN` | Route Planning | Acceder a la integración cartográfica desde el servidor. |
-| `VITE_MAPBOX_PUBLIC_TOKEN` | Aplicación web | Obtener cartografía con un token público restringido por origen y permisos. Los valores `VITE_*` quedan incluidos en el código del navegador. |
-| `SESSION_SECRET`, `INTERNAL_AUTH_KEY` | Gateway y verificadores autorizados | Proteger la sesión y el contexto interno de acceso. |
-| `MODEL_PATH`, `MODEL_VERSION`, `MODEL_SHA256` | Risk Assessment | Identificar y verificar el artefacto de inferencia aprobado. |
+| `FRONTEND_ORIGINS` | Gateway | Permitir los orígenes autorizados de la WebApp. |
+| `SESSION_SECRET`, `INTERNAL_SECRET` | Gateway y verificadores autorizados | Proteger la sesión y la identidad interna firmada. |
+| `MODEL_PATH`, `MODEL_METADATA_PATH` | Risk Assessment | Cargar el artefacto ONNX y sus metadatos; no equivalen a una validación con datos reales. |
+| `BLOCKCHAIN_RPC_URL`, `BLOCKCHAIN_CONTRACT_ADDRESS`, `BLOCKCHAIN_PRIVATE_KEY` | Incident Reporting | Conectar con Sepolia y firmar las operaciones de auditoría desde el servidor. |
+| `VITE_API_BASE_URL` | WebApp | Utilizar `/api/v1` a través del proxy del mismo origen. |
+| `API_ORIGIN` | Proxy de Pages Functions | Definir el origen HTTPS del API Gateway en Railway. |
+| `VITE_APP_URL` | Landing Page | Definir la URL de acceso a la WebApp. |
 
-Las credenciales se suministrarán mediante la configuración protegida del entorno. PostgreSQL y RabbitMQ serán accesibles desde la red interna; la entrada pública de la aplicación se realizará por HTTPS. Los entornos de validación y piloto conservarán secretos, bases y colas separados.
+Las conexiones de ejecución a PostgreSQL y RabbitMQ utilizan la red privada. Los valores `VITE_*` forman parte de los archivos enviados al navegador; las claves privadas y los secretos del backend permanecen en la configuración del servidor.
 
 **Proceso desde el repositorio hasta la publicación**
 
-Cada producto tendrá una salida de construcción y una comprobación de publicación propias. La incorporación de los servicios de negocio se planificará junto con las historias que los requieren.
+Cada producto tiene una construcción y publicación propias. Los comandos concretos de build, pre-deploy y start del gateway y de los cuatro servicios se conservan en la tabla de 7.2.1.7.
 
-| Producto / repositorio | Artefacto que se publicará | Configuración de publicación | Comprobación de salida |
+| Producto / repositorio | Artefacto publicado | Configuración de publicación | Comprobación de salida |
 |---|---|---|---|
-| Landing / `landing-page` | HTML, CSS, JavaScript y recursos estáticos. | Raíz pública de Nginx, rutas de idiomas y CTA hacia `/app/map`. | Contenido y recursos accesibles en ambos idiomas; CTA operable con teclado. |
-| Aplicación / `WebApp` | Archivos estáticos generados por Vite. | Base `/app/`, fallback del router y origen de API del ambiente. | Entrada directa y recarga de `/app/map`, recursos resueltos y mensajes de acceso correspondientes. |
-| Gateway / `Microservices` | Imagen independiente de `api-gateway`. | Rutas públicas y destinos internos, sesión y retransmisión de SSE. | Health checks, enrutamiento y controles de acceso de las operaciones incluidas. |
-| Servicios de negocio / `Microservices` | Una imagen por Route Planning, Risk Assessment, Incident Reporting y Journey Alerts. | Base privada, migraciones y conexiones de cada propietario; modelo o broker cuando corresponda. | Readiness, contrato y recorrido funcional del servicio incorporado, manteniendo compatibles los demás. |
+| Landing / `landing-page` | HTML, CSS, JavaScript y recursos estáticos. | Proyecto Cloudflare Pages y `VITE_APP_URL`. | Página accesible y CTA hacia la WebApp. |
+| Aplicación / `WebApp` | Archivos Vite y Pages Functions. | Proyecto Cloudflare Pages, `VITE_API_BASE_URL` y `API_ORIGIN`. | Entrada directa a `/explore`, recursos y comunicación con la API. |
+| Gateway / `Microservices` | Aplicación NestJS construida por Railpack. | Servicio Railway, dominio público, destinos internos, sesión y SSE. | `/health/ready`, `/docs` y controles de acceso. |
+| Servicios de negocio / `Microservices` | Cuatro procesos Node.js independientes. | Servicio Railway por contexto, migraciones y base exclusiva. | Readiness, contratos y funcionamiento integrado. |
+| Contrato / `Microservices` | Bytecode de `IncidentAudit`. | Despliegue en Sepolia, RPC y writer autorizado. | Recibos confirmados y comparación de compromisos. |
 
-La secuencia de publicación será la siguiente:
+La secuencia de publicación utilizada comprende:
 
-1. Seleccionar el commit o tag de la entrega de cada producto y registrar la combinación en un manifiesto. Recuperar el código de `landing-page`, `WebApp` y los proyectos de `Microservices` incluidos en esa entrega.
-2. Instalar las dependencias con la versión de Node fijada y los lockfiles versionados. Ejecutar formato, lint, comprobación de tipos, pruebas y construcción según el producto. Los servicios ejecutarán además sus escenarios de contrato e integración con dependencias controladas.
-3. Preparar los archivos estáticos de la landing. Construir la aplicación Vue con base `/app/` y comprobar que su navegación y sus recursos utilizan esa ubicación. Incorporar ambas salidas a sus artefactos o imágenes de publicación.
-4. Construir por separado las imágenes del gateway y de cada servicio incluido. Publicarlas en GitHub Container Registry y registrar sus versiones, commits y digests. GitHub Actions ejecutará trabajos seleccionables por producto o servicio.
-5. Preparar la VM y sus redes, volúmenes, configuración y certificado HTTPS. Registrar el dominio del piloto y configurar Nginx para servir la landing, la aplicación y las rutas de API correspondientes.
-6. Crear las bases y los roles privados de los servicios que se incorporan. Aplicar las migraciones de cada propietario y configurar el broker, sus usuarios, colas y almacenamiento. Verificar las dependencias antes de admitir tráfico.
-7. Aplicar el manifiesto de la entrega. Para un cambio compatible, actualizar únicamente el producto o servicio afectado y conservar los digests de los demás. Las migraciones seguirán una evolución aditiva y el retiro de campos se pospondrá hasta retirar a sus consumidores antiguos.
-8. Comprobar liveness y readiness de los procesos publicados y ejecutar una verificación del flujo incluido en la entrega. Para el Sprint 1 se comprobarán la landing, ambos idiomas, los CTA y `/app/map`; las consultas, reportes y SSE se comprobarán al incorporarse esos servicios.
-9. Registrar las URL, el manifiesto, el resultado de las comprobaciones y la evidencia de publicación. Habilitar seguimiento de errores, latencia por servicio, antigüedad de outbox y colas pendientes según los procesos activos.
+1. Publicar los repositorios `landing-page`, `WebApp` y `Microservices` y vincularlos con sus proveedores de despliegue.
+2. Preparar PostGIS en Railway, crear las cuatro bases y roles y habilitar la extensión PostGIS. Configurar RabbitMQ con volumen persistente.
+3. Crear el gateway y los cuatro servicios Railway desde el monorepositorio, cada uno con sus comandos, variables y health check.
+4. Ejecutar las migraciones de cada servicio en pre-deploy y comprobar su arranque y conectividad privada.
+5. Publicar la landing y la WebApp en Cloudflare Pages, configurar sus URLs y el proxy de API y permitir el origen de la aplicación en el gateway.
+6. Configurar Mapbox y `DATA_MODE=real`; compilar y desplegar `IncidentAudit` en Sepolia y conectar Incident Reporting con su RPC y contrato.
+7. Comprobar las URLs públicas, Swagger, rutas peatonales, flujo del recorrido, streaming y verificación de integridad, conforme a las evidencias de 7.2.1.6 y 7.2.1.7.
 
 **Actualización y recuperación**
 
-Cada publicación conservará el artefacto anterior para recuperar la versión del producto afectado. El rollback de una imagen requiere que su configuración, sus contratos y el esquema persistente sigan siendo compatibles; la recuperación de datos se realizará mediante un procedimiento específico y comprobado.
+Una actualización compatible puede publicarse por servicio sin sustituir los demás. La recuperación de una versión anterior requiere conservar su referencia de despliegue y comprobar la compatibilidad de configuración, contratos y esquema. Los volúmenes persistentes de PostGIS y RabbitMQ conservan el estado de sus servicios; no prueban por sí mismos la recuperación de datos.
 
-Se programarán respaldos diarios por base y pruebas de restauración. Los respaldos respetarán la eliminación de datos personales y excluirán el estado transitorio de recorridos cuando corresponda. La recuperación completa incluirá reconciliación de proyecciones y reanudación de eventos según los contratos de cada propietario.
+La configuración de respaldos externos y las pruebas de restauración permanecen pendientes de evidencia. No se presenta Amazon S3 ni una política de copias como infraestructura ya implementada. La recuperación deberá incluir la reconciliación de proyecciones y la reanudación de eventos por propietario.
 
-El piloto comparte host, broker y servidor de persistencia. Su disponibilidad y sus objetivos de recuperación deberán medirse mediante pruebas; la independencia de los despliegues permite evolucionar después la distribución de la infraestructura.
+El diagrama representa una instancia por proceso y una instancia PostGIS compartida por cuatro bases privadas. No presupone alta disponibilidad. El contrato pertenece a una red de pruebas y el modelo ONNX continúa pendiente de validación real.
 
 ## 7.2. Solution Implementation
 
@@ -3806,7 +3823,7 @@ El [registro de comprobaciones](assets/Chapter-07/Sprint1_Verification.json) con
 
 #### 7.2.1.7. Software Deployment Evidence for Sprint Review
 
-Durante este incremento se publicaron la landing, WebApp, el API Gateway y los cuatro microservicios. Se configuraron PostgreSQL/PostGIS, RabbitMQ, rutas reales de Mapbox y el contrato de integridad en Ethereum Sepolia. La infraestructura efectivamente utilizada fue **Cloudflare Pages y Railway**; AWS EC2, S3 y Nginx descritos como propuesta en 7.1.4 no corresponden al despliegue realizado. El modelo ONNX disponible continúa siendo sintético y se mantiene la abstención en modo real.
+Durante este incremento se publicaron la landing, WebApp, el API Gateway y los cuatro microservicios. Se configuraron PostgreSQL/PostGIS, RabbitMQ, rutas reales de Mapbox y el contrato de integridad en Ethereum Sepolia. La infraestructura efectivamente utilizada fue **Cloudflare Pages y Railway**; su configuración y diagrama actualizado se presentan en 7.1.4. El modelo ONNX disponible continúa siendo sintético y se mantiene la abstención en modo real.
 
 **Productos y recursos publicados**
 
