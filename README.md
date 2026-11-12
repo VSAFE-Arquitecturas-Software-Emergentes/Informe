@@ -465,3 +465,18 @@ Las siguientes salidas permitirán revisar cada tarea antes de cambiarla a `Done
 | **Total** | **69** | **4** | **7** | **80** |
 
 La inicialización de repositorios y herramientas habilita los primeros cambios. Los contenidos y componentes de la landing pueden avanzar en paralelo con la entrada de la aplicación; la conexión de los CTA depende de que esa entrada esté disponible. Las comprobaciones integradas preceden a la publicación y a la aceptación del incremento. Los bloqueos y ajustes de alcance se registrarán en el tablero durante el sprint.
+
+### 7.2.1.3. Development Evidence for Sprint Review
+
+A continuación, se presenta una recopilación visual del historial
+de commits de los repositorios Informe, Microservices, WebApp y
+landing-page del proyecto VSafe, como evidencia del trabajo
+registrado durante el sprint.
+
+<p align="center">
+  <img src="assets/Chapter-07/Historial_commits.png" width="850">
+</p>
+
+<p align="center">
+  <em>Figura. Recopilación del historial de commits de VSafe.</em>
+</p>
